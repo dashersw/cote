@@ -1,0 +1,35 @@
+{
+  "name": "cote",
+  "version": "0.1.0",
+  "keywords": [
+    "mesh",
+    "network",
+    "auto discovery",
+    "scalable",
+    "fault-tolerant"
+  ],
+  "description": "An auto-discovery mesh network framework for building fault-tolerant and scalable applications",
+  "author": {
+    "name": "Armagan Amcalar",
+    "email": "armagan@amcalar.com"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dashersw/cote.git"
+  },
+  "engines": {
+    "node": ">= v0.10.0"
+  },
+  "dependencies": {
+    "colors": "0.x.x",
+    "eventemitter2": "0.4.x",
+    "portfinder": "0.2.x",
+    "axon": "0.6.1",
+    "node-discover": "git+ssh://git@github.com:dashersw/node-discover.git"
+  }
+}
