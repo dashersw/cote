@@ -3,6 +3,7 @@ var Responder = require('../').Responder;
 // Instantiate a new Responder component.
 var randomResponder = new Responder({
     name: 'randomRep',
+    // namespace: 'rnd',
     respondsTo: ['randomRequest'] // types of requests this responder
     							  // can respond to.
 });

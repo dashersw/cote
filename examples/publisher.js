@@ -3,6 +3,7 @@ var Publisher = require('../').Publisher;
 // Instantiate a new Publisher component.
 var randomPublisher = new Publisher({
     name: 'randomPub',
+    // namespace: 'rnd',
     broadcasts: ['randomUpdate']
 });
 

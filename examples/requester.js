@@ -2,6 +2,7 @@ var Requester = require('../').Requester;
 
 var randomRequest = new Requester({
     name: 'randomReq',
+    // namespace: 'rnd',
     requests: ['randomRequest']
 });
 

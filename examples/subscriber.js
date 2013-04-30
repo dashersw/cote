@@ -2,6 +2,7 @@ var Subscriber = require('../').Subscriber;
 
 var randomSubscriber = new Subscriber({
     name: 'randomSub',
+    // namespace:'rnd',
     subscribesTo: ['randomUpdate']
 });
 
