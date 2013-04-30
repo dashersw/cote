@@ -23,6 +23,8 @@ Installing
 Components
 ----
 
+All components support namespaces. Given as the configuration object to the constructor, components adhere and act on namespaces if provided, and ignore other messages.
+
 ### Requester
 
 Requester queues requests until a Responder is available, and once so, it delivers the request. Requests will be dispatched to Responders in a round-robin way.
@@ -34,6 +36,7 @@ var Requester = require('cote').Requester;
 
 var randomRequest = new Requester({
     name: 'randomReq',
+    // namespace: 'rnd',
     requests: ['randomRequest']
 });
 
@@ -65,6 +68,7 @@ var Responder = require('cote').Responder;
 // Instantiate a new Responder component.
 var randomResponder = new Responder({
     name: 'randomRep',
+    // namespace: 'rnd',
     respondsTo: ['randomRequest'] // types of requests this responder
                                   // can respond to.
 });
@@ -89,6 +93,7 @@ var Publisher = require('cote').Publisher;
 // Instantiate a new Publisher component.
 var randomPublisher = new Publisher({
     name: 'randomPub',
+    // namespace: 'rnd',
     broadcasts: ['randomUpdate']
 });
 
@@ -118,6 +123,7 @@ var Subscriber = require('cote').Subscriber;
 
 var randomSubscriber = new Subscriber({
     name: 'randomSub',
+    // namespace: 'rnd',
     subscribesTo: ['randomUpdate']
 });
 
