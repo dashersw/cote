@@ -5,14 +5,14 @@ var randomRequest = new Requester({
     requests: ['randomRequest']
 });
 
-randomRequest.on('ready', function(sock) {
+randomRequest.on('ready', function() {
     setInterval(function() {
         var req = {
             type: 'randomRequest',
             val: ~~(Math.random() * 10)
         };
 
-        sock.send(req, function(res) {
+        randomRequest.send(req, function(res) {
             console.log('request', req, 'answer', res);
         });
     }, 5000);
