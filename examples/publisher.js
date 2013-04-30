@@ -7,7 +7,7 @@ var randomPublisher = new Publisher({
 });
 
 // Wait for the publisher to find an open port and listen on it.
-randomPublisher.on('ready', function(sock) {
+randomPublisher.on('ready', function() {
     setInterval(function() {
         var val = {
             val: ~~(Math.random() * 1000)
@@ -15,6 +15,7 @@ randomPublisher.on('ready', function(sock) {
 
         console.log('emitting', val);
 
-        sock.emit('randomUpdate', val); // emit an event with arbitrary data at any time
+        // publish an event with arbitrary data at any time
+        randomPublisher.publish('randomUpdate', val);
     }, 3000);
 });
