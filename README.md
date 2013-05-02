@@ -30,7 +30,6 @@ All components support namespaces. Given as the configuration object to the cons
 Requester queues requests until a Responder is available, and once so, it delivers the request. Requests will be dispatched to Responders in a round-robin way.
 
 Example:
-
 ```js
 var Requester = require('cote').Requester;
 
@@ -61,7 +60,6 @@ Responder is a component for responding to certain requests from a Requester. It
 Responder may be used to add new modules to existing web servers / applications without ever changing the main server code. Only a Requester will be able to utilize a Responder.
 
 Example:
-
 ```js
 var Responder = require('cote').Responder;
 
@@ -86,7 +84,6 @@ randomResponder.on('randomRequest', function(req, cb) {
 Publisher is a component for publishing certain events with arbitrary data. It may be used as a distributed EventEmitter. It may also be used in a scenario where some components need to be notified of updates, such as new tweets, etc. instead of polling for them. Only a subscriber will get notifications from a Publisher.
 
 Example:
-
 ```js
 var Publisher = require('cote').Publisher;
 
@@ -117,7 +114,6 @@ randomPublisher.on('ready', function() {
 Subscriber subscribes to events emitted from a Publisher.
 
 Example:
-
 ```js
 var Subscriber = require('cote').Subscriber;
 
@@ -137,7 +133,7 @@ randomSubscriber.on('randomUpdate', function(req) {
 Sockend is the glue for carrying all the possibilities of cote to the next level with WebSockets over socket.io. Sockend makes Responders and Publishers available to the front-end and adhere to socket.io namespaces. It's the magic for distributed web apps.
 
 Example:
-
+`index.html`
 ```html
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -165,7 +161,8 @@ Example:
   }, 3000)
 
 </script>
-
+```
+`sockend.js`
 ```js
 var app = require('http').createServer(handler)
   , io = require('socket.io').listen(app)
@@ -190,6 +187,8 @@ var sockend = new require('../../').Sockend(io, {
   name: 'sockend'
 });
 ```
+
+Now, fire up a few Responders and Publishers on default or 'rnd' namespace and watch them glow with magic on `http://localhost:5555`.
 
 MIT License
 ----
