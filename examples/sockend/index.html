@@ -1,0 +1,26 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://localhost');
+  var socket2 = io.connect('http://localhost/rnd');
+
+  setInterval(function() {
+    var req = {
+      type: 'randomRequest',
+      val: ~~(Math.random() * 10)
+    };
+
+    var req2 = {
+      type: 'randomRequest',
+      val: ~~(Math.random() * 10)
+    };
+
+    socket2.emit('randomRequest', req, function(data) {
+      console.log('ns', req.val, data);
+    });
+
+    socket.emit('randomRequest', req2, function(data) {
+      console.log('normal', req.val, data);
+    });
+  }, 3000)
+
+</script>
