@@ -1,6 +1,6 @@
 {
   "name": "cote",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "keywords": [
     "mesh",
     "network",
@@ -30,6 +30,7 @@
     "eventemitter2": "0.4.x",
     "portfinder": "0.2.x",
     "axon": "0.6.1",
-    "node-discover": "git://github.com/dashersw/node-discover.git#v0.0.9"
+    "node-discover": "git://github.com/dashersw/node-discover.git#v0.0.9",
+    "socket.io": "0.9.14"
   }
 }
