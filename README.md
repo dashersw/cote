@@ -190,6 +190,10 @@ var sockend = new require('../../').Sockend(io, {
 
 Now, fire up a few Responders and Publishers on default or 'rnd' namespace and watch them glow with magic on `http://localhost:5555`.
 
+### Monitor
+
+Monitor is the "top" of cote. It shows lists all the daemons it discovers regardless of namespace or key. Run `examples/monitor.js` and see all your active cote daemons.
+
 MIT License
 ----
 
