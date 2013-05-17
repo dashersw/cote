@@ -192,7 +192,7 @@ Now, fire up a few Responders and Publishers on default or 'rnd' namespace and w
 
 ### Monitor
 
-Monitor is the "top" of cote. It shows lists all the daemons it discovers regardless of namespace or key. Run `examples/monitor.js` and see all your active cote daemons.
+Monitor is the "top" of cote. It lists all the daemons it discovers regardless of namespace or key. Run `examples/monitor.js` and see all your active cote daemons.
 
 MIT License
 ----
