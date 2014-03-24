@@ -142,21 +142,19 @@ Example:
 
   setInterval(function() {
     var req = {
-      type: 'randomRequest',
       val: ~~(Math.random() * 10)
     };
 
     var req2 = {
-      type: 'randomRequest',
       val: ~~(Math.random() * 10)
     };
 
-    socket2.emit('randomRequest', req, function(data) {
-      console.log('ns', req.val, data);
+    socket.emit('randomRequest', req, function(data) {
+      console.log('normal', req.val, data);
     });
 
-    socket.emit('randomRequest', req2, function(data) {
-      console.log('normal', req.val, data);
+    socket2.emit('randomRequest', req2, function(data) {
+      console.log('ns', req2.val, data);
     });
   }, 3000)
 

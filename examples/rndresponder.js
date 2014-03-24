@@ -11,6 +11,6 @@ var randomResponder = new Responder({
 // request handlers are like any event handler.
 randomResponder.on('randomRequest', function(req, cb) {
     var answer = ~~(Math.random() * 10);
-    console.log('request', req.data, 'answering with', answer);
+    console.log('request', req.val, 'answering with', answer);
     cb(answer);
 });
