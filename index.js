@@ -4,5 +4,6 @@ module.exports = {
     Publisher: require('./lib/Publisher.js'),
     Subscriber: require('./lib/Subscriber.js'),
     Sockend: require('./lib/Sockend.js'),
-    Monitor: require('./lib/Monitor.js')
+    Monitor: require('./lib/Monitor.js'),
+    TimeBalancedRequester: require('./lib/TimeBalancedRequester.js')
 };
