@@ -26,13 +26,14 @@
     "node": ">= v0.10.0"
   },
   "dependencies": {
+    "axon": "git://github.com/dashersw/axon.git#2.0.2-dash",
+    "charm": "0.1.2",
     "colors": "0.x.x",
     "eventemitter2": "0.4.x",
-    "portfinder": "0.2.x",
-    "axon": "git://github.com/dashersw/axon.git#2.0.2-dash",
+    "lodash": "2.4.1",
     "node-discover": "git://github.com/dashersw/node-discover.git#v0.0.9",
-    "socket.io": "0.9.14",
-    "charm": "0.1.2",
-    "underscore": "1.4.4"
+    "node-uuid": "1.4.1",
+    "portfinder": "0.2.x",
+    "socket.io": "0.9.14"
   }
 }
