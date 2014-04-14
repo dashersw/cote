@@ -30,8 +30,9 @@
     "charm": "0.1.2",
     "colors": "0.x.x",
     "eventemitter2": "0.4.x",
-    "lodash": "^2.4.1",
+    "lodash": "2.4.1",
     "node-discover": "git://github.com/dashersw/node-discover.git#v0.0.9",
+    "node-uuid": "1.4.1",
     "portfinder": "0.2.x",
     "socket.io": "0.9.14"
   }
