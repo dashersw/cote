@@ -5,5 +5,6 @@ module.exports = {
     Subscriber: require('./lib/Subscriber.js'),
     Sockend: require('./lib/Sockend.js'),
     Monitor: require('./lib/Monitor.js'),
-    TimeBalancedRequester: require('./lib/TimeBalancedRequester.js')
+    TimeBalancedRequester: require('./lib/TimeBalancedRequester.js'),
+    PendingBalancedRequester: require('./lib/PendingBalancedRequester.js')
 };
