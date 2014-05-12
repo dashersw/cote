@@ -14,7 +14,10 @@ var publisher = new cote.Publisher({
 });
 
 publisher.on('ready', function() {
-	console.log('pub bound');
+	publisher.on('added', function() {
+		console.log('pub bound');
+		more();
+	});
 });
 
 var perTick = program.perTick || 1000;
@@ -26,5 +29,3 @@ function more() {
   for (var i = 0; i < perTick; ++i) publisher.publish('test', buf);
   setImmediate(more);
 }
-
-more();

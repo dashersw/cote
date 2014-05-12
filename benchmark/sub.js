@@ -16,21 +16,7 @@ var subscriber = new cote.Subscriber({
 var n = 0;
 var ops = 5000;
 var bytes = program.size || 1024;
-var prev = start = Date.now();
 var results = [];
-
-console.log();
-
-subscriber.on('test', function(msg){
-  if (n++ % ops == 0) {
-    var ms = Date.now() - prev;
-    var sec = ms / 1000;
-    var persec = ops / sec | 0;
-    results.push(persec);
-    process.stdout.write('\r  [' + persec + ' ops/s] [' + n + ']');
-    prev = Date.now();
-  }
-});
 
 function sum(arr) {
   return arr.reduce(function(sum, n){
@@ -65,4 +51,20 @@ function done(){
 }
 
 process.on('SIGINT', done);
-setTimeout(done, program.duration || 5000);
+
+subscriber.on('added', function() {
+  console.log('added');
+  var prev = start = Date.now();
+  subscriber.on('test', function(msg){
+    if (n++ % ops == 0) {
+      var ms = Date.now() - prev;
+      var sec = ms / 1000;
+      var persec = ops / sec | 0;
+      results.push(persec);
+      process.stdout.write('\r  [' + persec + ' ops/s] [' + n + ']');
+      prev = Date.now();
+    }
+  });
+  setTimeout(done, program.duration || 5000);
+});
+
