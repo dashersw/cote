@@ -35,5 +35,9 @@
     "node-uuid": "1.4.1",
     "portfinder": "0.2.x",
     "socket.io": "0.9.14"
+  },
+  "devDependencies": {
+    "humanize-number": "0.0.2",
+    "commander": "2.2.0"
   }
 }
