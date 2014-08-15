@@ -34,7 +34,7 @@
     "node-discover": "git://github.com/dashersw/node-discover.git#v0.0.9",
     "node-uuid": "1.4.1",
     "portfinder": "0.2.x",
-    "socket.io": "0.9.14"
+    "socket.io": "1.0.6"
   },
   "devDependencies": {
     "humanize-number": "0.0.2",
