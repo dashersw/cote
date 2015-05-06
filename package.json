@@ -33,7 +33,7 @@
     "lodash": "2.4.1",
     "node-discover": "git://github.com/dashersw/node-discover.git#v0.0.18",
     "node-uuid": "1.4.1",
-    "portfinder": "0.2.x",
+    "portfinder": "0.4.0",
     "socket.io": "1.3.5"
   },
   "devDependencies": {
