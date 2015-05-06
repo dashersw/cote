@@ -23,7 +23,7 @@
     "url": "git://github.com/dashersw/cote.git"
   },
   "engines": {
-    "node": ">=v0.10.0 <v0.12"
+    "node": ">=v0.10.0"
   },
   "dependencies": {
     "axon": "git://github.com/dashersw/axon.git#2.0.2-dash",
