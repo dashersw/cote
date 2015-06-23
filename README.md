@@ -3,6 +3,8 @@ cote
 
 cote is an auto-discovery mesh network framework for building fault-tolerant and scalable applications. It hosts components that let you write programs that discover each other over LAN and communicate in various schemes.
 
+Join us on [![cote Slack](http://slack.cotejs.org/badge.svg)](http://slack.cotejs.org) for anything related to cote.
+
 Cote is built upon networking and messaging libraries such as <a href="https://github.com/visionmedia/axon">axon</a> and <a href="https://github.com/wankdanker/node-discover">node-discover</a>.
 
 Motivation
