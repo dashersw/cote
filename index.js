@@ -8,8 +8,17 @@ var Discovery = require('./lib/Discovery'),
     TimeBalancedRequester = require('./lib/TimeBalancedRequester.js'),
     PendingBalancedRequester = require('./lib/PendingBalancedRequester.js');
 
-function cote(discoveryOptions) {
-    Discovery.setDefaults(discoveryOptions);
+function cote(options) {
+    var environment = options.environment || '';
+
+    var components = [Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester,
+        PendingBalancedRequester];
+
+    components.forEach(function(component) {
+        component.setEnvironment(environment);
+    });
+
+    Discovery.setDefaults(options);
 
     return cote;
 }
