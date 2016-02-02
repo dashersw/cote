@@ -5,7 +5,9 @@ cote is an auto-discovery mesh network framework for building fault-tolerant and
 
 Join us on [![cote Slack](http://slack.cotejs.org/badge.svg)](http://slack.cotejs.org) for anything related to cote.
 
-Cote is built upon networking and messaging libraries such as <a href="https://github.com/visionmedia/axon">axon</a> and <a href="https://github.com/wankdanker/node-discover">node-discover</a>.
+Microservices case study
+----
+Make sure to check out [the e-commerce case study](https://github.com/dashersw/cote-workshop) that implements a complete e-commerce application with microservices using [cote.js](https://github.com/dashersw/cote).
 
 Motivation
 ----
