@@ -5,6 +5,32 @@ cote is an auto-discovery mesh network framework for building fault-tolerant and
 
 Join us on [![cote Slack](http://slack.cotejs.org/badge.svg)](http://slack.cotejs.org) for anything related to cote.
 
+Develop your first microservices in under two minutes:
+----
+in `time-service.js`...
+```js
+var cote = require('cote');
+var timeService = new cote.Responder({name: 'Time Service'});
+
+timeService.on('time', (req, cb) => {
+    cb(new Date());
+});
+```
+
+in `client.js`...
+```js
+var cote = require('cote');
+var client = new cote.Requester({name: 'Client'});
+
+client.on('ready', () => {
+    client.send({type: 'time'}, (time) => {
+        console.log(time);
+    });
+});
+```
+
+That's all! Wasn't that simple? Now you can scale linearly on tens of machines. No configuration, no third party components, no nginx, no kafka, no consul and **only** Node.js. cote.js is batteries and chargers included!
+
 Microservices case study
 ----
 Make sure to check out [the e-commerce case study](https://github.com/dashersw/cote-workshop) that implements a complete e-commerce application with microservices using [cote.js](https://github.com/dashersw/cote).
