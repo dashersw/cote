@@ -1,12 +1,12 @@
 
-var cote = require('..')
-  , program = require('commander');
+var cote = require('..'),
+    program = require('commander');
 
 program
   .option('-t, --per-tick <n>', 'messages per tick [1000]', parseInt)
   .option('-s, --size <n>', 'message size in bytes [1024]', parseInt)
   .option('-d, --duration <n>', 'duration of test [5000]', parseInt)
-  .parse(process.argv)
+  .parse(process.argv);
 
 var publisher = new cote.Publisher({
     name: 'testPub',
@@ -14,8 +14,8 @@ var publisher = new cote.Publisher({
 });
 
 publisher.on('ready', function() {
-	publisher.on('added', function() {
-		console.log('pub bound');
+    publisher.on('added', function() {
+        console.log('pub bound');
 		more();
 	});
 });
@@ -26,6 +26,6 @@ console.log('sending %d per tick', perTick);
 console.log('sending %d byte messages', buf.length);
 
 function more() {
-  for (var i = 0; i < perTick; ++i) publisher.publish('test', buf);
-  setImmediate(more);
+    for (var i = 0; i < perTick; ++i) publisher.publish('test', buf);
+    setImmediate(more);
 }
