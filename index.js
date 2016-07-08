@@ -10,12 +10,14 @@ var Discovery = require('./lib/Discovery'),
 
 function cote(options) {
     var environment = options.environment || '';
+    var useHostNames = options.useHostNames || false;
 
     var components = [Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester,
         PendingBalancedRequester];
 
     components.forEach(function(component) {
         component.setEnvironment(environment);
+        component.setUseHostNames && component.setUseHostNames(useHostNames);
     });
 
     Discovery.setDefaults(options);
