@@ -5,12 +5,31 @@
     <title>Management Console</title>
 </head>
 <body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script src="monitoring-tool.js"></script>
 <script>
     var socket = io.connect('http://localhost:5555');
-    socket.on('statusUpdate', function(data) {
+    socket.on('statusUpdate', function (data) {
         console.log(arguments);
     });
 </script>
+
+<script>
+    console.log(d3);
+    var config = {
+        svgWidth: 300,
+        svgHeight: 300
+    };
+
+    var svg = d3.select('.svg');
+    svg.append('svg')
+            .attr('width', config.svgWidth)
+            .attr('height', config.svgHeight);
+</script>
+
+<main>
+    <div class="svg"></div>
+</main>
 </body>
 </html>
