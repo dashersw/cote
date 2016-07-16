@@ -37,9 +37,6 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     var socket = io.connect('http://localhost:5555');
-    socket.on('statusUpdate', function (data) {
-        update(data);
-    });
 </script>
 
 <main>
@@ -60,65 +57,69 @@
         textDy: 10,
 
         /* Force layout configuration */
-        strength: -360, // charge
+        strength: -100, // charge
         distanceMin: 4 // distance min btw nodes
     };
-
-    var nodeList = [];
-    var linkList = [];
 
     var svg = d3.select(config.svgElmSpecifier)
             .append('svg')
             .attr('width', config.svgWidth)
             .attr('height', config.svgHeight);
 
-    var nodes = svg.selectAll('.node');
-    var texts = svg.selectAll('.text');
-
+    var nodes = svg.selectAll('g.node');
     var color = d3.scaleOrdinal(d3.schemeCategory10);
 
     var simulation = d3.forceSimulation()
             .force('charge', d3.forceManyBody().strength(config.strength))
-            .force('link', d3.forceLink().id(function(d) {
-                return d.id;
-            }))
-            .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2));
+            .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2))
+            .force("collide", d3.forceCollide().radius(60).iterations(2))
+            .on('tick', ticked);
 
     function update(data) {
-        nodes = svg.selectAll('.node');
+        nodes = svg.selectAll('.node')
+                .data(data.nodes, function (d) {
+                    return d.id;
+                });
 
-        var groups = nodes
-                .data(data.nodes)
-                .enter()
-                .append('g');
+        nodes.exit().remove();
 
-        nodes = groups.append('circle')
-                .classed('node', true)
+        var nodeEnter = nodes.enter()
+                .append("g")
+                .classed("node", true);
+
+        nodeEnter.append('circle')
                 .attr('r', config.nodeRadius)
                 .attr('fill', function(d) {
                     return color(d.group);
                 });
 
-        texts = groups.append('text')
+        nodeEnter.append('text')
                 .classed('text', true)
+                .attr("x", 14)
+                .attr("y", ".31em")
                 .text(function (d) {
                     return d.name;
                 });
 
-        simulation
-            .nodes(data.nodes)
-            .on('tick', ticked);
+        if (nodeEnter.nodes) {
+            nodes = nodeEnter.merge(nodes);
+
+            simulation
+                    .nodes(data.nodes)
+                    .restart();
+        }
+
     }
 
     function ticked(e) {
         nodes.attr('transform', function (d) {
             return 'translate(' + d.x + ',' + d.y + ')';
         });
-
-        texts.attr('transform', function(d) {
-            return 'translate(' + d.x + ',' + d.y + ')';
-        })
     }
+
+    socket.on('statusUpdate', function (data) {
+        update(data);
+    });
 </script>
 
 </body>
