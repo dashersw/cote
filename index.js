@@ -8,16 +8,33 @@ var Discovery = require('./lib/Discovery'),
     TimeBalancedRequester = require('./lib/TimeBalancedRequester.js'),
     PendingBalancedRequester = require('./lib/PendingBalancedRequester.js');
 
+var _ = require('lodash');
+
 function cote(options) {
-    var environment = options.environment || '';
-    var useHostNames = options.useHostNames || false;
+    options = options || {};
+
+    var defaults = {
+        environment: '',
+        useHostNames: false,
+        broadcast: null,
+        multicast: null
+    };
+
+    var environmentSettings = {
+        environment: process.env.COTE_ENV,
+        useHostNames: !!process.env.COTE_USE_HOST_NAMES,
+        broadcast: process.env.COTE_BROADCAST_ADDRESS,
+        multicast: process.env.COTE_MULTICAST_ADDRESS
+    };
+
+    _.defaults(options, environmentSettings, defaults);
 
     var components = [Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester,
         PendingBalancedRequester];
 
     components.forEach(function(component) {
-        component.setEnvironment(environment);
-        component.setUseHostNames && component.setUseHostNames(useHostNames);
+        component.setEnvironment(options.environment);
+        component.setUseHostNames && component.setUseHostNames(options.useHostNames);
     });
 
     Discovery.setDefaults(options);
@@ -34,4 +51,4 @@ cote.Monitor = Monitor;
 cote.TimeBalancedRequester = TimeBalancedRequester;
 cote.PendingBalancedRequester = PendingBalancedRequester;
 
-module.exports = cote;
+module.exports = cote();
