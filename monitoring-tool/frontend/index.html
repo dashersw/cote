@@ -21,6 +21,11 @@
             fill: red;
         }
 
+        .link {
+            /* visual */
+            stroke: cyan;
+        }
+
         .text {
             /* typography */
             font-weight: bold;
@@ -66,16 +71,35 @@
             .attr('width', config.svgWidth)
             .attr('height', config.svgHeight);
 
-    var nodes = svg.selectAll('g.node');
+    var nodes = svg.selectAll('.node');
+    var links = svg.selectAll('.link');
     var color = d3.scaleOrdinal(d3.schemeCategory10);
 
     var simulation = d3.forceSimulation()
             .force('charge', d3.forceManyBody().strength(config.strength))
+            .force("link", d3.forceLink().strength(2).distance(120).iterations(30))
             .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2))
-            .force("collide", d3.forceCollide().radius(60).iterations(2))
             .on('tick', ticked);
 
+    var drag = d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+
     function update(data) {
+        // Update links
+        links = svg.selectAll(".link")
+                .data(data.links);
+
+        links.exit().remove();
+
+        var linkEnter = links.enter()
+                .append("line")
+                .classed("link", true);
+
+        links = linkEnter.merge(links);
+
+        // Update Nodes
         nodes = svg.selectAll('.node')
                 .data(data.nodes, function (d) {
                     return d.id;
@@ -91,7 +115,8 @@
                 .attr('r', config.nodeRadius)
                 .attr('fill', function(d) {
                     return color(d.group);
-                });
+                })
+                .call(drag);
 
         nodeEnter.append('text')
                 .classed('text', true)
@@ -101,20 +126,45 @@
                     return d.name;
                 });
 
-        if (nodeEnter.nodes) {
-            nodes = nodeEnter.merge(nodes);
+        nodes = nodeEnter.merge(nodes);
 
-            simulation
-                    .nodes(data.nodes)
-                    .restart();
+        console.log(nodeEnter.nodes().length);
+        simulation.nodes(data.nodes);
+
+        simulation.force("link")
+                .links(data.links);
+
+        if (nodeEnter.nodes().length > 0) {
+            simulation.restart();
         }
-
     }
 
     function ticked(e) {
+        links.attr("x1", function(d) {return d.source.x;})
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
         nodes.attr('transform', function (d) {
             return 'translate(' + d.x + ',' + d.y + ')';
         });
+    }
+
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
     }
 
     socket.on('statusUpdate', function (data) {
