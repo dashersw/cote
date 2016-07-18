@@ -21,6 +21,11 @@
             fill: red;
         }
 
+        .link {
+            /* visual */
+            stroke: cyan;
+        }
+
         .text {
             /* typography */
             font-weight: bold;
@@ -37,9 +42,6 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     var socket = io.connect('http://localhost:5555');
-    socket.on('statusUpdate', function (data) {
-        update(data);
-    });
 </script>
 
 <main>
@@ -60,12 +62,9 @@
         textDy: 10,
 
         /* Force layout configuration */
-        strength: -360, // charge
+        strength: -100, // charge
         distanceMin: 4 // distance min btw nodes
     };
-
-    var nodeList = [];
-    var linkList = [];
 
     var svg = d3.select(config.svgElmSpecifier)
             .append('svg')
@@ -73,52 +72,104 @@
             .attr('height', config.svgHeight);
 
     var nodes = svg.selectAll('.node');
-    var texts = svg.selectAll('.text');
-
+    var links = svg.selectAll('.link');
     var color = d3.scaleOrdinal(d3.schemeCategory10);
 
     var simulation = d3.forceSimulation()
             .force('charge', d3.forceManyBody().strength(config.strength))
-            .force('link', d3.forceLink().id(function(d) {
-                return d.id;
-            }))
-            .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2));
+            .force("link", d3.forceLink().strength(2).distance(120).iterations(30))
+            .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2))
+            .on('tick', ticked);
+
+    var drag = d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
 
     function update(data) {
-        nodes = svg.selectAll('.node');
+        // Update links
+        links = svg.selectAll(".link")
+                .data(data.links);
 
-        var groups = nodes
-                .data(data.nodes)
-                .enter()
-                .append('g');
+        links.exit().remove();
 
-        nodes = groups.append('circle')
-                .classed('node', true)
+        var linkEnter = links.enter()
+                .append("line")
+                .classed("link", true);
+
+        links = linkEnter.merge(links);
+
+        // Update Nodes
+        nodes = svg.selectAll('.node')
+                .data(data.nodes, function (d) {
+                    return d.id;
+                });
+
+        nodes.exit().remove();
+
+        var nodeEnter = nodes.enter()
+                .append("g")
+                .classed("node", true);
+
+        nodeEnter.append('circle')
                 .attr('r', config.nodeRadius)
                 .attr('fill', function(d) {
                     return color(d.group);
-                });
+                })
+                .call(drag);
 
-        texts = groups.append('text')
+        nodeEnter.append('text')
                 .classed('text', true)
+                .attr("x", 14)
+                .attr("y", ".31em")
                 .text(function (d) {
                     return d.name;
                 });
 
-        simulation
-            .nodes(data.nodes)
-            .on('tick', ticked);
+        nodes = nodeEnter.merge(nodes);
+
+        console.log(nodeEnter.nodes().length);
+        simulation.nodes(data.nodes);
+
+        simulation.force("link")
+                .links(data.links);
+
+        if (nodeEnter.nodes().length > 0) {
+            simulation.restart();
+        }
     }
 
     function ticked(e) {
+        links.attr("x1", function(d) {return d.source.x;})
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
         nodes.attr('transform', function (d) {
             return 'translate(' + d.x + ',' + d.y + ')';
         });
-
-        texts.attr('transform', function(d) {
-            return 'translate(' + d.x + ',' + d.y + ')';
-        })
     }
+
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
+
+    socket.on('statusUpdate', function (data) {
+        update(data);
+    });
 </script>
 
 </body>
