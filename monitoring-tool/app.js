@@ -74,7 +74,6 @@ setInterval(function() {
         });
     });
     graph.links = _.flatten(links);
-    graph.project = process.env.DOVECOTE_PROJECT;
 
     publisher.publish('statusUpdate', graph);
 }, 5000);
