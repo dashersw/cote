@@ -58,6 +58,8 @@ setInterval(function() {
     graph.nodes = _.map(monitor.discovery.nodes, function(node) {
         return {
             id: node.id,
+            processId: node.processId,
+            hostName: node.hostName,
             name: node.advertisement.name
         }
     });
