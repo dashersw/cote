@@ -26,7 +26,6 @@ var graph = {
     nodes: [],
     links: []
 };
-
 var rawLinks = {};
 
 // Sockend
@@ -39,7 +38,6 @@ function handler (req, res) {
                 res.writeHead(500);
                 return res.end('Error loading index.html');
             }
-
             res.writeHead(200);
             res.end(data);
         });
@@ -54,19 +52,50 @@ monitor.on('status', function(status) {
     };
 });
 
-setInterval(function() {
-    graph.nodes = _.map(monitor.discovery.nodes, function(node) {
-        return {
-            id: node.id,
-            processId: node.processId,
-            hostName: node.hostName,
-            name: node.advertisement.name
-        }
+function getProcesses(nodes) {
+    var processes = _.keyBy(nodes, 'processId');
+    processes = _.toArray(processes);
+    processes = _.map(processes, function(node) {
+            return {
+                id: node.id,
+                processId: node.processId,
+                type: 'process'
+            }
+        });
+    return processes;
+}
+
+function getHosts(nodes) {
+    // add hosts
+    var hosts = _.keyBy(nodes, 'processId');
+    hosts = _.toArray(hosts);
+    hosts = _.map(hosts, function(node) {
+            return {
+                id: node.id,
+                // processId: node.processId,
+                // hostName: node.hostName,
+                hostName: node.advertisement.name,
+                type: 'host'
+            }
     });
-    var indexMap = {};
-    graph.nodes.forEach(function(node, index) {
-        indexMap[node.id] = index;
+    return hosts;
+}
+
+function getNodes(nodes) {
+    var simplifiedNodes = _.toArray(nodes);
+    simplifiedNodes = _.map(simplifiedNodes, function(node) {
+            return {
+                id: node.id,
+                processId: node.processId,
+                hostName: node.advertisement.name,
+                type: 'node'
+            }
     });
+
+    return simplifiedNodes;
+}
+
+function getLinks(rawLinks, indexMap) {
     var links = _.map(rawLinks, function(rawLink) {
         return rawLink.target.map(function(target) {
             return { // flip source & target for semantics :)
@@ -75,7 +104,39 @@ setInterval(function() {
             };
         });
     });
-    graph.links = _.flatten(links);
 
+    return _.flatten(links);
+}
+
+function resetGraphObject() {
+    return {
+        nodes: [],
+        links: []
+    }
+}
+
+setInterval(function() {
+    // Reset graph object
+    graph = resetGraphObject();
+
+    // Update nodes
+    var processes = getProcesses(monitor.discovery.nodes);
+    graph.nodes = graph.nodes.concat(processes);
+
+    var hosts = getHosts(monitor.discovery.nodes);
+    graph.nodes = graph.nodes.concat(hosts);
+
+    var nodes = getNodes(monitor.discovery.nodes);
+    graph.nodes = graph.nodes.concat(nodes);
+
+    // Update links
+    var indexMap = {};
+    graph.nodes.forEach(function(node, index) {
+        indexMap[node.id] = index;
+    });
+
+    graph.links = getLinks(rawLinks, indexMap);
+
+    // Publish the output
     publisher.publish('statusUpdate', graph);
 }, 5000);
