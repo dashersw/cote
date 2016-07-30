@@ -18,7 +18,7 @@
 
         .node {
             /* visual */
-            fill: red;
+            fill: #be0000;
         }
 
         .link {
@@ -76,7 +76,7 @@
         textDy: 10,
 
         /* Force layout configuration */
-        strength: -100, // charge
+        strength: -50, // charge
         distanceMin: 30, // distance min btw nodes
 
         /* Link configuration */
@@ -109,6 +109,7 @@
             .on("end", dragended);
 
     function update(data) {
+        console.log(data);
         // Update links
         links = svg.selectAll(".link")
                 .data(data.links);
@@ -147,7 +148,9 @@
                 .attr("x", 14)
                 .attr("y", ".31em")
                 .text(function (d) {
-                    return d.name;
+                    if (d['type'] == 'host') {
+                        return d.hostName;
+                    }
                 });
 
         nodes = nodeEnter.merge(nodes);
@@ -157,9 +160,8 @@
         simulation.force("link")
                 .links(data.links);
 
-        if (nodeEnter.nodes().length > 0) {
-            simulation.restart();
-        }
+        simulation.restart();
+        simulation.alpha(1);
     }
 
     function ticked(e) {
@@ -191,6 +193,7 @@
     }
 
     socket.on('statusUpdate', function (data) {
+//        console.log(data);
         update(data);
     });
 </script>
