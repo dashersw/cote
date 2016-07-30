@@ -44,6 +44,7 @@ function handler (req, res) {
 };
 
 monitor.on('status', function(status) {
+    console.log(monitor.discovery.nodes[status.id]);
     var node = monitor.discovery.nodes[status.id];
     if (!node) return;
     rawLinks[status.id] = {
@@ -62,12 +63,13 @@ function getProcesses(nodes) {
                 type: 'process'
             }
         });
+
     return processes;
 }
 
 function getHosts(nodes) {
     // add hosts
-    var hosts = _.keyBy(nodes, 'processId');
+    var hosts = _.keyBy(nodes, 'hostName');
     hosts = _.toArray(hosts);
     hosts = _.map(hosts, function(node) {
             return {
@@ -95,47 +97,26 @@ function getNodes(nodes) {
     return simplifiedNodes;
 }
 
-function getLinks(rawLinks, indexMap) {
-    var links = _.map(rawLinks, function(rawLink) {
-        return rawLink.target.map(function(target) {
-            return { // flip source & target for semantics :)
-                source: indexMap[target],//monitor.discovery.nodes[target].advertisement.name + '#' + target,
-                target: indexMap[rawLink.source]//monitor.discovery.nodes[rawLink.source].advertisement.name + '#' + rawLink.source
-            };
-        });
-    });
+function getLinks(nodes) {
 
-    return _.flatten(links);
-}
-
-function resetGraphObject() {
-    return {
-        nodes: [],
-        links: []
-    }
 }
 
 setInterval(function() {
-    // Reset graph object
-    graph = resetGraphObject();
+    // Nodes
+    graph.nodes = monitor.discovery.nodes;
+
+    var hosts = getHosts(monitor.discovery.nodes);
+    graph.nodes = graph.nodes.concat(hosts);
+    graph.links = getHostLinks(hosts, graph.nodes);
 
     // Update nodes
     var processes = getProcesses(monitor.discovery.nodes);
     graph.nodes = graph.nodes.concat(processes);
 
-    var hosts = getHosts(monitor.discovery.nodes);
-    graph.nodes = graph.nodes.concat(hosts);
-
     var nodes = getNodes(monitor.discovery.nodes);
     graph.nodes = graph.nodes.concat(nodes);
 
-    // Update links
-    var indexMap = {};
-    graph.nodes.forEach(function(node, index) {
-        indexMap[node.id] = index;
-    });
-
-    graph.links = getLinks(rawLinks, indexMap);
+    graph.links = getLinks(graph.nodes);
 
     // Publish the output
     publisher.publish('statusUpdate', graph);
