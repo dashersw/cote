@@ -56,10 +56,10 @@ monitor.on('status', function(status) {
 function getProcesses(nodes) {
     var processes = _.keyBy(nodes, 'processId');
     processes = _.toArray(processes);
-    processes = _.map(processes, function(node) {
+    processes = _.map(processes, function(process) {
             return {
-                id: node.id,
-                processId: node.processId,
+                id: process.id,
+                processId: process.processId,
                 type: 'process'
             }
         });
@@ -71,12 +71,12 @@ function getHosts(nodes) {
     // add hosts
     var hosts = _.keyBy(nodes, 'hostName');
     hosts = _.toArray(hosts);
-    hosts = _.map(hosts, function(node) {
+    hosts = _.map(hosts, function(host) {
             return {
-                id: node.id,
+                id: host.id,
                 // processId: node.processId,
                 // hostName: node.hostName,
-                hostName: node.advertisement.name,
+                hostName: host.advertisement.name,
                 type: 'host'
             }
     });
