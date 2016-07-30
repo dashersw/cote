@@ -55,14 +55,13 @@ monitor.on('status', function(status) {
 
 function getProcesses(nodes) {
     var processes = _.keyBy(nodes, 'processId');
-    processes = _.toArray(processes);
+    processes = Object.keys(processes);
     processes = _.map(processes, function(process) {
-            return {
-                id: process.id,
-                processId: process.processId,
-                type: 'process'
-            }
-        });
+        return {
+            id: process,
+            type: 'process'
+        }
+    });
 
     return processes;
 }
@@ -70,15 +69,12 @@ function getProcesses(nodes) {
 function getHosts(nodes) {
     // add hosts
     var hosts = _.keyBy(nodes, 'hostName');
-    hosts = _.toArray(hosts);
+    hosts = Object.keys(hosts);
     hosts = _.map(hosts, function(host) {
-            return {
-                id: host.id,
-                // processId: node.processId,
-                // hostName: node.hostName,
-                hostName: host.advertisement.name,
-                type: 'host'
-            }
+        return {
+            hostName: host,
+            type: 'host'
+        }
     });
     return hosts;
 }
@@ -86,25 +82,30 @@ function getHosts(nodes) {
 function getNodes(nodes) {
     var simplifiedNodes = _.toArray(nodes);
     simplifiedNodes = _.map(simplifiedNodes, function(node) {
-            return {
-                id: node.id,
-                processId: node.processId,
-                hostName: node.advertisement.name,
-                type: 'node'
-            }
+        return {
+            id: node.processId,
+            hostName: node.advertisement.name,
+            type: 'node'
+        }
     });
 
     return simplifiedNodes;
 }
 
-function getLinks(nodes) {
+function getLinks(rawLinks, indexMap) {
+    var links = _.map(rawLinks, function(rawLink) {
+        return rawLink.target.map(function(target) {
+            return { // flip source & target for semantics :)
+                source: indexMap[target],//monitor.discovery.nodes[target].advertisement.name + '#' + target,
+                target: indexMap[rawLink.source]//monitor.discovery.nodes[rawLink.source].advertisement.name + '#' + rawLink.source
+            };
+        });
+    });
 
+    return _.flatten(links);
 }
 
 setInterval(function() {
-    // Nodes
-    graph.nodes = monitor.discovery.nodes;
-
     var hosts = getHosts(monitor.discovery.nodes);
     graph.nodes = graph.nodes.concat(hosts);
 
@@ -113,9 +114,14 @@ setInterval(function() {
     graph.nodes = graph.nodes.concat(processes);
 
     var nodes = getNodes(monitor.discovery.nodes);
-    graph.nodes = graph.nodes.concat(nodes);
+    // graph.nodes = graph.nodes.concat(nodes);
 
-    graph.links = getLinks(graph.nodes);
+    // Update links
+    var indexMap = {};
+    graph.nodes.forEach(function(node, index) {
+        indexMap[node.id] = index;
+    });
+    graph.links = getLinks(rawLinks, indexMap);
 
     // Publish the output
     publisher.publish('statusUpdate', graph);
