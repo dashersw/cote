@@ -107,7 +107,6 @@ setInterval(function() {
 
     var hosts = getHosts(monitor.discovery.nodes);
     graph.nodes = graph.nodes.concat(hosts);
-    graph.links = getHostLinks(hosts, graph.nodes);
 
     // Update nodes
     var processes = getProcesses(monitor.discovery.nodes);
