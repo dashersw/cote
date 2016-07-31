@@ -148,9 +148,7 @@
                 .attr("x", 14)
                 .attr("y", ".31em")
                 .text(function (d) {
-                    if (d['type'] == 'host') {
-                        return d.hostName;
-                    }
+                    return d.name;
                 });
 
         nodes = nodeEnter.merge(nodes);
