@@ -54,7 +54,8 @@ monitor.on('status', function(status) {
 });
 
 function getProcesses(nodes) {
-    var processes = _.keyBy(nodes, 'processId');
+    var processes = _.groupBy(nodes, 'processId');
+
     processes = Object.keys(processes);
     processes = _.map(processes, function(process) {
         return {
@@ -67,26 +68,42 @@ function getProcesses(nodes) {
 }
 
 function getHosts(nodes) {
-    // add hosts
-    var hosts = _.keyBy(nodes, 'hostName');
-    hosts = Object.keys(hosts);
+    var nodesByHosts = _.groupBy(nodes, 'hostName');
+
+    _.forEach(nodesByHosts, function(nodesByHost, hostId) {
+        var nodesByProcess = _.groupBy(nodesByHost, 'processId');
+
+        _.forEach(nodesByProcess, function(processNodes, processId) {
+            rawLinks[processId] = {
+                source: processId,
+                target: processNodes.map(node => node.id)
+            }
+        });
+
+        rawLinks[hostId] = {
+            source: hostId,
+            target: Object.keys(nodesByProcess)
+        };
+    });
+
+    var hosts = Object.keys(nodesByHosts);
     hosts = _.map(hosts, function(host) {
         return {
-            hostName: host,
-            type: 'host'
-        }
+            id: host,
+            type: 'host',
+            name: host
+        };
     });
     return hosts;
 }
 
 function getNodes(nodes) {
-    var simplifiedNodes = _.toArray(nodes);
-    simplifiedNodes = _.map(simplifiedNodes, function(node) {
+    simplifiedNodes = _.map(nodes, function(node) {
         return {
-            id: node.processId,
-            hostName: node.advertisement.name,
-            type: 'node'
-        }
+            id: node.id,
+            type: 'node',
+            name: node.advertisement.name
+        };
     });
 
     return simplifiedNodes;
@@ -106,15 +123,16 @@ function getLinks(rawLinks, indexMap) {
 }
 
 setInterval(function() {
+    graph.nodes = [];
+
     var hosts = getHosts(monitor.discovery.nodes);
     graph.nodes = graph.nodes.concat(hosts);
 
-    // Update nodes
     var processes = getProcesses(monitor.discovery.nodes);
     graph.nodes = graph.nodes.concat(processes);
 
     var nodes = getNodes(monitor.discovery.nodes);
-    // graph.nodes = graph.nodes.concat(nodes);
+    graph.nodes = graph.nodes.concat(nodes);
 
     // Update links
     var indexMap = {};
