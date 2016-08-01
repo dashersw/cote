@@ -5,6 +5,7 @@ var app = require('http').createServer(handler)
 app.listen(process.argv[2] || 5555);
 
 function handler (req, res) {
+  if (req.method != 'GET' || req.url != '/') return; //allow sockend http responder to respond these
   fs.readFile(__dirname + '/index.html',
   function (err, data) {
     if (err) {
