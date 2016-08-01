@@ -167,8 +167,8 @@ Example:
 ```html
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io.connect('http://localhost');
-  var socket2 = io.connect('http://localhost/rnd');
+  var socket = io.connect('http://localhost:5555');
+  var socket2 = io.connect('http://localhost:5555/rnd');
 
   setInterval(function() {
     var req = {
