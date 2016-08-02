@@ -44,7 +44,6 @@ function handler (req, res) {
 };
 
 monitor.on('status', function(status) {
-    // console.log(monitor.discovery.nodes[status.id]);
     var node = monitor.discovery.nodes[status.id];
     if (!node) return;
     rawLinks[status.id] = {
