@@ -85,7 +85,9 @@
         textDx: 10,
         textDy: 10,
 
+        /********************************/
         /* Force layout configuration */
+        /********************************/
         strength: -50, // charge
         distanceMin: 30, // distance min btw nodes
 
@@ -101,7 +103,12 @@
             processNode: 5,
             nodeNode: 1
         },
-        linkIterations: 30
+        linkIterations: 30,
+
+        collide: {
+            offset: 8,
+            iteration: 16
+        }
     };
 
     var svg = d3.select(config.svgElmSpecifier)
@@ -113,33 +120,9 @@
     var links = svg.selectAll('.link');
 
     var simulation = d3.forceSimulation()
-            .force('charge', d3.forceManyBody().strength(config.strength))
-            .force("link", d3.forceLink()
-                    .strength(function(d) {
-                        var isHostProcessConnection = isHostProcessConnection(d.source, d.target);
-                        var isProcessNodeConnection = isProcessNodeConnection(d.source, d.target);
-
-                        if (isHostProcessConnection) {
-                            return config.linkStrength.hostProcess;
-                        } else if (isProcessNodeConnection) {
-                            return config.linkStrength.processNode;
-                        }
-
-                        return config.linkStrength.nodeNode;
-                    })
-                    .distance(function(d) {
-                        var isHostProcessConnection = isHostProcessConnection(d.source, d.target);
-                        var isProcessNodeConnection = isProcessNodeConnection(d.source, d.target);
-
-                        if (isHostProcessConnection) {
-                            return config.linkDistance.hostProcess;
-                        } else if (isProcessNodeConnection) {
-                            return config.linkDistance.processNode;
-                        }
-
-                        return config.linkDistance.nodeNode;
-                    })
-                    .iterations(config.linkIterations))
+            .force('charge', d3.forceManyBody())
+            .force("collide", configureCollisionDetection(config))
+            .force("link", configureLink(config))
             .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2))
             .on('tick', ticked);
 
@@ -241,6 +224,23 @@
     function isProcessNodeConnection(d) {
         return (d.source.type == 'process' && d.target.type == 'node') ||
                 (d.source.type == 'node' && d.target.type == 'process');
+    }
+
+    function configureLink(config) {
+        return d3.forceLink().distance(function(d) {
+            if (isHostProcessConnection(d)) {
+                return config.linkDistance.hostProcess;
+            } else if(isProcessNodeConnection(d)) {
+                return config.linkDistance.processNode;
+            }
+            return config.linkDistance.nodeNode;
+        });
+    }
+
+    function configureCollisionDetection(config) {
+        return d3.forceCollide(function(d){
+            return d.r + config.collide.offset
+        }).iterations(config.collide.iteration);
     }
     }
 
