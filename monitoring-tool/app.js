@@ -75,7 +75,9 @@ function getHosts(nodes) {
         _.forEach(nodesByProcess, function(processNodes, processId) {
             rawLinks[processId] = {
                 source: processId,
-                target: processNodes.map(node => node.id)
+                target: processNodes.map(function(node){
+                    return node.id;
+                })
             }
         });
 
