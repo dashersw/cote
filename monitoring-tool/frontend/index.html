@@ -111,7 +111,6 @@
 
     var nodes = svg.selectAll('.node');
     var links = svg.selectAll('.link');
-    var color = d3.scaleOrdinal(d3.schemeCategory10);
 
     var simulation = d3.forceSimulation()
             .force('charge', d3.forceManyBody().strength(config.strength))
@@ -150,7 +149,6 @@
             .on("end", dragended);
 
     function update(data) {
-//        console.log(data);
         // Update links
         links = svg.selectAll(".link")
                 .data(data.links);
@@ -241,7 +239,6 @@
     }
 
     socket.on('statusUpdate', function(data) {
-//        console.log(data);
         update(data);
     });
 </script>
