@@ -244,10 +244,29 @@
             return d.r + config.collide.offset
         }).iterations(config.collide.iteration);
     }
+
+    function injectPreviousLocations(data, simulation) {
+        var newData = Object.assign([], data);
+
+        _.forEach(newData.nodes, function(node) {
+            var oldNode = _.filter(simulation.nodes(), function(simulationNode) {
+                return simulationNode.id == node.id;
+            });
+
+            if (oldNode.length == 1) {
+                node.x = oldNode[0].x;
+                node.y = oldNode[0].y;
+                node.fx = oldNode[0].fx ? oldNode[0].fx : null;
+                node.fy = oldNode[0].fy ? oldNode[0].fy : null;
+            }
+        });
+
+        return newData;
     }
 
     socket.on('statusUpdate', function(data) {
-        update(data);
+        var newData = injectPreviousLocations(data, simulation);
+        update(newData);
     });
 </script>
 
