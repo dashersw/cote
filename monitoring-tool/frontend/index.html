@@ -171,7 +171,8 @@
 
         var nodeEnter = nodes.enter()
                 .append("g")
-                .classed("node", true);
+                .classed("node", true)
+                .call(drag);
 
         nodeEnter.append('circle')
                 .attr('r', function(d) {
@@ -179,8 +180,7 @@
                 })
                 .attr('fill', function(d) {
                     return config[d.type].color;
-                })
-                .call(drag);
+                });
 
         nodeEnter.append('text')
                 .classed('text', true)
