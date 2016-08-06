@@ -146,9 +146,7 @@
 
         // Update Nodes
         nodes = svg.selectAll('.node')
-                .data(data.nodes, function(d) {
-                    return d.id;
-                });
+                .data(data.nodes);
 
         nodes.exit().remove();
 
