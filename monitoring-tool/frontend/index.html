@@ -148,8 +148,10 @@
         nodes = svg.selectAll('.node')
                 .data(data.nodes);
 
+        // Exit unused nodes.
         nodes.exit().remove();
 
+        // Add new nodes
         var nodeEnter = nodes.enter()
                 .append("g")
                 .classed("node", true)
@@ -178,8 +180,9 @@
         simulation.force("link")
                 .links(data.links);
 
-        simulation.restart();
-        simulation.alpha(1);
+        simulation
+                .alphaTarget(1)
+                .restart();
     }
 
     function ticked(e) {
