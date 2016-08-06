@@ -104,16 +104,6 @@
         linkIterations: 30
     };
 
-    function isHostProcessConnection(source, target) {
-        return (source.type == 'host' && target.type == 'process') ||
-                (target.type == 'host' && source.type == 'process');
-    }
-
-    function isProcessNodeConnection(source, target) {
-        return (source.type == 'process' && target.type == 'node') ||
-                (source.type == 'node' && target.type == 'process');
-    }
-
     var svg = d3.select(config.svgElmSpecifier)
             .append('svg')
             .attr('width', config.svgWidth)
@@ -239,6 +229,15 @@
         if (!d3.event.active) simulation.alphaTarget(0);
         d.fx = null;
         d.fy = null;
+    function isHostProcessConnection(d) {
+        return (d.source.type == 'host' && d.target.type == 'process') ||
+                (d.target.type == 'host' && d.source.type == 'process');
+    }
+
+    function isProcessNodeConnection(d) {
+        return (d.source.type == 'process' && d.target.type == 'node') ||
+                (d.source.type == 'node' && d.target.type == 'process');
+    }
     }
 
     socket.on('statusUpdate', function(data) {
