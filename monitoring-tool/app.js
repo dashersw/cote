@@ -125,6 +125,7 @@ function getLinks(rawLinks, indexMap) {
 
 setInterval(function() {
     graph.nodes = [];
+    rawLinks = {};
 
     var hosts = getHosts(monitor.discovery.nodes);
     graph.nodes = graph.nodes.concat(hosts);
