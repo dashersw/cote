@@ -52,6 +52,22 @@ monitor.on('status', function(status) {
     };
 });
 
+monitor.discovery.on('removed', function(node) {
+    delete rawLinks[node.id];
+    var removedNode = node.id;
+
+    for (nodeId in rawLinks) {
+        var rawLink = rawLinks[nodeId];
+
+        var removedNodeIndex = rawLink.target.indexOf(removedNode);
+        if (removedNodeIndex > -1) {
+            rawLink.target.splice(removedNodeIndex, 1);
+            if (!rawLink.target.length)
+                delete rawLinks[nodeId];
+        }
+    }
+});
+
 function getProcesses(nodes) {
     var processes = _.groupBy(nodes, 'processId');
 
@@ -125,7 +141,6 @@ function getLinks(rawLinks, indexMap) {
 
 setInterval(function() {
     graph.nodes = [];
-    rawLinks = {};
 
     var hosts = getHosts(monitor.discovery.nodes);
     graph.nodes = graph.nodes.concat(hosts);
