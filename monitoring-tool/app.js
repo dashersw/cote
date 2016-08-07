@@ -17,7 +17,7 @@ var sockend = new cote.Sockend(io, {
 });
 
 var publisher = new cote.Publisher({
-    name: 'randomPub',
+    name: 'status publisher',
     broadcasts: ['statusUpdate']
 });
 
