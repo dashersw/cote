@@ -1,5 +1,7 @@
 // Dependencies
 var app = require('http').createServer(handler),
+    path = require('path'),
+    url = require('url'),
     _ = require('lodash'),
     io = require('socket.io').listen(app),
     fs = require('fs');
@@ -31,17 +33,42 @@ var rawLinks = {};
 // Sockend
 app.listen(process.argv[2] || 5555);
 
-function handler (req, res) {
-    fs.readFile(__dirname + '/frontend/index.html',
-        function (err, data) {
+function handler(req, res) {
+    var uri = url.parse(req.url).pathname;
+    var filename = path.join(__dirname, 'frontend' ,uri);
+
+    fs.readFile(filename, function(err, data) {
             if (err) {
-                res.writeHead(500);
-                return res.end('Error loading index.html');
+                indexHandler(filename + 'index.html', function(err, data) {
+                    if (err) {
+                        res.writeHead(500);
+                        return res.end(err.msg);
+                    }
+
+                    res.writeHead(200);
+                    return res.end(data);
+                });
             }
             res.writeHead(200);
             res.end(data);
-        });
+    });
 };
+
+function indexHandler(indexPath, cb) {
+    fs.readFile(indexPath, function(err, data) {
+        if (err) {
+            cb({
+                msg: 'Error loading' + indexPath
+            });
+            return;
+        }
+
+        cb(undefined, data);
+        // res.writeHead(200);
+        // res.end(data);
+        // return;
+    });
+}
 
 monitor.on('status', function(status) {
     var node = monitor.discovery.nodes[status.id];
