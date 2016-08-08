@@ -8,10 +8,15 @@
         *,
         html,
         body {
+            /* box-model */
+            margin: 0;
+
             /* typography */
             font-family: 'Roboto', sans-serif;
             font-size: 16px;
-            margin: 0;
+
+            /* visual */
+            color: #52524f;
         }
 
         header,
@@ -27,21 +32,6 @@
             /* typography */
             font-size: 2.5rem;
             vertical-align: middle;
-        }
-
-        .node {
-            /* visual */
-            fill: #be0000;
-        }
-
-        .link {
-            /* visual */
-            stroke: cyan;
-        }
-
-        .text {
-            /* typography */
-            font-weight: bold;
         }
 
         svg {
@@ -87,20 +77,20 @@
         /* Hosts radius */
         host: {
             radius: 15,
-            color: 'blue'
+            color: '#FFEE93'
         },
         process: {
             radius: 10,
-            color: 'green'
+            color: '#A0CED9'
         },
         node: {
             radius: 5,
-            color: 'cyan'
+            color: '#ADF7B6'
         },
 
         /* Text element variables */
-        textDx: 10,
-        textDy: 10,
+        textDx: '14',
+        textDy: '.31rem',
 
         /********************************/
         /* Force layout configuration */
@@ -121,6 +111,8 @@
             nodeNode: 1
         },
         linkIterations: 30,
+
+        linkColor: '#f1db6b',
 
         collide: {
             offset: 8,
@@ -157,7 +149,8 @@
 
         var linkEnter = links.enter()
                 .append("line")
-                .classed("link", true);
+                .classed("link", true)
+                .style('stroke', config.linkColor);
 
         links = linkEnter.merge(links);
 
@@ -181,8 +174,8 @@
 
         nodeEnter.append('text')
                 .classed('text', true)
-                .attr("x", 14)
-                .attr("y", ".31em")
+                .attr("x", config.textDx)
+                .attr("y", config.textDy)
                 .text(function(d) {
                     return d.name;
                 });
@@ -202,7 +195,7 @@
                 .restart();
     }
 
-    function ticked(e) {
+    function ticked() {
         links.attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
