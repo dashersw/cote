@@ -11,11 +11,22 @@
             /* typography */
             font-family: 'Roboto', sans-serif;
             font-size: 16px;
+            margin: 0;
+        }
+
+        header,
+        footer {
+            /* box-model */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
         }
 
         h1 {
             /* typography */
             font-size: 2.5rem;
+            vertical-align: middle;
         }
 
         .node {
@@ -34,8 +45,9 @@
         }
 
         svg {
-            /* box-model */
-            border: 1px solid #ccc;
+            /*box-model */
+            width: 100vw;
+            height: calc(100vh - 80px);
         }
     </style>
 </head>
@@ -57,17 +69,20 @@
     var socket = io.connect();
 </script>
 
-<main>
+<header>
     <h1>Monitor Cote</h1>
+</header>
+<main>
     <div class="svg"></div>
 </main>
-
 <script>
+    var SVGDimensions = getSVGDimensions(document, window);
+
     var config = {
         /* SVG variables */
         svgElmSpecifier: '.svg',
-        svgWidth: '1000',
-        svgHeight: '500',
+        svgWidth: SVGDimensions.svgWidth,
+        svgHeight: SVGDimensions.svgHeight - 80, // 80px is the header size
 
         /* Hosts radius */
         host: {
@@ -231,7 +246,8 @@
     }
 
     function configureLink(config) {
-        return d3.forceLink().distance(function(d) {
+        return d3.forceLink()
+                .distance(function(d) {
             if (isHostProcessConnection(d)) {
                 return config.linkDistance.hostProcess;
             } else if(isProcessNodeConnection(d)) {
@@ -270,6 +286,25 @@
         var newData = injectPreviousLocations(data, simulation);
         update(newData);
     });
+
+    function getSVGDimensions(document, window) {
+        var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        return {
+            svgWidth: viewportWidth,
+            svgHeight: viewportHeight
+        }
+    }
+
+    window.addEventListener('resize', function() {
+        var SVGDimensions = getSVGDimensions(document, window);
+
+        config.svgWidth = SVGDimensions.svgWidth;
+        config.svgHeight = SVGDimensions.svgHeight;
+
+        simulation.force('center',  d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2));
+    })
 </script>
 
 </body>
