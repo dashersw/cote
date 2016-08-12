@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <title>Management Console</title>
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,700' rel='stylesheet' type='text/css'>
     <style>
@@ -42,19 +42,19 @@
     </style>
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/lodash/4.14.0/lodash.min.js"></script>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src='https://cdn.jsdelivr.net/lodash/4.14.0/lodash.min.js'></script>
+<script src='https://d3js.org/d3.v4.min.js'></script>
 
 <!-- These script are kept to dive deep into force layout of D3, if needed. -->
-<!--<script src="//d3js.org/d3-collection.v1.js"></script>-->
-<!--<script src="//d3js.org/d3-selection.v1.js"></script>-->
-<!--<script src="//d3js.org/d3-timer.v1.js"></script>-->
-<!--<script src="//d3js.org/d3-dispatch.v1.js"></script>-->
-<!--<script src="//d3js.org/d3-quadtree.v1.js"></script>-->
-<!--<script src="https://d3js.org/d3-drag.v1.js"></script>-->
-<!--<script src="//d3js.org/d3-force.v1.js"></script>-->
+<!--<script src='//d3js.org/d3-collection.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-selection.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-timer.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-dispatch.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-quadtree.v1.js'></script>-->
+<!--<script src='https://d3js.org/d3-drag.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-force.v1.js'></script>-->
 
-<script src="/socket.io/socket.io.js"></script>
+<script src='/socket.io/socket.io.js'></script>
 <script>
     var socket = io.connect();
 </script>
@@ -63,7 +63,7 @@
     <h1>Monitor Cote</h1>
 </header>
 <main>
-    <div class="svg"></div>
+    <div class='svg'></div>
 </main>
 <script>
     var SVGDimensions = getSVGDimensions(document, window);
@@ -130,26 +130,26 @@
 
     var simulation = d3.forceSimulation()
             .force('charge', d3.forceManyBody())
-            .force("collide", configureCollisionDetection(config))
-            .force("link", configureLink(config))
+            .force('collide', configureCollisionDetection(config))
+            .force('link', configureLink(config))
             .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2))
             .on('tick', ticked);
 
     var drag = d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
+            .on('start', dragstarted)
+            .on('drag', dragged)
+            .on('end', dragended);
 
     function update(data) {
         // Update links
-        links = svg.selectAll(".link")
+        links = svg.selectAll('.link')
                 .data(data.links);
 
         links.exit().remove();
 
         var linkEnter = links.enter()
-                .append("line")
-                .classed("link", true)
+                .append('line')
+                .classed('link', true)
                 .style('stroke', config.linkColor);
 
         links = linkEnter.merge(links);
@@ -160,8 +160,8 @@
 
         // Add new nodes
         var nodeEnter = nodes.enter()
-                .append("g")
-                .classed("node", true)
+                .append('g')
+                .classed('node', true)
                 .call(drag);
 
         nodeEnter.append('circle')
@@ -174,8 +174,8 @@
 
         nodeEnter.append('text')
                 .classed('text', true)
-                .attr("x", config.textDx)
-                .attr("y", config.textDy)
+                .attr('x', config.textDx)
+                .attr('y', config.textDy)
                 .text(function(d) {
                     return d.name;
                 });
@@ -187,7 +187,7 @@
 
         simulation.nodes(data.nodes);
 
-        simulation.force("link")
+        simulation.force('link')
                 .links(data.links);
 
         simulation
@@ -196,10 +196,10 @@
     }
 
     function ticked() {
-        links.attr("x1", function(d) { return d.source.x; })
-                .attr("y1", function(d) { return d.source.y; })
-                .attr("x2", function(d) { return d.target.x; })
-                .attr("y2", function(d) { return d.target.y; });
+        links.attr('x1', function(d) { return d.source.x; })
+                .attr('y1', function(d) { return d.source.y; })
+                .attr('x2', function(d) { return d.target.x; })
+                .attr('y2', function(d) { return d.target.y; });
 
         nodes.attr('transform', function(d) {
             return 'translate(' + d.x + ',' + d.y + ')';
