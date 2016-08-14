@@ -156,7 +156,9 @@
 
         // Update Nodes
         nodes = svg.selectAll('.node')
-                .data(data.nodes);
+                .data(data.nodes, function(d) {
+                    return d.id;
+                });
 
         // Add new nodes
         var nodeEnter = nodes.enter()
