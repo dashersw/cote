@@ -160,6 +160,9 @@
                     return d.id;
                 });
 
+        // Exit unused nodes.
+        nodes.exit().remove();
+
         // Add new nodes
         var nodeEnter = nodes.enter()
                 .append('g')
@@ -181,9 +184,6 @@
                 .text(function(d) {
                     return d.name;
                 });
-
-        // Exit unused nodes.
-        nodes.exit().remove();
 
         nodes = nodeEnter.merge(nodes);
 
