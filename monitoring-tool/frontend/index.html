@@ -145,8 +145,10 @@
         links = svg.selectAll('.link')
                 .data(data.links);
 
+        // Exit unused links
         links.exit().remove();
 
+        // Enter new links
         var linkEnter = links.enter()
                 .append('line')
                 .classed('link', true)
