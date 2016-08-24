@@ -5,6 +5,7 @@ var Discovery = require('./lib/Discovery'),
     Subscriber = require('./lib/Subscriber.js'),
     Sockend = require('./lib/Sockend.js'),
     Monitor = require('./lib/Monitor.js'),
+    MonitoringTool = require('./monitoring-tool'),
     TimeBalancedRequester = require('./lib/TimeBalancedRequester.js'),
     PendingBalancedRequester = require('./lib/PendingBalancedRequester.js');
 
@@ -48,6 +49,7 @@ cote.Publisher = Publisher;
 cote.Subscriber = Subscriber;
 cote.Sockend = Sockend;
 cote.Monitor = Monitor;
+cote.MonitoringTool = MonitoringTool;
 cote.TimeBalancedRequester = TimeBalancedRequester;
 cote.PendingBalancedRequester = PendingBalancedRequester;
 
