@@ -98,19 +98,19 @@
         /********************************/
         /* Force layout configuration */
         /********************************/
-        strength: -5, // charge
-        distanceMin: 50, // distance min btw nodes
+        strength: 50, // charge
+        distanceMin: 20, // distance min btw nodes
 
         /* Link configuration */
         linkDistance: {
-            hostProcess: 80,
-            processNode: 120,
-            nodeNode: 140
+            hostProcess: 40,
+            processNode: 40,
+            nodeNode: 40
         },
 
         linkStrength: {
-            hostProcess: 10,
-            processNode: 5,
+            hostProcess: 1,
+            processNode: 1,
             nodeNode: 1
         },
         linkIterations: 30,
@@ -142,6 +142,8 @@
             .on('start', dragstarted)
             .on('drag', dragged)
             .on('end', dragended);
+
+    var alpha = 0.3;
 
     function update(data) {
         // Update links
@@ -195,13 +197,17 @@
 
         nodes = nodeEnter.merge(nodes);
 
+        data.nodes.forEach(function(node) {
+            node.r = config[node.type].radius;
+        });
+
         simulation.nodes(data.nodes);
 
         simulation.force('link')
                 .links(data.links);
 
         simulation
-                .alphaTarget(1)
+                .alphaTarget(alpha = alpha * 0.1)
                 .restart();
     }
 
@@ -252,20 +258,23 @@
     }
 
     function configureLink(config) {
-        return d3.forceLink()
-                .distance(function(d) {
-            if (isHostProcessConnection(d)) {
-                return config.linkDistance.hostProcess;
-            } else if(isProcessNodeConnection(d)) {
-                return config.linkDistance.processNode;
-            }
-            return config.linkDistance.nodeNode;
-        });
+        return d3.forceLink();
+        //         .distance(function(d) {
+        //             var distance = 0;
+        //     if (isHostProcessConnection(d)) {
+        //         distance = config.linkDistance.hostProcess;
+        //     } else if(isProcessNodeConnection(d)) {
+        //         distance = config.linkDistance.processNode;
+        //     }
+        //     else distance = config.linkDistance.nodeNode;
+
+        //     return Math.max(distance, config.distanceMin);
+        // });
     }
 
     function configureCollisionDetection(config) {
         return d3.forceCollide(function(d){
-            return d.r * d.r + config.collide.offset
+            return d.r * 4 + config.collide.offset;
         }).iterations(config.collide.iteration);
     }
 
@@ -289,6 +298,7 @@
     }
 
     socket.on('statusUpdate', function(data) {
+        alpha = 0.3;
         var newData = injectPreviousLocations(data, simulation);
         update(newData);
     });
