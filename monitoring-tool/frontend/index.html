@@ -265,7 +265,7 @@
 
     function configureCollisionDetection(config) {
         return d3.forceCollide(function(d){
-            return d.r + config.collide.offset
+            return d.r * d.r + config.collide.offset
         }).iterations(config.collide.iteration);
     }
 
