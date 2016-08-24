@@ -106,7 +106,7 @@ module.exports = function(port) {
             return {
                 id: processId,
                 type: 'process',
-                name: process[0].processName
+                name: process[0].processCommand
             }
         }).filter(function(process) {
             return process.id != monitor.discovery.me.processId;
