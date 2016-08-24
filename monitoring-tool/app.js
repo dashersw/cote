@@ -46,6 +46,9 @@ function handler (req, res) {
 monitor.on('status', function(status) {
     var node = monitor.discovery.nodes[status.id];
     if (!node) return;
+
+    if (node.processId == monitor.discovery.me.processId) return;
+
     rawLinks[status.id] = {
         source: status.id,
         target: status.nodes
@@ -71,15 +74,15 @@ monitor.discovery.on('removed', function(node) {
 function getProcesses(nodes) {
     var processes = _.groupBy(nodes, 'processId');
 
-    processes = Object.keys(processes);
-    processes = _.map(processes, function(process) {
+    return _.map(processes, function(process, processId) {
         return {
-            id: process,
-            type: 'process'
+            id: processId,
+            type: 'process',
+            name: process[0].processName
         }
+    }).filter(function(process) {
+        return process.id != monitor.discovery.me.processId;
     });
-
-    return processes;
 }
 
 function getHosts(nodes) {
@@ -89,6 +92,8 @@ function getHosts(nodes) {
         var nodesByProcess = _.groupBy(nodesByHost, 'processId');
 
         _.forEach(nodesByProcess, function(processNodes, processId) {
+            if (processId == monitor.discovery.me.processId) return;
+
             rawLinks[processId] = {
                 source: processId,
                 target: processNodes.map(function(node){
@@ -115,6 +120,10 @@ function getHosts(nodes) {
 }
 
 function getNodes(nodes) {
+    nodes = _.filter(nodes, function(node) {
+        return node.processId != monitor.discovery.me.processId;
+    });
+
     simplifiedNodes = _.map(nodes, function(node) {
         return {
             id: node.id,
@@ -136,7 +145,9 @@ function getLinks(rawLinks, indexMap) {
         });
     });
 
-    return _.flatten(links);
+    return _.flatten(links).filter(function(link) {
+        return link.source != undefined && link.target != undefined;
+    });
 }
 
 setInterval(function() {
