@@ -13,12 +13,16 @@ var monitor = new cote.Monitor({
 }, {disableScreen: true});
 
 var sockend = new cote.Sockend(io, {
-    name: 'sockend'
+    name: 'sockend',
+    namespace: 'monitoring',
+    key: 'monitoring'
 });
 
 var publisher = new cote.Publisher({
     name: 'status publisher',
-    broadcasts: ['statusUpdate']
+    broadcasts: ['statusUpdate'],
+    namespace: 'monitoring',
+    key: 'monitoring'
 });
 
 // Graph related variables
