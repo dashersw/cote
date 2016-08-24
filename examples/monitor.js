@@ -1,10 +1,3 @@
-var Monitor = require('../').Monitor;
+var cote = require('../');
 
-// Instantiate a new Monitor component.
-var randomMonitor = new Monitor({
-    name: 'monitor'
-});
-
-randomMonitor.on('status', function(e) {
-    console.log(e);
-});
+new cote.MonitoringTool(process.env.PORT);
