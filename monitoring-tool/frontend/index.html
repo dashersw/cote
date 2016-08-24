@@ -77,15 +77,18 @@
         /* Hosts radius */
         host: {
             radius: 15,
-            color: '#FFEE93'
+            color: '#FFEE93',
+            textColor: '#D4C266'
         },
         process: {
             radius: 10,
-            color: '#A0CED9'
+            color: '#A0CED9',
+            textColor: '#8FBBC5'
         },
         node: {
             radius: 5,
-            color: '#ADF7B6'
+            color: '#ADF7B6',
+            textColor: '#9EC3A3'
         },
 
         /* Text element variables */
@@ -183,6 +186,9 @@
                 .classed('text', true)
                 .attr('x', config.textDx)
                 .attr('y', config.textDy)
+                .style('fill', function(d) {
+                    return config[d.type].textColor;
+                })
                 .text(function(d) {
                     return d.name;
                 });
