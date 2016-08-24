@@ -206,7 +206,10 @@
                 .attr('y2', function(d) { return d.target.y; });
 
         nodes.attr('transform', function(d) {
-            return 'translate(' + d.x + ',' + d.y + ')';
+            var radius = config[d.type].radius;
+            var posX = Math.max(radius, Math.min(config.svgWidth - radius, d.x));
+            var posY = Math.max(radius, Math.min(config.svgHeight - radius, d.y));
+            return 'translate(' + posX + ',' + posY + ')';
         });
     }
 
