@@ -149,7 +149,8 @@ module.exports = function(port) {
 
     function getNodes(nodes) {
         nodes = _.filter(nodes, function(node) {
-            return node.processId != monitor.discovery.me.processId;
+            return node.processId != monitor.discovery.me.processId &&
+                node.advertisement.name != 'sockendSub' && node.advertisement.name != 'sockendReq';
         });
 
         simplifiedNodes = _.map(nodes, function(node) {
