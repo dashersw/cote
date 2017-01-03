@@ -12,6 +12,9 @@
     "fault-tolerant"
   ],
   "description": "A Node.js library for building zero-configuration microservices.",
+  "scripts": {
+    "test": "ava"
+  },
   "author": {
     "name": "Armagan Amcalar",
     "email": "armagan@amcalar.com"
@@ -33,7 +36,27 @@
     "socket.io": "1.7.3"
   },
   "devDependencies": {
+    "ava": "^0.17.0",
+    "babel-cli": "^6.18.0",
+    "commander": "2.2.0",
+    "eslint": "^3.19.0",
+    "eslint-config-google": "^0.7.1",
     "humanize-number": "0.0.2",
-    "commander": "2.2.0"
+    "log-suppress": "^1.0.3"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true
+    },
+    "parserOptions": {
+      "ecmaVersion": 6
+    },
+    "extends": ["google"],
+    "rules": {
+      "require-jsdoc": "off",
+      "new-cap": "off",
+      "guard-for-in": "off",
+      "indent": ["error", 4]
+    }
   }
 }
