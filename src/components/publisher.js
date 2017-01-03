@@ -1,86 +1,50 @@
-var EventEmitter = require('eventemitter2').EventEmitter2,
-    util = require('util'),
-    Discovery = require('./Discovery'),
-    axon = require('@dashersw/axon'),
-    portfinder = require('portfinder');
+const Configurable = require('./configurable');
+const Component = require('./component');
+const axon = require('@dashersw/axon');
+const portfinder = require('portfinder');
 
-var Publisher = function(advertisement, discoveryOptions) {
-    EventEmitter.call(this, {
-        wildcard: true, // should the event emitter use wildcards.
-        delimiter: '::', // the delimiter used to segment namespaces, defaults to `.`.
-        newListener: false, // if you want to emit the newListener event set to true.
-        maxListeners: 2000 // the max number of listeners that can be assigned to an event, defaults to 10.
-    });
+module.exports = class Publisher extends Configurable(Component) {
+    constructor(advertisement, discoveryOptions) {
+        super(advertisement, discoveryOptions);
 
-    if (!advertisement.key || advertisement.key && advertisement.key.indexOf('$$') == -1)
-        advertisement.key = Publisher.environment + '$$' +(advertisement.key || '');
+        this.sock = new axon.types[this.type]();
+        this.sock.sock.on('bind', () => this.startDiscovery());
 
-    var that = this;
-    advertisement.axon_type = 'pub-emitter';
+        const onPort = (err, port) => {
+            this.advertisement.port = +port;
 
-    this.advertisement = advertisement;
+            this.sock.bind(port);
+            this.sock.sock.server.on('error', (err) => {
+                if (err.code != 'EADDRINUSE') throw err;
 
-    var host = discoveryOptions && discoveryOptions.address || '0.0.0.0';
-
-    portfinder.getPort({host: host, port: advertisement.port}, onPort);
-
-    function onPort(err, port) {
-        advertisement.port = +port;
-
-        var d = that.discovery = Discovery(advertisement, discoveryOptions);
-
-        that.sock = new axon.PubEmitterSocket();
-        that.sock.bind(port);
-        that.sock.sock.server.on('error', function(err) {
-            if (err.code != 'EADDRINUSE') throw err;
-
-            portfinder.getPort({host: host, port: advertisement.port}, onPort);
-        });
-
-        that.sock.sock.on('bind', function() {
-            that.emit('ready', that.sock);
-
-            d.on('added', function(obj) {
-                that.emit('added', obj);
+                portfinder.getPort({
+                    host: this.discoveryOptions.address,
+                    port: this.advertisement.port,
+                }, onPort);
             });
+        };
 
-            d.on('removed', function(obj) {
-                that.emit('removed', obj);
-            });
-        });
+        portfinder.getPort({
+            host: this.discoveryOptions.address,
+            port: advertisement.port,
+        }, onPort);
+    }
+
+    publish(topic, data) {
+        let namespace = '';
+
+        if (this.advertisement.namespace)
+            namespace = this.advertisement.namespace + '::';
+
+        topic = 'message::' + namespace + topic;
+
+        this.sock.emit(topic, data);
+    };
+
+    get type() {
+        return 'pub-emitter';
+    }
+    get oppo() {
+        return 'sub-emitter';
     }
 };
-util.inherits(Publisher, EventEmitter);
-
-
-Publisher.prototype.publish = function(topic, data) {
-    var namespace = '';
-    if (this.advertisement.namespace)
-        namespace = this.advertisement.namespace + '::';
-
-    topic = 'message::' + namespace + topic;
-
-    this.sock && this.sock.emit(topic, data);
-};
-
-
-Publisher.prototype.close = function() {
-    if (this.discovery) {
-        this.discovery.stop();
-
-        this.discovery.broadcast &&
-            this.discovery.broadcast.socket &&
-            this.discovery.broadcast.socket.close();
-    }
-};
-
-
-Publisher.environment = '';
-
-
-Publisher.setEnvironment = function(environment) {
-    Publisher.environment = environment + ':';
-};
-
-
-module.exports = Publisher;

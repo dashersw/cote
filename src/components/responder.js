@@ -1,93 +1,57 @@
-var EventEmitter = require('eventemitter2').EventEmitter2,
-    util = require('util'),
-    Discovery = require('./Discovery'),
-    axon = require('@dashersw/axon'),
-    portfinder = require('portfinder');
+const axon = require('@dashersw/axon');
+const portfinder = require('portfinder');
+const Configurable = require('./configurable');
+const Component = require('./component');
 
-var Responder = function(advertisement, discoveryOptions) {
-    EventEmitter.call(this, {
-        wildcard: true, // should the event emitter use wildcards.
-        delimiter: '::', // the delimiter used to segment namespaces, defaults to `.`.
-        newListener: false, // if you want to emit the newListener event set to true.
-        maxListeners: 2000 // the max number of listeners that can be assigned to an event, defaults to 10.
-    });
+module.exports = class Responder extends Configurable(Component) {
+    constructor(advertisement, discoveryOptions) {
+        super(advertisement, discoveryOptions);
 
-    if (!advertisement.key || advertisement.key && advertisement.key.indexOf('$$') == -1)
-        advertisement.key = Responder.environment + '$$' + (advertisement.key || '');
+        this.sock = new axon.types[this.type]();
+        this.sock.on('bind', () => this.startDiscovery());
 
-    advertisement.axon_type = 'rep';
-    this.advertisement = advertisement;
-
-    var that = this;
-    var host = discoveryOptions && discoveryOptions.address || '0.0.0.0';
-
-    portfinder.getPort({host: host, port: advertisement.port}, onPort);
-
-    function onPort(err, port) {
-        advertisement.port = +port;
-
-        var d = that.discovery = Discovery(advertisement, discoveryOptions);
-
-        that.sock = new axon.RepSocket();
-        that.sock.bind(port);
-        that.sock.server.on('error', function(err) {
-            if (err.code != 'EADDRINUSE') throw err;
-
-            portfinder.getPort({host: host, port: advertisement.port}, onPort);
-        });
-
-        that.sock.on('bind', function() {
-            that.emit('ready', that.sock);
-        });
-
-        that.sock.on('message', function(req, cb) {
+        this.sock.on('message', (req, cb) => {
             if (!req.type) return;
 
-            that.emit(req.type, req, cb);
+            this.emit(req.type, req, cb);
         });
 
-    }
-};
-util.inherits(Responder, EventEmitter);
+        const onPort = (err, port) => {
+            this.advertisement.port = +port;
 
-Responder.prototype.on = function(type, listener) {
-    return EventEmitter.prototype.on.call(this, type, (...args) => {
-        var rv = listener(...args);
+            this.sock.bind(port);
+            this.sock.server.on('error', (err) => {
+                if (err.code != 'EADDRINUSE') throw err;
 
-        if (rv && typeof rv.then == 'function') {
-            var cb = args.pop();
-            rv.then((val) => cb(null, val)).catch(cb);
-        }
-    });
-}
+                portfinder.getPort({
+                    host: this.discoveryOptions.address,
+                    port: this.advertisement.port,
+                }, onPort);
+            });
+        };
 
-Responder.prototype.close = function() {
-    if (this.discovery) {
-        this.discovery.stop();
-
-        this.discovery.broadcast &&
-            this.discovery.broadcast.socket &&
-            this.discovery.broadcast.socket.close();
+        portfinder.getPort({
+            host: this.discoveryOptions.address,
+            port: advertisement.port,
+        }, onPort);
     }
 
-    this.sock && this.sock.close();
+    on(type, listener) {
+        super.on(type, (...args) => {
+            const rv = listener(...args);
+
+            if (rv && typeof rv.then == 'function') {
+                const cb = args.pop();
+                rv.then((val) => cb(null, val)).catch(cb);
+            }
+        });
+    }
+
+    get type() {
+        return 'rep';
+    }
+
+    get oppo() {
+        return 'req';
+    }
 };
-
-
-Responder.environment = '';
-
-
-Responder.setEnvironment = function(environment) {
-    Responder.environment = environment + ':';
-};
-
-
-Responder.useHostNames = false;
-
-
-Responder.setUseHostNames = function(useHostNames) {
-    Responder.useHostNames = useHostNames;
-};
-
-
-module.exports = Responder;
