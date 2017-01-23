@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <title>Management Console</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,700' rel='stylesheet' type='text/css'>
+    <style>
+        *,
+        html,
+        body {
+            /* box-model */
+            margin: 0;
+
+            /* typography */
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+
+            /* visual */
+            color: #52524f;
+        }
+
+        header,
+        footer {
+            /* box-model */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+        }
+
+        h1 {
+            /* typography */
+            font-size: 2.5rem;
+            vertical-align: middle;
+        }
+
+        svg {
+            /*box-model */
+            width: 100vw;
+            height: calc(100vh - 80px);
+        }
+    </style>
+</head>
+<body>
+<script src='https://cdn.jsdelivr.net/lodash/4.14.0/lodash.min.js'></script>
+<script src='https://d3js.org/d3.v4.min.js'></script>
+
+<!-- These script are kept to dive deep into force layout of D3, if needed. -->
+<!--<script src='//d3js.org/d3-collection.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-selection.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-timer.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-dispatch.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-quadtree.v1.js'></script>-->
+<!--<script src='https://d3js.org/d3-drag.v1.js'></script>-->
+<!--<script src='//d3js.org/d3-force.v1.js'></script>-->
+
+<script src='/socket.io/socket.io.js'></script>
+<script>
+    var socket = io.connect(window.location.href + 'monitoring');
+</script>
+
+<header>
+    <h1>Monitor Cote</h1>
+</header>
+<main>
+    <div class='svg'></div>
+</main>
+<script>
+    var SVGDimensions = getSVGDimensions(document, window);
+
+    var config = {
+        /* SVG variables */
+        svgElmSpecifier: '.svg',
+        svgWidth: SVGDimensions.svgWidth,
+        svgHeight: SVGDimensions.svgHeight - 80, // 80px is the header size
+
+        /* Hosts radius */
+        host: {
+            radius: 15,
+            color: '#FFEE93',
+            textColor: '#D4C266'
+        },
+        process: {
+            radius: 10,
+            color: '#A0CED9',
+            textColor: '#8FBBC5'
+        },
+        node: {
+            radius: 5,
+            color: '#ADF7B6',
+            textColor: '#9EC3A3'
+        },
+
+        /* Text element variables */
+        textDx: '14',
+        textDy: '.31rem',
+
+        /********************************/
+        /* Force layout configuration */
+        /********************************/
+        strength: 50, // charge
+        distanceMin: 20, // distance min btw nodes
+
+        /* Link configuration */
+        linkDistance: {
+            hostProcess: 40,
+            processNode: 40,
+            nodeNode: 40
+        },
+
+        linkStrength: {
+            hostProcess: 1,
+            processNode: 1,
+            nodeNode: 1
+        },
+        linkIterations: 30,
+
+        linkColor: '#f1db6b',
+
+        collide: {
+            offset: 8,
+            iteration: 16
+        }
+    };
+
+    var svg = d3.select(config.svgElmSpecifier)
+            .append('svg')
+            .attr('width', config.svgWidth)
+            .attr('height', config.svgHeight);
+
+    var nodes = svg.selectAll('.node');
+    var links = svg.selectAll('.link');
+
+    var simulation = d3.forceSimulation()
+            .force('charge', d3.forceManyBody())
+            .force('collide', configureCollisionDetection(config))
+            .force('link', configureLink(config))
+            .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2))
+            .on('tick', ticked);
+
+    var drag = d3.drag()
+            .on('start', dragstarted)
+            .on('drag', dragged)
+            .on('end', dragended);
+
+    var alpha = 0.3;
+
+    function update(data) {
+        // Update links
+        links = svg.selectAll('.link')
+                .data(data.links);
+
+        // Exit unused links
+        links.exit().remove();
+
+        // Enter new links
+        var linkEnter = links.enter()
+                .append('line')
+                .classed('link', true)
+                .style('stroke', config.linkColor);
+
+        links = linkEnter.merge(links);
+
+        // Update Nodes
+        nodes = svg.selectAll('.node')
+                .data(data.nodes, function(d) {
+                    return d.id;
+                });
+
+        // Exit unused nodes.
+        nodes.exit().remove();
+
+        // Add new nodes
+        var nodeEnter = nodes.enter()
+                .append('g')
+                .classed('node', true)
+                .call(drag);
+
+        nodeEnter.append('circle')
+                .attr('r', function(d) {
+                    return config[d.type].radius;
+                })
+                .attr('fill', function(d) {
+                    return config[d.type].color;
+                });
+
+        nodeEnter.append('text')
+                .classed('text', true)
+                .attr('x', config.textDx)
+                .attr('y', config.textDy)
+                .style('fill', function(d) {
+                    return config[d.type].textColor;
+                })
+                .text(function(d) {
+                    return d.name;
+                });
+
+        nodes = nodeEnter.merge(nodes);
+
+        data.nodes.forEach(function(node) {
+            node.r = config[node.type].radius;
+        });
+
+        simulation.nodes(data.nodes);
+
+        simulation.force('link')
+                .links(data.links);
+
+        simulation
+                .alphaTarget(alpha = alpha * 0.1)
+                .restart();
+    }
+
+    function ticked() {
+        links.attr('x1', function(d) { return d.source.x; })
+                .attr('y1', function(d) { return d.source.y; })
+                .attr('x2', function(d) { return d.target.x; })
+                .attr('y2', function(d) { return d.target.y; });
+
+        nodes.attr('transform', function(d) {
+            var radius = config[d.type].radius;
+            var posX = Math.max(radius, Math.min(config.svgWidth - radius, d.x));
+            var posY = Math.max(radius, Math.min(config.svgHeight - radius, d.y));
+            return 'translate(' + posX + ',' + posY + ')';
+        });
+    }
+
+    function dragstarted(d) {
+        if (!d3.event.active) {
+            simulation.alphaTarget(0.3).restart();
+        }
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active) {
+            simulation.alphaTarget(0);
+        }
+
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function isHostProcessConnection(d) {
+        return (d.source.type == 'host' && d.target.type == 'process') ||
+                (d.target.type == 'host' && d.source.type == 'process');
+    }
+
+    function isProcessNodeConnection(d) {
+        return (d.source.type == 'process' && d.target.type == 'node') ||
+                (d.source.type == 'node' && d.target.type == 'process');
+    }
+
+    function configureLink(config) {
+        return d3.forceLink();
+        //         .distance(function(d) {
+        //             var distance = 0;
+        //     if (isHostProcessConnection(d)) {
+        //         distance = config.linkDistance.hostProcess;
+        //     } else if(isProcessNodeConnection(d)) {
+        //         distance = config.linkDistance.processNode;
+        //     }
+        //     else distance = config.linkDistance.nodeNode;
+
+        //     return Math.max(distance, config.distanceMin);
+        // });
+    }
+
+    function configureCollisionDetection(config) {
+        return d3.forceCollide(function(d){
+            return d.r * 4 + config.collide.offset;
+        }).iterations(config.collide.iteration);
+    }
+
+    function injectPreviousLocations(data, simulation) {
+        var newData = Object.assign([], data);
+
+        _.forEach(newData.nodes, function(node) {
+            var oldNode = _.filter(simulation.nodes(), function(simulationNode) {
+                return simulationNode.id == node.id;
+            });
+
+            if (oldNode.length == 1) {
+                node.x = oldNode[0].x;
+                node.y = oldNode[0].y;
+                node.fx = oldNode[0].fx ? oldNode[0].fx : null;
+                node.fy = oldNode[0].fy ? oldNode[0].fy : null;
+            }
+        });
+
+        return newData;
+    }
+
+    socket.on('statusUpdate', function(data) {
+        alpha = 0.3;
+        var newData = injectPreviousLocations(data, simulation);
+        update(newData);
+    });
+
+    function getSVGDimensions(document, window) {
+        var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        return {
+            svgWidth: viewportWidth,
+            svgHeight: viewportHeight
+        }
+    }
+
+    window.addEventListener('resize', function() {
+        var SVGDimensions = getSVGDimensions(document, window);
+
+        config.svgWidth = SVGDimensions.svgWidth;
+        config.svgHeight = SVGDimensions.svgHeight;
+
+        simulation.force('center',  d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2));
+    })
+</script>
+
+</body>
+</html>
