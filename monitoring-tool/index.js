@@ -1,3 +1,5 @@
+var portfinder = require('portfinder');
+
 module.exports = function(port) {
     var fs = require('fs'),
         _ = require('lodash'),
@@ -32,10 +34,19 @@ module.exports = function(port) {
     var rawLinks = {};
 
 // Sockend
-    app.listen(port || 5555);
+
+    portfinder.getPort(function (err, availablePort) {
+        console.log('Monitor works at', availablePort);
+        //
+        // `port` is guaranteed to be a free port
+        // in this scope.
+        //
+        app.listen(port || availablePort);
+    });
 
 
     monitor.on('status', function(status) {
+        console.log('status');
         var node = monitor.discovery.nodes[status.id];
         if (!node) return;
 
