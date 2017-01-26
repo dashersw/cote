@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Management Console</title>
+    <style>
+        *,
+        html,
+        body {
+            /* typography */
+            font-size: 16px;
+        }
+
+        h1 {
+            /* typography */
+            font-size: 2.5rem;
+        }
+
+        .node {
+            /* visual */
+            fill: red;
+        }
+
+        .link {
+            /* visual */
+            stroke: cyan;
+        }
+
+        .text {
+            /* typography */
+            font-weight: bold;
+        }
+
+        svg {
+            /* box-model */
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io.connect('http://localhost:5555');
+</script>
+
+<main>
+    <h1>Monitor Cote</h1>
+    <div class="svg"></div>
+</main>
+
+<script>
+    var config = {
+        /* SVG variables */
+        svgElmSpecifier: '.svg',
+        svgWidth: '1000',
+        svgHeight: '500',
+        nodeRadius: 10,
+
+        /* Text element variables */
+        textDx: 10,
+        textDy: 10,
+
+        /* Force layout configuration */
+        strength: -100, // charge
+        distanceMin: 4 // distance min btw nodes
+    };
+
+    var svg = d3.select(config.svgElmSpecifier)
+            .append('svg')
+            .attr('width', config.svgWidth)
+            .attr('height', config.svgHeight);
+
+    var nodes = svg.selectAll('.node');
+    var links = svg.selectAll('.link');
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    var simulation = d3.forceSimulation()
+            .force('charge', d3.forceManyBody().strength(config.strength))
+            .force("link", d3.forceLink().strength(2).distance(120).iterations(30))
+            .force('center', d3.forceCenter(config.svgWidth / 2, config.svgHeight / 2))
+            .on('tick', ticked);
+
+    var drag = d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+
+    function update(data) {
+        // Update links
+        links = svg.selectAll(".link")
+                .data(data.links);
+
+        links.exit().remove();
+
+        var linkEnter = links.enter()
+                .append("line")
+                .classed("link", true);
+
+        links = linkEnter.merge(links);
+
+        // Update Nodes
+        nodes = svg.selectAll('.node')
+                .data(data.nodes, function (d) {
+                    return d.id;
+                });
+
+        nodes.exit().remove();
+
+        var nodeEnter = nodes.enter()
+                .append("g")
+                .classed("node", true);
+
+        nodeEnter.append('circle')
+                .attr('r', config.nodeRadius)
+                .attr('fill', function(d) {
+                    return color(d.group);
+                })
+                .call(drag);
+
+        nodeEnter.append('text')
+                .classed('text', true)
+                .attr("x", 14)
+                .attr("y", ".31em")
+                .text(function (d) {
+                    return d.name;
+                });
+
+        nodes = nodeEnter.merge(nodes);
+
+        console.log(nodeEnter.nodes().length);
+        simulation.nodes(data.nodes);
+
+        simulation.force("link")
+                .links(data.links);
+
+        if (nodeEnter.nodes().length > 0) {
+            simulation.restart();
+        }
+    }
+
+    function ticked(e) {
+        links.attr("x1", function(d) {return d.source.x;})
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
+        nodes.attr('transform', function (d) {
+            return 'translate(' + d.x + ',' + d.y + ')';
+        });
+    }
+
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
+
+    socket.on('statusUpdate', function (data) {
+        update(data);
+    });
+</script>
+
+</body>
+</html>

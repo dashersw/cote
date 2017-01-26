@@ -4,3 +4,7 @@ var Monitor = require('../').Monitor;
 var randomMonitor = new Monitor({
     name: 'monitor'
 });
+
+randomMonitor.on('status', function(e) {
+    console.log(e);
+});
