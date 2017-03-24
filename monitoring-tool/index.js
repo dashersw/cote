@@ -34,7 +34,6 @@ module.exports = function(port) {
     var rawLinks = {};
 
 // Sockend
-
     portfinder.getPort(function (err, availablePort) {
         console.log('Monitor works at', availablePort);
         //

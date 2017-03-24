@@ -24,7 +24,8 @@ function cote(options) {
     var environmentSettings = {
         environment: process.env.COTE_ENV,
         useHostNames: !!process.env.COTE_USE_HOST_NAMES,
-        broadcast: process.env.COTE_BROADCAST_ADDRESS,
+        broadcast: process.env.COTE_BROADCAST_ADDRESS ||
+            (process.env.DOCKERCLOUD_IP_ADDRESS ? '10.7.255.255' : undefined),
         multicast: process.env.COTE_MULTICAST_ADDRESS
     };
 
