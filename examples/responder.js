@@ -4,7 +4,7 @@ var Responder = require('../').Responder;
 var randomResponder = new Responder({
     name: 'randomRep',
     // namespace: 'rnd',
-    respondsTo: ['randomRequest'] // types of requests this responder
+    respondsTo: ['randomRequest', 'promised request'] // types of requests this responder
     							  // can respond to.
 });
 
@@ -13,4 +13,15 @@ randomResponder.on('randomRequest', function(req, cb) {
     var answer = ~~(Math.random() * 10);
     console.log('request', req.val, 'answering with', answer);
     cb(answer);
+});
+
+// request handlers are like any event handler.
+randomResponder.on('promised request', function(req) {
+    var answer = ~~(Math.random() * 10);
+
+    return new Promise((resolve, reject) => {
+        console.log('promise request', req.val, 'answering with', answer);
+        resolve(answer);
+        // reject(answer);
+    });
 });
