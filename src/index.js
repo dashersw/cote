@@ -1,13 +1,13 @@
-var Discovery = require('./lib/Discovery'),
-    Requester = require('./lib/Requester.js'),
-    Responder = require('./lib/Responder.js'),
-    Publisher = require('./lib/Publisher.js'),
-    Subscriber = require('./lib/Subscriber.js'),
-    Sockend = require('./lib/Sockend.js'),
-    Monitor = require('./lib/Monitor.js'),
+var Discovery = require('./components/Discovery'),
+    Requester = require('./components/Requester.js'),
+    Responder = require('./components/Responder.js'),
+    Publisher = require('./components/Publisher.js'),
+    Subscriber = require('./components/Subscriber.js'),
+    Sockend = require('./components/Sockend.js'),
+    Monitor = require('./components/Monitor.js'),
     MonitoringTool = require('./monitoring-tool'),
-    TimeBalancedRequester = require('./lib/TimeBalancedRequester.js'),
-    PendingBalancedRequester = require('./lib/PendingBalancedRequester.js');
+    TimeBalancedRequester = require('./components/TimeBalancedRequester.js'),
+    PendingBalancedRequester = require('./components/PendingBalancedRequester.js');
 
 var _ = require('lodash');
 

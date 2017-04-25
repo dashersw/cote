@@ -1,7 +1,7 @@
 import test from 'ava';
 import LogSuppress from 'log-suppress';
 
-var cote = require('..')();
+var cote = require('../dist')();
 
 LogSuppress.init(console);
 
@@ -20,7 +20,6 @@ test.cb('classic request / responder', t => {
         t.end();
     });
 });
-
 
 test.cb('Environment test', t => {
     var key = 'test 2';

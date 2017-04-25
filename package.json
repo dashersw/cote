@@ -13,13 +13,17 @@
   ],
   "description": "A Node.js library for building zero-configuration microservices.",
   "scripts": {
-    "test": "ava"
+    "test": "ava",
+    "build": "babel src --presets babel-preset-es2015 -D -d dist -s",
+    "clean": "rm -rf dist",
+    "prepublish": "npm run build"
   },
   "author": {
     "name": "Armagan Amcalar",
     "email": "armagan@amcalar.com"
   },
-  "license": "MIT",
+  "main": "dist/index.js",
+  "licenses": "MIT",
   "repository": "dashersw/cote",
   "engines": {
     "node": ">=v0.10.0"
@@ -36,8 +40,11 @@
     "socket.io": "1.7.3"
   },
   "devDependencies": {
+    "async": "^2.3.0",
+    "async-q": "^0.3.1",
     "ava": "^0.17.0",
     "babel-cli": "^6.18.0",
+    "babel-preset-es2015": "^6.24.1",
     "commander": "2.2.0",
     "eslint": "^3.19.0",
     "eslint-config-google": "^0.7.1",
