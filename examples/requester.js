@@ -6,15 +6,17 @@ var randomRequest = new Requester({
     requests: ['randomRequest']
 });
 
-randomRequest.on('ready', function() {
-    setInterval(function() {
-        var req = {
-            type: 'randomRequest',
-            val: ~~(Math.random() * 10)
-        };
+function makeRequest() {
+    var req = {
+        type: 'randomRequest',
+        val: ~~(Math.random() * 10)
+    };
 
-        randomRequest.send(req, function(res) {
-            console.log('request', req, 'answer', res);
-        });
-    }, 5000);
-});
+    randomRequest.send(req, function(res) {
+        console.log('request', req, 'answer', res);
+    });
+}
+
+makeRequest();
+
+setInterval(makeRequest, 5000);
