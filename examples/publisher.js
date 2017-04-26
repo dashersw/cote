@@ -7,16 +7,17 @@ var randomPublisher = new Publisher({
     broadcasts: ['randomUpdate']
 });
 
-// Wait for the publisher to find an open port and listen on it.
-randomPublisher.on('ready', function() {
-    setInterval(function() {
-        var val = {
-            val: ~~(Math.random() * 1000)
-        };
+function publishUpdate() {
+    var val = {
+        val: ~~(Math.random() * 1000)
+    };
 
-        console.log('emitting', val);
+    console.log('emitting', val);
 
-        // publish an event with arbitrary data at any time
-        randomPublisher.publish('randomUpdate', val);
-    }, 3000);
-});
+    // publish an event with arbitrary data at any time
+    randomPublisher.publish('randomUpdate', val);
+}
+
+publishUpdate();
+
+setInterval(publishUpdate, 3000);
