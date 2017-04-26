@@ -2,22 +2,22 @@
   "name": "cote",
   "version": "0.11.0",
   "keywords": [
+    "microservices",
+    "zero-configuration",
+    "zero-conf",
     "mesh",
     "network",
     "auto discovery",
     "scalable",
     "fault-tolerant"
   ],
-  "description": "An auto-discovery mesh network framework for building fault-tolerant and scalable applications",
+  "description": "A Node.js library for building zero-configuration microservices.",
   "author": {
     "name": "Armagan Amcalar",
     "email": "armagan@amcalar.com"
   },
-  "licenses": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/dashersw/cote.git"
-  },
+  "license": "MIT",
+  "repository": "dashersw/cote",
   "engines": {
     "node": ">=v0.10.0"
   },
