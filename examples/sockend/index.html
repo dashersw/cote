@@ -1,41 +1,39 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io.connect();
-  var socketNamespaced = io.connect('/rnd');
+var socket = io.connect();
+var socketNamespaced = io.connect('/rnd');
 
-  setInterval(function() {
-    var req = {
-      val: ~~(Math.random() * 10)
-    };
+    setInterval(function() {
+        var req = {
+            val: Math.floor(Math.random() * 10)
+        };
 
-    var req2 = {
-      val: ~~(Math.random() * 10)
-    };
+        var req2 = {
+            val: Math.floor(Math.random() * 10)
+        };
 
-    var req3 = {
-      val: ~~(Math.random() * 10)
-    };
+        var req3 = {
+            val: Math.floor(Math.random() * 10)
+        };
 
-    var req4 = {
-      val: ~~(Math.random() * 10)
-    }
+        var req4 = {
+            val: Math.floor(Math.random() * 10)
+        }
 
-    socket.emit('randomRequest', req, function(data) {
-      console.log('normal', req.val, data);
-    });
+        socket.emit('randomRequest', req, function(data) {
+            console.log('normal', req.val, data);
+        });
 
-    socketNamespaced.emit('randomRequest', req2, function(data) {
-      console.log('ns', req2.val, data);
-    });
+        socketNamespaced.emit('randomRequest', req2, function(data) {
+            console.log('ns', req2.val, data);
+        });
 
-    socket.emit('promised request', req3, function(err, data) {
-      console.log('normal promised', req3.val, err, data);
-    });
+        socket.emit('promised request', req3, function(err, data) {
+            console.log('normal promised', req3.val, err, data);
+        });
 
-    socketNamespaced.emit('promised request', req4, function(err, data) {
-      console.log('ns promised', req4.val, err, data);
-    });
-
-  }, 3000);
-
+        socketNamespaced.emit('promised request', req4, function(err, data) {
+            console.log('ns promised', req4.val, err, data);
+        });
+    }, 3000);
 </script>
