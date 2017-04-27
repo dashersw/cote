@@ -1,3 +1,3 @@
 var cote = require('../');
 
-new cote.MonitoringTool(process.env.PORT);
+new cote.Monitor({name: 'Monitor'});
