@@ -3,7 +3,8 @@ cote
 
 [![Known Vulnerabilities](https://snyk.io/test/npm/cote/badge.svg)](https://snyk.io/test/npm/cote)
 
-cote is an auto-discovery mesh network framework for building fault-tolerant and scalable applications. It hosts components that let you write programs that discover each other over a private network and communicate in various schemes.
+cote is an auto-discovery mesh network framework for building fault-tolerant and scalable applications. It hosts
+components that let you write programs that discover each other over a private network and communicate in various schemes.
 
 Join us on [![cote Slack](http://slack.cotejs.org/badge.svg)](http://slack.cotejs.org) for anything related to cote.
 
@@ -29,18 +30,25 @@ client.send({type: 'time'}, (time) => {
 });
 ```
 
-That's all! Wasn't that simple? Now you can scale linearly on tens of machines. No configuration, no third party components, no nginx, no kafka, no consul and **only** Node.js. cote.js is batteries and chargers included!
+That's all! Wasn't that simple? Now you can scale linearly on tens of machines. No configuration, no third party
+components, no nginx, no kafka, no consul and **only** Node.js. cote.js is batteries and chargers included!
 
 Microservices case study
 ----
-Make sure to check out [the e-commerce case study](https://github.com/dashersw/cote-workshop) that implements a complete e-commerce application with microservices using [cote.js](https://github.com/dashersw/cote).
+Make sure to check out [the e-commerce case study](https://github.com/dashersw/cote-workshop) that implements a
+complete e-commerce application with microservices using [cote.js](https://github.com/dashersw/cote).
 
 Motivation
 ----
 
-Tomorrow belongs to distributed software. As CPU performance is heavily dictated by the number of cores and the power of each core is already at its limits, distributed computing will decide how your application performs. Distributed systems also pose great architectural benefits such as fault-tolerance and scalability.
+Tomorrow belongs to distributed software. As CPU performance is heavily dictated by the number of cores and the power of
+each core is already at its limits, distributed computing will decide how your application performs. Distributed systems
+ also pose great architectural benefits such as fault-tolerance and scalability.
 
-Components of such a distributed system should be able to find other components <a href="http://en.wikipedia.org/wiki/Zero_configuration_networking">zeroconf</a> and communicate over a set of conventions. Sometimes they may work as a cluster, may include a pub/sub mechanism, or a request/response mechanism. Cote brings you the advantages of distributed software. Think of it like homing pigeons.
+Components of such a distributed system should be able to find other components
+<a href="http://en.wikipedia.org/wiki/Zero_configuration_networking">zeroconf</a> and communicate over a set of
+conventions. Sometimes they may work as a cluster, may include a pub/sub mechanism, or a request/response mechanism.
+Cote brings you the advantages of distributed software. Think of it like homing pigeons.
 
 Installing
 ----
@@ -53,11 +61,13 @@ Installing
 Components
 ----
 
-All components support namespaces. Given as the configuration object to the constructor, components adhere and act on namespaces if provided, and ignore other messages.
+All components support namespaces. Given as the configuration object to the constructor, components adhere and act on
+namespaces if provided, and ignore other messages.
 
 ### Requester
 
-Requester queues requests until a Responder is available, and once so, it delivers the request. Requests will be dispatched to Responders in a round-robin way.
+Requester queues requests until a Responder is available, and once so, it delivers the request. Requests will be
+dispatched to Responders in a round-robin way.
 
 Example:
 ```js
@@ -83,9 +93,11 @@ setInterval(function() {
 
 ### Responder
 
-Responder is a component for responding to certain requests from a Requester. It's a descendant of EventEmitter2, and requests are regular events, therefore may be wildcarded or namespaced.
+Responder is a component for responding to certain requests from a Requester. It's a descendant of EventEmitter2, and
+requests are regular events, therefore may be wildcarded or namespaced.
 
-Responder may be used to add new modules to existing web servers / applications without ever changing the main server code. Only a Requester will be able to utilize a Responder.
+Responder may be used to add new modules to existing web servers / applications without ever changing the main server
+code. Only a Requester will be able to utilize a Responder.
 
 Example:
 ```js
@@ -109,7 +121,9 @@ randomResponder.on('randomRequest', function(req, cb) {
 
 ### Publisher
 
-Publisher is a component for publishing certain events with arbitrary data. It may be used as a distributed EventEmitter. It may also be used in a scenario where some components need to be notified of updates, such as new tweets, etc. instead of polling for them. Only a subscriber will get notifications from a Publisher.
+Publisher is a component for publishing certain events with arbitrary data. It may be used as a distributed
+EventEmitter. It may also be used in a scenario where some components need to be notified of updates, such as new
+tweets, etc. instead of polling for them. Only a subscriber will get notifications from a Publisher.
 
 Example:
 ```js
@@ -156,7 +170,9 @@ randomSubscriber.on('randomUpdate', function(req) {
 
 ### Sockend
 
-Sockend is the glue for carrying all the possibilities of cote to the next level with WebSockets over socket.io. Sockend makes Responders and Publishers available to the front-end and adhere to socket.io namespaces. It's the magic for distributed web apps.
+Sockend is the glue for carrying all the possibilities of cote to the next level with WebSockets over socket.io.
+Sockend makes Responders and Publishers available to the front-end and adhere to socket.io namespaces. It's the magic
+for distributed web apps.
 
 Example:
 `index.html`
@@ -212,11 +228,13 @@ var sockend = new require('../../').Sockend(io, {
 });
 ```
 
-Now, fire up a few Responders and Publishers on default or 'rnd' namespace and watch them glow with magic on `http://localhost:5555`.
+Now, fire up a few Responders and Publishers on default or 'rnd' namespace and watch them glow with magic on
+`http://localhost:5555`.
 
 ### Monitor
 
-Monitor is the "top" of cote. It lists all the daemons it discovers regardless of namespace or key. Run `examples/monitor.js` and see all your active cote daemons.
+Monitor is the "top" of cote. It lists all the daemons it discovers regardless of namespace or key. Run
+`examples/monitor.js` and see all your active cote daemons.
 
 MIT License
 ----
