@@ -19,7 +19,7 @@ for anything related to cote.
 - **Decentralized:** No fixed parts, no "manager" nodes, no single point of
                      failure
 - **Auto-discovery:** Services discover each other without a central bookkeeper
-- **Fault-tolerant:** Don't lose any data when a service is down
+- **Fault-tolerant:** Don't lose any requests when a service is down
 - **Scalable:** Horizontally scale to any number of machines
 - **Performant:** Process thousands of messages per second
 - **Humanized API:** Extremely simple to get started with a reasonable API!
@@ -298,39 +298,39 @@ Example:
 var socket = io.connect();
 var socketNamespaced = io.connect('/rnd');
 
-    setInterval(function() {
-        var req = {
-            val: Math.floor(Math.random() * 10)
-        };
+setInterval(function() {
+    var req = {
+        val: Math.floor(Math.random() * 10)
+    };
 
-        var req2 = {
-            val: Math.floor(Math.random() * 10)
-        };
+    var req2 = {
+        val: Math.floor(Math.random() * 10)
+    };
 
-        var req3 = {
-            val: Math.floor(Math.random() * 10)
-        };
+    var req3 = {
+        val: Math.floor(Math.random() * 10)
+    };
 
-        var req4 = {
-            val: Math.floor(Math.random() * 10)
-        }
+    var req4 = {
+        val: Math.floor(Math.random() * 10)
+    }
 
-        socket.emit('randomRequest', req, function(data) {
-            console.log('normal', req.val, data);
-        });
+    socket.emit('randomRequest', req, function(data) {
+        console.log('normal', req.val, data);
+    });
 
-        socketNamespaced.emit('randomRequest', req2, function(data) {
-            console.log('ns', req2.val, data);
-        });
+    socketNamespaced.emit('randomRequest', req2, function(data) {
+        console.log('ns', req2.val, data);
+    });
 
-        socket.emit('promised request', req3, function(err, data) {
-            console.log('normal promised', req3.val, err, data);
-        });
+    socket.emit('promised request', req3, function(err, data) {
+        console.log('normal promised', req3.val, err, data);
+    });
 
-        socketNamespaced.emit('promised request', req4, function(err, data) {
-            console.log('ns promised', req4.val, err, data);
-        });
-    }, 3000);
+    socketNamespaced.emit('promised request', req4, function(err, data) {
+        console.log('ns promised', req4.val, err, data);
+    });
+}, 3000);
 </script>
 ```
 `sockend.js`
