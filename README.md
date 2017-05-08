@@ -1035,7 +1035,7 @@ Here's a list of environment variables cote supports:
 | COTE_ENV                    | See [Environments](#environments)
 | COTE_MULTICAST_ADDRESS      | See [Multicast address](#multicast-address)
 | COTE_BROADCAST_ADDRESS      | See [Broadcast address](#broadcast-address)
-| COTE_DOCKERCLOUD_IP_ADDRESS | Default broadcast address in Docker Cloud is `10.7.255.255`. Passing any value to this variable will change default broadcast value from `255.255.255.255` to `10.7.255.255`. This setting shouldn't be changed by users, but rather is there to make cote play extremely well with Docker Cloud.
+| DOCKERCLOUD_IP_ADDRESS      | Default broadcast address in Docker Cloud is `10.7.255.255`. Passing any value to this variable will change default broadcast value from `255.255.255.255` to `10.7.255.255`. This setting shouldn't be changed by users, but rather is there to make cote play extremely well with Docker Cloud.
 | COTE_USE_HOST_NAMES         | In certain, extremely rare conditions, auto-discovery might fail due to components reporting wrong IP addresses. If you find out that is the case, you can command cote to use the reported host names instead.
 
 ## Deploying with Docker
