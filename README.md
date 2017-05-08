@@ -5,9 +5,9 @@ cote — A Node.js library for building zero-configuration microservices
 [![npm version](https://badge.fury.io/js/cote.svg)](https://badge.fury.io/js/cote)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/dashersw/cote/master/LICENSE)
 
-**cote lets you write zero-configuration microservices without the help of
-nginx, haproxy, redis, rabbitmq or _anything_ else. It is batteries — and
-chargers! — included.**
+**cote lets you write zero-configuration microservices in Node.js without nginx,
+haproxy, redis, rabbitmq or _anything else_. It is batteries — and chargers! —
+included.**
 
 Join us on
 [![cote Slack](http://slack.cotejs.org/badge.svg)](http://slack.cotejs.org)
@@ -46,8 +46,9 @@ client.send({type: 'time'}, (time) => {
 });
 ```
 
-That's all! Wasn't that simple? Now you can scale linearly on tens of machines.
-No configuration, no third party components, no nginx, no kafka, no consul and
+You can run these files anyway you like — on a single machine or scaled out to
+hundreds of machines in different datacenters — and they will *just work*. No
+configuration, no third party components, no nginx, no kafka, no consul and
 **only** Node.js. cote is batteries — and chargers — included!
 
 Microservices case study
@@ -58,9 +59,42 @@ Make sure to check out
 implements a complete e-commerce application with microservices using
 [cote](https://github.com/dashersw/cote).
 
-Cote plays very well with Docker, taking advantage of its network overlay
+cote plays very well with Docker, taking advantage of its network overlay
 features. The case study implements a scalable microservices application
 via Docker and can scale to multiple machines.
+
+## Table of Contents
+1. [Motivation](#motivation)
+1. [Getting started](#getting-started)
+    1. [Introduction to cote](#introduction-to-cote)
+    1. [Installation](#installation)
+    1. [Using cote for the first time](#using-cote-for-the-first-time)
+    1. [Implementing a request-response mechanism](#implementing-a-request-response-mechanism)
+        1. [Creating a requester](#creating-a-requester)
+        1. [Creating a responder](#creating-a-responder)
+    1. [Tracking changes in the system with a publish-subscribe mechanism](#tracking-changes-in-the-system-with-a-publish-subscribe-mechanism)
+        1. [Creating the arbitration service](#creating-the-arbitration-service)
+        1. [Creating a publisher](#creating-a-publisher)
+        1. [Creating a subscriber](#creating-a-subscriber)
+1. [Components Reference](#components-reference)
+    1. [Requester](#requester)
+    1. [Responder](#responder)
+    1. [Publisher](#publisher)
+    1. [Subscriber](#subscriber)
+    1. [Sockend](#sockend)
+    1. [Monitor](#monitor)
+    1. [Monitoring Tool](#monitoring-tool)
+1. [Advanced Usage](#advanced-usage)
+    1. [Environments](#environments)
+    1. [Keys](#keys)
+    1. [Namespaces](#namespaces)
+    1. [Multicast address](#multicast-address)
+    1. [Broadcast address](#broadcast-address)
+    1. [Controlling cote with environment variables](#controlling-cote-with-environment-variables)
+1. [Deploying with Docker](#deploying-with-docker)
+1. [FAQ](#faq)
+1. [Contribution](#contribution)
+1. [License](#mit-license)
 
 Motivation
 ----
@@ -77,19 +111,374 @@ find other components
 zeroconf</a> and communicate over a set of conventions. Sometimes they may work
 as a cluster, may include a pub/sub mechanism, or a request/response mechanism.
 
-Cote brings you all the advantages of ~~distributed software~~ microservices.
+cote brings you all the advantages of ~~distributed software~~ microservices.
 Think of it like homing pigeons.
 
-Installing
+Getting Started
 ----
 
-Install cote via NPM:
+### Introduction to cote
+
+cote allows you to implement hassle-free microservices by utilizing
+auto-discovery and other techniques. Typically, in a microservices system, the
+application is broken into smaller chunks that communicate with each other.
+cote helps you build such a system by providing you several key components
+which you can use for service communication.
+
+In a way, cote is the glue that's most necessary between different
+microservices. It replaces queue protocols and service registry software by
+clever use of IP broadcast/IP multicast systems. It's like your computer
+discovering there's an Apple TV nearby. This means, cote needs an
+environment that allows the use of IP broadcast or multicast, in order to
+scale beyond a single machine. Most bare-metal systems are designed this way,
+however, cloud infrastructure like AWS needs special care, either an overlay
+network like Weave, or better yet, just, Docker — which is fortunately the way
+run all of our software today anyway. That's why Docker is especially important
+for cote, as it enables cote to work its magic.
+
+cote also replaces HTTP communication. Microservices architecture is meant for
+hundreds of internal services communicating with each other. That being the
+case, a protocol like HTTP is cumbersome and heavy for communication that
+doesn't need 90% of HTTP's features. Therefore, cote uses a very light protocol
+over plain old TCP sockets for communication, making it fast, effective and
+most importantly, cheap.
+
+### Installation
+
+cote is a Node.js library for building microservices applications. It's
+available as an [npm package](https://npmjs.org/package/cote).
+
+Install cote locally via npm:
 
 ```bash
 npm install cote
 ```
 
-Components
+### Using cote for the first time
+
+Whether you want to integrate cote with an existing web application — e.g.
+based on express.js as exemplified
+[here](https://github.com/dashersw/cote-workshop/blob/master/admin/server.js)
+— or you want to rewrite a portion of your monolith, or you want to rewrite a
+few microservices with cote, all you need to do is to instantiate a few of
+cote's components (e.g. [Responder](#responder), [Requester](#requester),
+[Publisher](#publisher), [Subscriber](#subscriber)) depending on
+your needs, and they will start communicating automatically. While one component
+per process might be enough for simple applications or for tiny microservices, a
+complex application would require close communication and collaboration of
+multiple microservices. Hence, you may instantiate multiple components in a
+single process / service / application.
+
+### Implementing a request-response mechanism
+
+The most common scenario for applications is the request-response cycle.
+Typically, one microservice would request a task to be carried out or make
+a query to another microservice, and get a response in return. Let's implement
+such a solution with cote.
+
+First, require cote;
+
+```js
+const cote = require('cote');
+```
+
+#### Creating a requester
+
+Then, instantiate any component you want. Let's start with a `Requester` that
+shall ask for, say, currency conversions. `Requester` and all other components
+are classes on the main `cote` object, so we instantiate them with the `new`
+keyword.
+
+```js
+const requester = new cote.Requester({ name: 'currency conversion requester' });
+```
+
+All cote components require an object as the first argument, which should at
+least have a `name` property to identify the component. The name is used mainly
+as an identifier in monitoring components, and it's helpful when you read the
+logs later on as each component, by default, logs the name of the other
+components they discover.
+
+`Requester`s send requests to the ecosystem, and are expected to be used
+alongside `Responder`s to fulfill those requests. If there are no `Responder`s
+around, a `Requester` will just queue the request until one is available. If
+there are multiple `Responder`s, a `Requester` will use them in a round-robin
+fashion, load-balancing among them.
+
+Let's create and send a `convert` request, to ask for conversion from USD into
+EUR.
+
+```js
+const request = { type: 'convert', from: 'usd', to: 'eur', amount: 100 };
+
+requester.send(request, (res) => {
+    console.log(res);
+});
+```
+
+You can save this file as `client.js` and run it via `node client.js`.
+
+<details>
+<summary>
+    Click to see the complete <code>client.js</code> file.
+</summary>
+<p>
+
+```js
+const cote = require('cote');
+
+const requester = new cote.Requester({ name: 'currency conversion requester' });
+
+const request = { type: 'convert', from: 'usd', to: 'eur', amount: 100 };
+
+requester.send(request, (res) => {
+    console.log(res);
+});
+```
+
+</p>
+</details>
+
+Now this request will do nothing, and there won't be any logs in the console,
+because there are no components to fulfill this request and produce a response.
+
+Keep this process running, and let's create a `Responder` to respond to currency conversion requests.
+
+#### Creating a responder
+
+We first instantiate a `Responder` with the `new` keyword.
+
+```js
+const responder = new cote.Responder({ name: 'currency conversion responder' });
+```
+
+As detailed in [Responder](#responder), each `Responder` is also an instance of
+`EventEmitter2`. Responding to a certain request, let's say `convert`, is the
+same as listening to the `convert` event, and handling it with a function that
+takes two parameters: a request and a callback. The request parameter holds
+information about a single request, and it's basically the same `request` object
+the requester above sent. The second parameter, the callback, expects to be
+called with the actual response.
+
+Here's how a simple implementation might look like.
+
+```js
+const rates = { usd_eur: 0.91, eur_usd: 1.10 };
+
+responder.on('convert', (req, cb) => {
+    cb(req.amount * rates[`${req.from}_${req.to}`]);
+});
+```
+
+Now you can save this file as `conversion-service.js` and run it via
+`node conversion-service.js` on a separate terminal.
+
+<details>
+<summary>
+    Click to see the complete <code>conversion-service.js</code> file.
+</summary>
+<p>
+
+```js
+const cote = require('cote');
+
+const responder = new cote.Requester({ name: 'currency conversion responder' });
+
+const rates = { usd_eur: 0.91, eur_usd: 1.10 };
+
+responder.on('convert', (req, cb) => {
+    cb(req.amount * rates[`${req.from}_${req.to}`]);
+});
+```
+
+</p>
+</details>
+
+As you run the service, you will immediately see the first request in
+`client.js` being fulfilled and logged to the console. Now you can take this
+idea and build your services on it.
+
+Notice how we didn't have to configure IP addresses, ports, hostnames, or
+anything else.
+
+> Note: By default, every `Requester` will connect to every `Responder` it
+discovers, regardless of the request type. This means, every `Responder` should
+respond to the exact same set of requests, because `Requester`s will
+load-balance requests between all connected `Responder`s regardless of
+their capabilities, i.e, whether or not they can handle a given request.
+
+If you have multiple `Responder`s with varying response handlers, you will
+experience lost requests. In cote, this separation between responsibilities is
+called segmentation, or partitioning. If you wish to segment your requests in
+groups, you can use `key`s. Check out [keys](#keys) for a detailed guide on how
+and when to use segmentation.
+
+### Tracking changes in the system with a publish-subscribe mechanism
+
+One of the benefits of a microservices approach is its ease of use as a tool for
+tasks that previously required serious infrastructural investments. Such a task
+is managing updates and tracking changes in a system. Previously, this required
+at least a queue infrastructure with fanout, and scaling and managing this
+technological dependency would be a hurdle on its own.
+
+Fortunately, cote solves this problem in a very intuitive and almost magical
+way.
+
+Say, we need an arbitration service in our application which decides currency
+rates, and whenever there's a change within the system, it should notify all the
+instances of conversion services, so that they facilitate the new values.
+
+Of course, the arbitration service would be API driven, and would receive the
+new rates over another request so that for example an admin can enter the values
+through a back office application. The arbitration service should take this
+update and basically forward it to every conversion service. In order to achieve
+this, the arbitration service should have two components: one `Responder` for
+the API updates and one `Publisher` for notifying the conversion services. In
+addition to this, the conversion services should be updated to include a
+`Subscriber`. Let's see this in action.
+
+
+#### Creating the arbitration service
+
+A simple implementation of such a service would look like the following. First,
+we require cote and instantiate a responder for the API.
+
+`arbitration-service.js`
+
+```js
+const cote = require('cote');
+
+const responder = new cote.Responder({ name: 'arbitration API' });
+```
+
+Let's say we keep the rates in a local variable. This could just as well be a
+database call, but for the sake of simplicity let's keep this local.
+
+```js
+const rates = {};
+```
+
+Now the responder shall respond to an `update rate` request, allowing admins to
+update it from a back office application. The backoffice integration isn't
+important at this moment, but [here is an example how back offices could
+interact with cote responders in the backend](https://github.com/dashersw/cote-workshop/tree/master/admin). Basically, this
+service should have a responder to take in the new rates for a currency
+exchange.
+
+```js
+responder.on('update rate', (req, cb) => {
+    rates[req.currencies] = req.rate; // { currencies: 'usd_eur', rate: 0.91 }
+    cb('OK!');
+});
+```
+
+#### Creating a publisher
+
+We now have the rates, but the rest of the system, namely, the conversion
+services aren't aware of this change yet. In order to update them of the
+changes, we should create a `Publisher`.
+
+```js
+const publisher = new cote.Publisher({ name: 'arbitration publisher' });
+```
+
+Now whenever there's a new rate, we should utilize this `Publisher`. The
+`update rate` handler thus becomes:
+
+```js
+responder.on('update rate', (req, cb) => {
+    rates[req.currencies] = req.rate;
+    cb('OK!');
+
+    publisher.publish('update rate', req);
+});
+```
+
+<details>
+<summary>
+    Click to see the complete <code>arbitration-service.js</code> file.
+</summary>
+<p>
+
+```js
+const cote = require('cote');
+
+const responder = new cote.Responder({ name: 'arbitration API' });
+const publisher = new cote.Publisher({ name: 'arbitration publisher' });
+
+const rates = {};
+
+responder.on('update rate', (req, cb) => {
+    rates[req.currencies] = req.rate;
+    cb('OK!');
+
+    publisher.publish('update rate', req);
+});
+```
+
+</p>
+</details>
+
+Since currently there are no subscribers in this system, nobody will be notified
+of these changes. In order to facilitate this update mechanism, we need to go
+back to our `conversion-service.js` and add a `Subscriber` to it.
+
+#### Creating a subscriber
+
+A `Subscriber` is a regular cote component, so we instantiate it with the
+following:
+
+```js
+const subscriber = new cote.Subscriber({ name: 'arbitration subscriber' });
+```
+
+Put this line in `conversion-service.js`.
+
+`Subscriber` also extends `EventEmitter2`, and although these services might run
+in machines that are continents apart, any published updates will end up in a
+`Subscriber` as an event for us to consume.
+
+Here's how we might update `conversion-service.js` to listen to updates from the
+arbitration service.
+
+```js
+subscriber.on('update rate', (update) => {
+    rates[update.currencies] = update.rate;
+});
+```
+
+That's it! From now on, this conversion service will synchronize with the
+arbitration service and receive its updates. The new conversion requests after
+an update will be done over the new rate.
+
+<details>
+<summary>
+    Click to see the complete <code>conversion-service.js</code> file.
+</summary>
+<p>
+
+```js
+const cote = require('cote');
+
+const responder = new cote.Requester({ name: 'currency conversion responder' });
+const subscriber = new cote.Subscriber({ name: 'arbitration subscriber' });
+
+const rates = { usd_eur: 0.91, eur_usd: 1.10 };
+
+subscriber.on('update rate', (update) => {
+    rates[update.currencies] = update.rate;
+});
+
+responder.on('convert', (req, cb) => {
+    cb(req.amount * rates[`${req.from}_${req.to}`]);
+});
+```
+
+</p>
+</details>
+
+
+Components Reference
 ----
 
 cote hosts a number of components that together let you implement microservice
@@ -115,6 +504,7 @@ delivers the request. Requests will be dispatched to Responders in a
 round-robin way.
 
 Example:
+
 ```js
 const cote = require('cote');
 
@@ -143,6 +533,7 @@ working with promise-based libraries or when you want to chain multiple
 `Requester`s and `Responder`s.
 
 Example:
+
 ```js
 const cote = require('cote');
 const randomRequester = new cote.Requester({name: 'Random Requester'});
@@ -175,6 +566,7 @@ channel for the front-end. This greatly reduces time-to-market by providing a
 direct API for your front-end applications.
 
 Example:
+
 ```js
 const cote = require('cote');
 
@@ -201,6 +593,8 @@ working with promise-based libraries or when you want to chain multiple
 `Requester`s and `Responder`s.
 
 Example:
+
+`responder.js`
 ```js
 const cote = require('cote');
 const UserModel = require('UserModel'); // a promise-based model API such as
@@ -209,8 +603,11 @@ const UserModel = require('UserModel'); // a promise-based model API such as
 const userResponder = new cote.Responder({name: 'User Responder'});
 
 userResponder.on('find', (req) => UserModel.findOne(req.query));
+```
 
-// this would probably be in another file
+`requester.js`
+```js
+const cote = require('cote');
 const userRequester = new cote.Requester({name: 'User Requester'});
 
 userRequester
@@ -236,6 +633,7 @@ very cool real-time communication mechanism for your apps with no proprietary
 technology like Meteor.
 
 Example:
+
 ```js
 const cote = require('cote');
 
@@ -266,6 +664,7 @@ setInterval(function() {
 `Subscriber` subscribes to events emitted from a `Publisher`.
 
 Example:
+
 ```js
 const cote = require('cote');
 
@@ -291,6 +690,7 @@ It's the magic and the lost link for microservices. Without any configuration,
 you can expose APIs directly to the front-end.
 
 Example:
+
 `index.html`
 ```html
 <script src="/socket.io/socket.io.js"></script>
@@ -334,6 +734,7 @@ setInterval(function() {
 </script>
 ```
 `sockend.js`
+
 ```js
 const cote = require('cote'),
     app = require('http').createServer(handler),
@@ -373,10 +774,322 @@ daemons.
 
 ### Monitoring Tool
 
-Cote also has an infant of a monitoring tool that displays the cote ecosystem
+cote also has an infant of a monitoring tool that displays the cote ecosystem
 running in your environment in a nice graph. Run `examples/monitoring-tool.js`
 and navigate to `http://localhost:5555` in your browser to see your cote network
 graph in action.
+
+## Advanced usage
+
+While cote is extremely simple to get started, the requirements for a system
+running in production may demand further tweaking and advanced settings. Here
+are some of the advanced features of cote, which can be adjusted on several
+levels — as environment variables, as direct settings for the cote module when requiring it, or as direct settings for each component.
+
+Until now, we only saw instantiating cote components with a single argument. In
+fact, all cote components have two constructor parameters. The first is used as
+the _advertisement_ configuration which controls the data being advertised for
+auto-discovery. The second parameter is the _discovery_ configuration and it
+controls the network-layer configuration and environments for components.
+
+We'll see more details in the following section.
+
+### Environments
+
+cote works over IP broadcast or multicast. This means, for example, in an office
+network where there are several developers running a project based on cote in
+their local machines, there _might_ be chaos. Components on a developer's
+machine will discover other components on another developer's machine. This
+probably is not a desired effect, and fortunately cote offers a way to combat
+this.
+
+By passing in an `environment` property to the configuration object of a
+component, one can control the scope of auto-discovery for that particular
+component. Components that are not in the same environment will ignore each
+other. This effectively creates network partitions.
+
+`environment`s can be set as an environment variable `COTE_ENV`.
+
+Running a service with
+
+```sh
+COTE_ENV=developer-1 node service.js
+```
+
+sets all the components within that service to use `developer-1` as an
+`environment`. This makes sure that however many modules `service.js` makes use
+of, they all will share the same `environment`, so this is the safest way to
+specify `environment`s.
+
+The other way to specify an `environment` is using the configuration argument
+to cote, given when requiring cote in the first place. Since Node.js modules are
+read and executed once from the disk, you need to make sure to pass in the configuration at least once, during the first require call. The subsequent
+requires to cote will return the same module, which already has your
+configuration. If you have a bootstrap in your application that runs as the
+first thing in the application, it might be a good idea to put this config
+there.
+
+#### Example
+
+```js
+const cote = require('cote')({ environment: 'developer-2' });
+```
+
+It's also possible to provide this configuration to each component during their
+instantiation.
+
+```js
+const cote = require('cote');
+
+const req1 = new cote.Requester({ name: 'req-1' }, { environment: 'env-1' });
+const req2 = new cote.Requester({ name: 'req-2' }, { environment: 'env-2' });
+```
+
+Now the components in these services won't discover and communicate with each
+other.
+
+Another place this comes handy is multiple environments running on a single
+machine. Say you have a machine for your QA needs, where you host several
+environments for different tests, e.g. `integration` and `qa`. Again, components
+from different environments would mix up. Using a parametric `environment`, in
+this case, solves this problem.
+
+### Keys
+
+cote has another mechanism to create partitions called `key`s.
+Since every component discovers and tries to communicate with every other
+component on the horizon (this is called a "mesh network"), it might be
+desirable to tune the performance of an application by grouping certain
+components together over the use of a `key`.
+
+In our experience, the best way to segregate services is to follow the
+principles of domain-driven design. In this regard, for example, each domain
+could have its own `key`.
+
+`key`s are are also given as parameters to the configuration objects.
+
+When deciding whether to create a connection to another service, cote components
+make use of `key`s and `environment`s together. Therefore, two components with
+exact same `environment`s with different `key`s wouldn't be able to communicate.
+
+Think of it as `${environment}_${key}`.
+
+#### Example
+
+```js
+const cote = require('cote');
+
+const purchaseRequester = new cote.Requester({
+    name: 'Purchase Requester',
+    key: 'purchase'
+});
+
+const inventoryRequester = new cote.Requester({
+    name: 'Inventory Requester',
+    key: 'inventory'
+});
+```
+
+Unlike `environment`s, `key`s can't be used as an environment variable or part
+of cote's configuration, but rather, should be provided as part of the first
+argument to a component.
+
+### Namespaces
+
+cote includes a [Sockend](#sockend) component that provides a direct channel to
+the frontend. This is extremely powerful and with power, comes great
+responsibility. Exposing all the `Responder`s and `Publisher`s in the backend
+to your frontend application probably isn't a good idea. Therefore cote offers
+`namespace`s, which map conveniently to `socket.io` namespaces.
+
+To help increase the security of backend services, components with
+different `namespace`s won't recognize each other and try to communicate. This
+effectively segregates the front-facing components. In order to _allow_ a
+component to talk to the frontend, you should use a `namespace` which shields
+that service from the rest of the system. By incorporating multiple components
+in a single service, you can basically create proxies and let your front-facing
+components interact with the rest of the system in a secure way.
+
+#### Example
+
+`front-facing-service.js`
+
+```js
+const cote = require('cote');
+
+const responder = new cote.Responder({
+    name: 'Conversion Sockend Responder',
+    namespace: 'conversion'
+});
+
+const conversionRequester = new cote.Requester({
+    name: 'Conversion Requester',
+    key: 'conversion backend'
+});
+
+responder.on('convert', (req, cb) => {
+    conversionRequester.send(req.type, req, cb); // proxy the request
+});
+```
+
+`backend-service.js`
+
+```js
+const cote = require('cote');
+
+const responder = new cote.Responder({
+    name: 'Conversion Responder',
+    key: 'conversion backend'
+});
+
+const rates = { usd_eur: 0.91, eur_usd: 1.10 };
+
+responder.on('convert', (req, cb) => {
+    cb(req.amount * rates[`${req.from}_${req.to}`]);
+});
+```
+
+Just like `key`s, `namespace`s can also only be utilized as part of the first
+argument to a component.
+
+### Multicast address
+
+cote works either with IP multicast or IP broadcast, defaulting to broadcast. If
+you wish to use multicast instead, you can pass in a `multicast` property with
+the configuration object to cote. This will make sure that the discovery will
+happen only with the given configuration.
+
+In fact, this is the best way to segregate services, not in the application
+layer but at the network layer. This will create the minimal number of gossip
+messages and the biggest gains in terms of performance. Therefore, using
+different multicast addresses is better than using different environments or
+keys.
+
+Much like `environment`s, multicast addresses can be specified either as an
+environment variable or as part of the main configuration object to the cote
+require's. They can also be given as part of the _second_ configuration object.
+
+#### Example
+
+As an environment variable:
+```sh
+COTE_MULTICAST_ADDRESS=239.1.11.111 node service.js
+```
+
+As part of cote's module configuration:
+
+```js
+const cote = require('cote')({ multicast: '239.1.11.111' });
+```
+
+As part of each component's discovery configuration:
+
+```js
+const cote = require('cote');
+
+const req = new cote.Requester({ name: 'req' }, { multicast: '239.1.11.111' });
+```
+
+### Broadcast address
+While multicast is good for segmentation, certain scenarios may require the
+configuration be done over IP broadcast. In that case, broadcast address
+configuration helps. Much like multicast configuration, cote supports 3
+different ways of supplying broadcast configuration.
+
+Multicast configuration has precedence over broadcast. Therefore, when both
+configurations are applied, broadcast configuration will be ignored and
+multicast configuration will take over.
+
+Also, cote uses broadcast by default. Hence, if no configuration is provided,
+the broadcast address will be set to `255.255.255.255`. If you want to use
+broadcast, but have a different broadcast IP, you should configure it as shown
+below.
+
+#### Example
+
+As an environment variable:
+```sh
+COTE_BROADCAST_ADDRESS=239.1.11.111 node service.js
+```
+
+As part of cote's module configuration:
+
+```js
+const cote = require('cote')({ broadcast: '255.255.255.255' });
+```
+
+As part of each component's discovery configuration:
+
+```js
+const cote = require('cote');
+
+const req = new cote.Requester({ name: 'req' }, { broadcast: '255.255.255.255' });
+```
+
+### Controlling cote with environment variables
+
+Here's a list of environment variables cote supports:
+
+| Variable name               | Description |
+| --------------------------: | :---------- |
+| COTE_ENV                    | See [Environments](#environments)
+| COTE_MULTICAST_ADDRESS      | See [Multicast address](#multicast-address)
+| COTE_BROADCAST_ADDRESS      | See [Broadcast address](#broadcast-address)
+| COTE_DOCKERCLOUD_IP_ADDRESS | Default broadcast address in Docker Cloud is `10.7.255.255`. Passing any value to this variable will change default broadcast value from `255.255.255.255` to `10.7.255.255`. This setting shouldn't be changed by users, but rather is there to make cote play extremely well with Docker Cloud.
+| COTE_USE_HOST_NAMES         | In certain, extremely rare conditions, auto-discovery might fail due to components reporting wrong IP addresses. If you find out that is the case, you can command cote to use the reported host names instead.
+
+## Deploying with Docker
+
+cote plays extremely well with Docker. Even if your cloud provider doesn't
+support IP broadcast or multicast, you can still have the same functionality
+with Docker's overlay networks.
+
+Just deploy your cote applications just like any other Node.js application and
+even when your containers run in different machines on different continents, as
+long as they share an overlay network — which Docker assigns by default anyway —
+everything will work as expected.
+
+# FAQ
+
+## Is cote production-ready?
+
+cote is battle-tested, solid and has been running in production across thousands
+of services since its inception in 2013. cote follows
+[Semantic Versioning](http://semver.org) and although it's production-ready, we
+haven't released a version 1.0.0 yet. Although cote added many features in time,
+there hasn't been a single breaking API change since the beginning, so we didn't
+need to update the major version. In the near future, we want to release a
+version 1.0.0 after working out the
+[ES6 rewrite](https://github.com/dashersw/cote/issues/37).
+
+## Usage with PM2
+
+Make sure you don't run any of your services in cluster mode. It messes up the
+service discovery since it tries to load balance the UDP ports used internally
+for this purpose.
+
+## Running with cloud providers (AWS, DigitalOcean, etc)
+
+Most cloud providers block IP broadcast and multicast, therefore you can't run
+cote in a multi-host environment without special software for an overlay
+network. For this purpose, Docker is the best tool. Deploy your application in
+Docker containers and you can take advantage of its overlay networks. cote works
+out of the box with Docker Swarm and Docker Cloud.
+
+# Contribution
+
+cote is under constant development, and has several important issues still open.
+We would therefore heavily appreciate if you headed to the
+[project](https://github.com/dashersw/cote/projects/1) to see where we are in
+the development, picked an issue of your taste and gave us a hand.
+
+If you would like to see a feature implemented or want to contribute a new
+feature, you are welcome to open an issue to discuss it and we will be more than
+happy to help.
+
+If you choose to make a contribution, please fork this repository, work on a
+feature and submit a pull request. cote is the next level of microservices —
+be part of the revolution.
 
 MIT License
 ----
