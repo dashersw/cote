@@ -1,0 +1,8 @@
+title: Cote
+description: An auto-discovery mesh network framework for building fault-tolerant and scalable applications
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-cayman
+
+gems:
+  - jekyll-mentions
