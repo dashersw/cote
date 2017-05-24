@@ -8,28 +8,25 @@ module.exports = class Responder extends Monitorable(Configurable(Component)) {
     constructor(advertisement, discoveryOptions) {
         super(advertisement, discoveryOptions);
 
-        let that = this;
         let host = discoveryOptions && discoveryOptions.address || '0.0.0.0';
 
         const onPort = (err, port) => {
             advertisement.port = +port;
 
-            that.sock = new axon.RepSocket();
-            that.sock.bind(port);
-            that.sock.server.on('error', function(err) {
+            this.sock = new axon.RepSocket();
+            this.sock.bind(port);
+            this.sock.server.on('error', function(err) {
                 if (err.code != 'EADDRINUSE') throw err;
 
                 portfinder.getPort({host, port: advertisement.port}, onPort);
             });
 
-            that.sock.on('bind', function() {
-                that.emit('ready', that.sock);
-            });
+            this.sock.on('bind', () => this.startDiscovery());
 
-            that.sock.on('message', function(req, cb) {
+            this.sock.on('message', (req, cb) => {
                 if (!req.type) return;
 
-                that.emit(req.type, req, cb);
+                this.emit(req.type, req, cb);
             });
         };
 
@@ -47,10 +44,10 @@ module.exports = class Responder extends Monitorable(Configurable(Component)) {
         });
     }
 
-
     get type() {
         return 'rep';
     }
+
     get oppo() {
         return 'req';
     }

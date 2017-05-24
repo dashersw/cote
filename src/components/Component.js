@@ -13,17 +13,40 @@ module.exports = class Component extends EventEmitter {
         if (!advertisement.key ||
             advertisement.key && advertisement.key.indexOf('$$') == -1)
             advertisement.key = this.constructor.environment +
-            '$$' + (advertisement.key || '');
+                '$$' + (advertisement.key || '');
 
         this.advertisement = advertisement;
         this.advertisement.axon_type = this.type;
 
         this.discoveryOptions = discoveryOptions || {};
+    }
+
+    startDiscovery() {
         this.discovery = discovery(this.advertisement, this.discoveryOptions);
 
-        this.discovery.on('added', this.onAdded.bind(this));
-        this.discovery.on('removed', this.onRemoved.bind(this));
+        this.discovery.on('added', (obj) => {
+            if (
+                obj.advertisement.axon_type != this.oppo ||
+                obj.advertisement.key != this.advertisement.key ||
+                this.advertisement.namespace != obj.advertisement.namespace
+            ) return;
+
+            this.onAdded(obj);
+        });
+        this.discovery.on('removed', (obj) => {
+            if (
+                obj.advertisement.axon_type != this.oppo ||
+                obj.advertisement.key != this.advertisement.key ||
+                this.advertisement.namespace != obj.advertisement.namespace
+            ) return;
+
+            this.onRemoved(obj);
+        });
     }
+
+    onAdded() {};
+
+    onRemoved() {};
 
     close() {
         if (!this.discovery) return;
@@ -32,22 +55,5 @@ module.exports = class Component extends EventEmitter {
 
         if (this.discovery.broadcast && this.discovery.broadcast.socket)
             this.discovery.broadcast.socket.close();
-    }
-
-    onAdded(obj) {
-        if (obj.advertisement.axon_type != this.oppo) return;
-        if (obj.advertisement.key != this.advertisement.key) return;
-        if (this.advertisement.namespace != obj.advertisement.namespace) return;
-
-        this.emit('added', obj);
-    }
-
-    onRemoved(obj) {
-        if (obj.advertisement.axon_type != this.oppo) return;
-        if (obj.advertisement.key != this.advertisement.key) return;
-        if (this.advertisement.namespace != obj.advertisement.namespace) return;
-
-        obj && obj.sock && obj.sock.close();
-        this.emit('removed', obj);
     }
 };

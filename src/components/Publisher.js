@@ -7,12 +7,17 @@ module.exports = class Publisher extends Configurable(Component) {
     constructor(advertisement, discoveryOptions) {
         super(advertisement, discoveryOptions);
 
-        let host = this.discoveryOptions.address || '0.0.0.0';
+        setInterval(() => {
+            console.log('intervalport', this.discovery.me.advertisement.port);
+        }, 1000);
 
+        let host = this.discoveryOptions.address || '0.0.0.0';
+        this.sock = new axon.types[this.type]();
+console.log('my port', this.advertisement.port);
         const onPort = (err, port) => {
+            console.log('trying port', port)
             this.advertisement.port = +port;
 
-            this.sock = new axon.types[this.type]();
             this.sock.sock.bind(port);
             this.sock.sock.server.on('error', (err) => {
                 if (err.code != 'EADDRINUSE') throw err;
@@ -21,7 +26,7 @@ module.exports = class Publisher extends Configurable(Component) {
                 portfinder.getPort(opts, onPort);
             });
 
-            this.sock.sock.on('bind', (_) => this.emit('ready', this.sock));
+            this.sock.sock.on('bind', () => this.startDiscovery());
         };
 
         portfinder.getPort({host, port: this.advertisement.port}, onPort);
@@ -35,7 +40,7 @@ module.exports = class Publisher extends Configurable(Component) {
 
         topic = 'message::' + namespace + topic;
 
-        this.sock && this.sock.emit(topic, data);
+        this.sock.emit(topic, data);
     };
 
     get type() {

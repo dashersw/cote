@@ -11,9 +11,7 @@ test.cb('classic request / responder', t => {
     var requester = new cote.Requester({ name: 'requester', key });
     var responder = new cote.Responder({ name: 'responder', key });
 
-    requester.on('ready', () => {
-        requester.send({ type: 'test', args: [1, 2, 3] });
-    });
+    requester.send({ type: 'test', args: [1, 2, 3] });
 
     responder.on('test', req => {
         t.deepEqual(req.args, [1, 2, 3], 'Arguments should have been [1, 2, 3]');
@@ -29,9 +27,7 @@ test.cb('Environment test', t => {
     var requester = new cote.Requester({ name: 'requester', key });
     var responder = new cote.Responder({ name: 'responder', key });
 
-    requester.on('ready', () => {
-        requester.send({ type: 'test', args: [1, 2, 3] });
-    });
+    requester.send({ type: 'test', args: [1, 2, 3] });
 
     responder.on('test', req => {
         t.deepEqual(req.args, [1, 2, 3], 'Arguments should have been [1, 2, 3]');

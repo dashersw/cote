@@ -7,11 +7,13 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
     constructor(advertisement, discoveryOptions) {
         super(advertisement, discoveryOptions);
 
+        this.startDiscovery();
+
         this.sock = new axon.types[this.type]();
         this.sock.sock.set('retry timeout', 0);
 
         this.advertisement.subscribesTo = this.advertisement.subscribesTo || ['*'];
-
+console.log('wha');
         this.advertisement.subscribesTo.forEach((topic) => {
             let namespace = '';
             if (this.advertisement.namespace)
@@ -20,6 +22,7 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
             topic = 'message::' + namespace + topic;
 
             ((topic) => {
+                console.log('hello', topic);
                 this.sock.on(topic, (...args) => {
                     if (args.length == 1)
                         args.unshift(topic.substr(9));
@@ -30,6 +33,11 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
                 });
             })(topic);
         });
+    }
+
+    onAdded(obj) {
+        let address = Subscriber.useHostNames ? obj.hostName : obj.address;
+        this.sock.connect(obj.advertisement.port, address);
     }
 
     on(type, listener) {

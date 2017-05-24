@@ -14,13 +14,11 @@ test.cb('classic publisher / subscriber', t => {
     var subscriber = new cote.Subscriber({ name: 'subscriber', key });
     var subscriber2 = new cote.Subscriber({ name: 'subscriber2', key });
 
-    publisher.on('ready', () => {
-        async.each(
-            [subscriber, subscriber2],
-            (s, done) => s.on('connect', done),
-            _ => publisher.publish('test', { args: [1, 2, 3] })
-        );
-    });
+    async.each(
+        [subscriber, subscriber2],
+        (s, done) => s.sock.sock.on('connect', done),
+        _ => publisher.publish('test', { args: [1, 2, 3] })
+    );
 
     const tester = (done, req) => {
         t.deepEqual(req.args, [1, 2, 3], 'Arguments should have been [1, 2, 3]');
@@ -46,13 +44,11 @@ test.cb('Environment test', t => {
     var subscriber = new cote.Subscriber({ name: 'subscriber', key });
     var subscriber2 = new cote.Subscriber({ name: 'subscriber2', key });
 
-    publisher.on('ready', () => {
-        async.each(
-            [subscriber, subscriber2],
-            (s, done) => s.on('connect', done),
-            _ => publisher.publish('test env', { args: [1, 2, 4] })
-        );
-    });
+    async.each(
+        [subscriber, subscriber2],
+        (s, done) => s.on('connect', done),
+        _ => publisher.publish('test env', { args: [1, 2, 4] })
+    );
 
     const tester = (done, req) => {
         t.deepEqual(req.args, [1, 2, 4], 'Arguments should have been [1, 2, 4]');
@@ -80,13 +76,11 @@ test.cb('Namespace test', t => {
     var subscriber = new cote.Subscriber({ name: 'subscriber', key, namespace });
     var subscriber2 = new cote.Subscriber({ name: 'subscriber2', key, namespace });
 
-    publisher.on('ready', () => {
-        async.each(
-            [subscriber, subscriber2],
-            (s, done) => s.on('connect', done),
-            _ => publisher.publish('test env ns', { args: [1, 2, 5] })
-        );
-    });
+    async.each(
+        [subscriber, subscriber2],
+        (s, done) => s.on('connect', done),
+        _ => publisher.publish('test env ns', { args: [1, 2, 5] })
+    );
 
     const tester = (done, req) => {
         t.deepEqual(req.args, [1, 2, 5], 'Arguments should have been [1, 2, 5]');
