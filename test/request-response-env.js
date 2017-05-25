@@ -1,9 +1,14 @@
 import test from 'ava';
 import LogSuppress from 'log-suppress';
 
-let { Requester, Responder } = require('../src')();
+let { Requester, Responder } = require('../src')({ environment: 'test' });
 
 LogSuppress.init(console);
+
+test('Supports environment', (t) => {
+    t.is(Requester.environment, 'test:');
+    t.is(Responder.environment, 'test:');
+});
 
 test.cb('Supports simple req&res', (t) => {
     t.plan(1);
@@ -61,4 +66,3 @@ test.cb('Supports keys & namespaces', (t) => {
         t.end();
     });
 });
-

@@ -7,29 +7,27 @@ module.exports = class Publisher extends Configurable(Component) {
     constructor(advertisement, discoveryOptions) {
         super(advertisement, discoveryOptions);
 
-        setInterval(() => {
-            console.log('intervalport', this.discovery.me.advertisement.port);
-        }, 1000);
-
-        let host = this.discoveryOptions.address || '0.0.0.0';
         this.sock = new axon.types[this.type]();
-console.log('my port', this.advertisement.port);
+        this.sock.sock.on('bind', () => this.startDiscovery());
+
         const onPort = (err, port) => {
-            console.log('trying port', port)
             this.advertisement.port = +port;
 
             this.sock.sock.bind(port);
             this.sock.sock.server.on('error', (err) => {
                 if (err.code != 'EADDRINUSE') throw err;
 
-                const opts = {host, port: this.advertisement.port};
-                portfinder.getPort(opts, onPort);
+                portfinder.getPort({
+                    host: this.discoveryOptions.address,
+                    port: this.advertisement.port,
+                }, onPort);
             });
-
-            this.sock.sock.on('bind', () => this.startDiscovery());
         };
 
-        portfinder.getPort({host, port: this.advertisement.port}, onPort);
+        portfinder.getPort({
+            host: this.discoveryOptions.address,
+            port: advertisement.port,
+        }, onPort);
     }
 
     publish(topic, data) {

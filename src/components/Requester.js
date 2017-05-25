@@ -9,20 +9,20 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
 
         this.startDiscovery();
 
-        this.sock = new axon.ReqSocket();
+        this.sock = new axon.types[this.type]();
         this.sock.set('retry timeout', 0);
+
+        this.sock.on('message', (req, cb) => {
+            if (!(req && req.type)) return;
+
+            this.emit(req.type, req, cb);
+        });
     }
 
     onAdded(obj) {
         let address = Requester.useHostNames ? obj.hostName : obj.address;
 
         this.sock.connect(obj.advertisement.port, address);
-
-        this.sock.on('message', (req, cb) => {
-            if (!req.type) return;
-
-            this.emit(req.type, req, cb);
-        });
     }
 
     send(...args) {

@@ -2,9 +2,13 @@ import test from 'ava';
 import LogSuppress from 'log-suppress';
 import async from 'async';
 
-const { Publisher, Subscriber } = require('../src')();
-
+const { Publisher, Subscriber } = require('../src')({ environment: 'test' });
 LogSuppress.init(console);
+
+test('Supports environment', (t) => {
+    t.is(Publisher.environment, 'test:');
+    t.is(Subscriber.environment, 'test:');
+});
 
 test.cb('Supports simple pub&sub', (t) => {
     t.plan(2);
@@ -32,13 +36,13 @@ test.cb('Supports simple pub&sub', (t) => {
 });
 
 test.cb('Supports keys', (t) => {
-    const key = 'key 1';
+    let key = 'key 1';
 
     t.plan(2);
 
-    const publisher = new Publisher({ name: 'keyed publisher', key });
-    const subscriber = new Subscriber({ name: 'keyed subscriber', key });
-    const subscriber2 = new Subscriber({ name: 'keyed subscriber2', key });
+    let publisher = new Publisher({ name: 'keyed publisher', key });
+    let subscriber = new Subscriber({ name: 'keyed subscriber', key });
+    let subscriber2 = new Subscriber({ name: 'keyed subscriber2', key });
 
     async.each(
         [subscriber, subscriber2],
@@ -48,6 +52,7 @@ test.cb('Supports keys', (t) => {
 
     const tester = (done, req) => {
         t.deepEqual(req.args, [1, 2, 4], 'Arguments should have been [1, 2, 4]');
+
         done();
     };
 

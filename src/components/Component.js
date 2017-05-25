@@ -19,6 +19,7 @@ module.exports = class Component extends EventEmitter {
         this.advertisement.axon_type = this.type;
 
         this.discoveryOptions = discoveryOptions || {};
+        this.discoveryOptions.address = this.discoveryOptions.address || '0.0.0.0';
     }
 
     startDiscovery() {

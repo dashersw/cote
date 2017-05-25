@@ -13,7 +13,7 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
         this.sock.sock.set('retry timeout', 0);
 
         this.advertisement.subscribesTo = this.advertisement.subscribesTo || ['*'];
-console.log('wha');
+
         this.advertisement.subscribesTo.forEach((topic) => {
             let namespace = '';
             if (this.advertisement.namespace)
@@ -22,7 +22,6 @@ console.log('wha');
             topic = 'message::' + namespace + topic;
 
             ((topic) => {
-                console.log('hello', topic);
                 this.sock.on(topic, (...args) => {
                     if (args.length == 1)
                         args.unshift(topic.substr(9));
@@ -37,6 +36,7 @@ console.log('wha');
 
     onAdded(obj) {
         let address = Subscriber.useHostNames ? obj.hostName : obj.address;
+
         this.sock.connect(obj.advertisement.port, address);
     }
 

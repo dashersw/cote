@@ -8,29 +8,33 @@ module.exports = class Responder extends Monitorable(Configurable(Component)) {
     constructor(advertisement, discoveryOptions) {
         super(advertisement, discoveryOptions);
 
-        let host = discoveryOptions && discoveryOptions.address || '0.0.0.0';
+        this.sock = new axon.RepSocket();
+        this.sock.on('bind', () => this.startDiscovery());
+
+        this.sock.on('message', (req, cb) => {
+            if (!req.type) return;
+
+            this.emit(req.type, req, cb);
+        });
 
         const onPort = (err, port) => {
-            advertisement.port = +port;
+            this.advertisement.port = +port;
 
-            this.sock = new axon.RepSocket();
             this.sock.bind(port);
-            this.sock.server.on('error', function(err) {
+            this.sock.server.on('error', (err) => {
                 if (err.code != 'EADDRINUSE') throw err;
 
-                portfinder.getPort({host, port: advertisement.port}, onPort);
-            });
-
-            this.sock.on('bind', () => this.startDiscovery());
-
-            this.sock.on('message', (req, cb) => {
-                if (!req.type) return;
-
-                this.emit(req.type, req, cb);
+                portfinder.getPort({
+                    host: this.discoveryOptions.address,
+                    port: this.advertisement.port,
+                }, onPort);
             });
         };
 
-        portfinder.getPort({host, port: advertisement.port}, onPort);
+        portfinder.getPort({
+            host: this.discoveryOptions.address,
+            port: advertisement.port,
+        }, onPort);
     }
 
     on(type, listener) {
