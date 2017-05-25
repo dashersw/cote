@@ -512,7 +512,6 @@ const randomRequester = new cote.Requester({
     name: 'Random Requester',
     // namespace: 'rnd',
     // key: 'a certain key',
-    // environment: 'test',
     requests: ['randomRequest']
 });
 
@@ -575,7 +574,6 @@ const randomResponder = new cote.Responder({
     name: 'Random Responder',
     // namespace: 'rnd',
     // key: 'a certain key',
-    // environment: 'test',
     respondsTo: ['randomRequest'] // types of requests this responder
                                   // can respond to.
 });
@@ -642,7 +640,6 @@ const randomPublisher = new cote.Publisher({
     name: 'Random Publisher',
     // namespace: 'rnd',
     // key: 'a certain key',
-    // environment: 'test',
     broadcasts: ['randomUpdate']
 });
 
@@ -672,7 +669,6 @@ const randomSubscriber = new cote.Subscriber({
     name: 'Random Subscriber',
     // namespace: 'rnd',
     // key: 'a certain key',
-    // environment: 'test',
     subscribesTo: ['randomUpdate']
 });
 
@@ -757,8 +753,7 @@ function handler(req, res) {
 
 const sockend = new cote.Sockend(io, {
     name: 'Sockend',
-    // key: 'a certain key',
-    // environment: 'test'
+    // key: 'a certain key'
 });
 ```
 
@@ -833,16 +828,6 @@ there.
 
 ```js
 const cote = require('cote')({ environment: 'developer-2' });
-```
-
-It's also possible to provide this configuration to each component during their
-instantiation.
-
-```js
-const cote = require('cote');
-
-const req1 = new cote.Requester({ name: 'req-1' }, { environment: 'env-1' });
-const req2 = new cote.Requester({ name: 'req-2' }, { environment: 'env-2' });
 ```
 
 Now the components in these services won't discover and communicate with each
