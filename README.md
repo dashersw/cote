@@ -53,11 +53,22 @@ configuration, no third party components, no nginx, no kafka, no consul and
 
 Microservices case study
 ----
-
 Make sure to check out
 [the e-commerce case study](https://github.com/dashersw/cote-workshop) that
 implements a complete e-commerce application with microservices using
-[cote](https://github.com/dashersw/cote).
+[cote](https://github.com/dashersw/cote). It features;
+
++ a back-office with real-time updates for managing the catalogue of products
+and displaying sales with a RESTful API (express.js)
++ a storefront for end-users with real-time updates to products where they
+can buy the products with WebSockets (socket.io)
++ a user microservice for user CRUD
++ a product microservice for product CRUD
++ a purchase microservice that enables users to buy products
++ a payment microservice that deals with money transactions that occur as
+a result of purchases
++ Docker compose configuration for running the system locally
++ Docker cloud configuration for running the system in Docker Cloud
 
 cote plays very well with Docker, taking advantage of its network overlay
 features. The case study implements a scalable microservices application
@@ -1033,6 +1044,12 @@ Just deploy your cote applications just like any other Node.js application and
 even when your containers run in different machines on different continents, as
 long as they share an overlay network — which Docker assigns by default anyway —
 everything will work as expected.
+
+Make sure to check out
+[the e-commerce case study](https://github.com/dashersw/cote-workshop) that
+implements a complete e-commerce application with microservices using
+[cote](https://github.com/dashersw/cote). It features example Dockerfiles and
+docker-compose configurations in addition to Docker Cloud configurations.
 
 # FAQ
 
