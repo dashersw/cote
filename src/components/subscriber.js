@@ -1,6 +1,6 @@
-const Configurable = require('./Configurable');
-const Monitorable = require('./Monitorable');
-const Component = require('./Component');
+const Configurable = require('./configurable');
+const Monitorable = require('./monitorable');
+const Component = require('./component');
 const axon = require('@dashersw/axon');
 
 module.exports = class Subscriber extends Monitorable(Configurable(Component)) {

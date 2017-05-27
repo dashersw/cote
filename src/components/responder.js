@@ -1,8 +1,8 @@
 const axon = require('@dashersw/axon');
 const portfinder = require('portfinder');
-const Configurable = require('./Configurable');
-const Monitorable = require('./Monitorable');
-const Component = require('./Component');
+const Configurable = require('./configurable');
+const Monitorable = require('./monitorable');
+const Component = require('./component');
 
 module.exports = class Responder extends Monitorable(Configurable(Component)) {
     constructor(advertisement, discoveryOptions) {

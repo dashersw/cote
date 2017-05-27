@@ -1,5 +1,5 @@
 var util = require('util'),
-    Requester = require('./Requester'),
+    Requester = require('./requester'),
     uuid = require('node-uuid'),
     _ = require('lodash');
 

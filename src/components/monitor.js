@@ -1,6 +1,6 @@
 var EventEmitter = require('eventemitter2').EventEmitter2,
     util = require('util'),
-    Discovery = require('./Discovery'),
+    Discovery = require('./discovery'),
     axon = require('@dashersw/axon'),
     portfinder = require('portfinder'),
     _ = require('lodash'),

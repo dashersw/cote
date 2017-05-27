@@ -1,9 +1,9 @@
 var EventEmitter = require('eventemitter2').EventEmitter2,
     util = require('util'),
-    Discovery = require('./Discovery'),
+    Discovery = require('./discovery'),
     axon = require('@dashersw/axon'),
-    Subscriber = require('./Subscriber'),
-    Requester = require('./Requester');
+    Subscriber = require('./subscriber'),
+    Requester = require('./requester');
 
 
 var Sockend = function(io, advertisement, discoveryOptions) {

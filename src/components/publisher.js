@@ -1,5 +1,5 @@
-const Configurable = require('./Configurable');
-const Component = require('./Component');
+const Configurable = require('./configurable');
+const Component = require('./component');
 const axon = require('@dashersw/axon');
 const portfinder = require('portfinder');
 
