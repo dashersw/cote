@@ -55,8 +55,8 @@ var Monitor = function(advertisement, discoveryOptions) {
         let index = 3;
         charm.position(0, 2);
         charm.foreground('green').
-            write('Naxme').move(16).
-            write('id').move(67).
+            write('Name').move(16).
+            write('id').move(37).
             write('Address').move(11).
             write('Port');
 
@@ -66,9 +66,9 @@ var Monitor = function(advertisement, discoveryOptions) {
             let port = node.advertisement.port || '----';
             port += '';
             charm.position(0, index).foreground('cyan').
-                write(node.advertisement.name.slice(0, 60)).move(60 - node.advertisement.name.length, 0).
-                // foreground('magenta').write(node.id).move(3, 0).
-                // foreground('yellow').write(node.address).move(3, 0).
+                write(node.advertisement.name.slice(0, 20)).move(20 - node.advertisement.name.length, 0).
+                foreground('magenta').write(node.id).move(3, 0).
+                foreground('yellow').write(node.address).move(3, 0).
                 foreground('red').write(port);
             index++;
         });
