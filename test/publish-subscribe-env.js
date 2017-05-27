@@ -6,7 +6,7 @@ import r from 'randomstring';
 const environment = r.generate();
 const { Publisher, Subscriber } = require('../src')({ environment });
 
-// LogSuppress.init(console);
+LogSuppress.init(console);
 
 test('Supports environment', (t) => {
     t.is(Publisher.environment, `${environment}:`);
@@ -22,7 +22,7 @@ test.cb('Supports simple pub&sub with env', (t) => {
 
     async.each(
         [subscriber, subscriber2],
-        (s, done) => s.sock.sock.on('connect', done),
+        (s, done) => s.sock.sock.on('connect', () => done()),
         (_) => publisher.publish('test', { args: [1, 2, 3] })
     );
 
@@ -52,7 +52,7 @@ test.cb('Supports keys with env', (t) => {
 
     async.each(
         [subscriber, subscriber2],
-        (s, done) => s.sock.sock.on('connect', done),
+        (s, done) => s.sock.sock.on('connect', () => done()),
         (_) => publisher.publish('test', { args: [1, 2, 4] })
     );
 
@@ -84,12 +84,12 @@ test.cb('Supports namespaces with env', (t) => {
 
     async.each(
         [subscriber, subscriber2],
-        (s, done) => s.sock.sock.on('connect', done),
-        (_) => publisher.publish('test', { args: [1, 2, 4] })
+        (s, done) => s.sock.sock.on('connect', () => done()),
+        (_) => publisher.publish('test', { args: [1, 2, 5] })
     );
 
     const tester = (done, req) => {
-        t.deepEqual(req.args, [1, 2, 4]);
+        t.deepEqual(req.args, [1, 2, 5]);
 
         done();
     };
@@ -117,12 +117,12 @@ test.cb('Supports keys & namespaces with env', (t) => {
 
     async.each(
         [subscriber, subscriber2],
-        (s, done) => s.sock.sock.on('connect', done),
-        (_) => publisher.publish('test', { args: [1, 2, 5] })
+        (s, done) => s.sock.sock.on('connect', () => done()),
+        (_) => publisher.publish('test', { args: [1, 2, 6] })
     );
 
     const tester = (done, req) => {
-        t.deepEqual(req.args, [1, 2, 5]);
+        t.deepEqual(req.args, [1, 2, 6]);
 
         done();
     };

@@ -5,7 +5,7 @@ import r from 'randomstring';
 
 const { Publisher, Subscriber } = require('../src')();
 
-// LogSuppress.init(console);
+LogSuppress.init(console);
 
 test.cb('Supports simple pub&sub', (t) => {
     t.plan(2);
@@ -16,7 +16,7 @@ test.cb('Supports simple pub&sub', (t) => {
 
     async.each(
         [subscriber, subscriber2],
-        (s, done) => s.sock.sock.on('connect', done),
+        (s, done) => s.sock.sock.on('connect', () => done()),
         (_) => publisher.publish('test', { args: [1, 2, 3] })
     );
 
@@ -47,7 +47,7 @@ test.cb('Supports keys', (t) => {
 
     async.each(
         [subscriber, subscriber2],
-        (s, done) => s.sock.sock.on('connect', done),
+        (s, done) => s.sock.sock.on('connect', () => done()),
         (_) => publisher.publish('test', { args: [1, 2, 4] })
     );
 
@@ -78,12 +78,12 @@ test.cb('Supports namespaces', (t) => {
 
     async.each(
         [subscriber, subscriber2],
-        (s, done) => s.sock.sock.on('connect', done),
-        (_) => publisher.publish('test', { args: [1, 2, 4] })
+        (s, done) => s.sock.sock.on('connect', () => done()),
+        (_) => process.nextTick(() => publisher.publish('test', { args: [1, 2, 5] }))
     );
 
     const tester = (done, req) => {
-        t.deepEqual(req.args, [1, 2, 4]);
+        t.deepEqual(req.args, [1, 2, 5]);
 
         done();
     };
@@ -111,12 +111,12 @@ test.cb('Supports keys & namespaces', (t) => {
 
     async.each(
         [subscriber, subscriber2],
-        (s, done) => s.sock.sock.on('connect', done),
-        (_) => publisher.publish('test', { args: [1, 2, 5] })
+        (s, done) => s.sock.sock.on('connect', () => done()),
+        (_) => publisher.publish('test', { args: [1, 2, 6] })
     );
 
     const tester = (done, req) => {
-        t.deepEqual(req.args, [1, 2, 5]);
+        t.deepEqual(req.args, [1, 2, 6]);
 
         done();
     };
