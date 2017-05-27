@@ -18,28 +18,40 @@ module.exports = (Base) => class Monitorable extends Base {
     }
 
     onMonitorAdded(obj) {
+        if (this.discovery.me.processId == obj.processId) return;
+
         let adv = obj.advertisement;
 
-        this.monitorStatusPublisher = new axon.PubEmitterSocket();
+        if (!this.monitorStatusPublisher) {
+            this.monitorStatusPublisher = new axon.PubEmitterSocket();
+            this.monitorStatusPublisher.sock.set('retry timeout', 0);
+            let statusInterval = this.discoveryOptions.statusInterval || 5000;
+
+            this.monitorInterval = setInterval(() => this.onMonitorInterval(), statusInterval);
+        }
 
         let address = obj.address;
         if (this.constructor.useHostNames) address = obj.hostName;
 
         this.monitorStatusPublisher.connect(adv.port, address);
-        let statusInterval = this.discoveryOptions.statusInterval || 5000;
-
-        setInterval(() => this.onMonitorInterval(), statusInterval);
     }
 
     onMonitorInterval() {
-        let nodes = [];
+        if (!this.monitorStatusPublisher.sock.socks.length) return;
 
-        for (let id in this.discovery.nodes) {
-            let node = this.discovery.nodes[id];
+        let nodes = (this.sock.socks || this.sock.sock.socks).map((s) => {
+            if (s.id) return s.id;
 
-            if (node.sock)
-                nodes.push(id);
-        }
+            for (let id in this.discovery.nodes) {
+                let node = this.discovery.nodes[id];
+
+                if (node.address == s.remoteAddress && node.advertisement.port == s.remotePort) {
+                    s.id = node.id;
+
+                    return s.id;
+                }
+            }
+        });
 
         this.monitorStatusPublisher.emit('status', {
             id: this.discovery.me.id,
