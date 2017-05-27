@@ -8,7 +8,7 @@ module.exports = class Responder extends Monitorable(Configurable(Component)) {
     constructor(advertisement, discoveryOptions) {
         super(advertisement, discoveryOptions);
 
-        this.sock = new axon.RepSocket();
+        this.sock = new axon.types[this.type]();
         this.sock.on('bind', () => this.startDiscovery());
 
         this.sock.on('message', (req, cb) => {

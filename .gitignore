@@ -3,3 +3,5 @@ node_modules
 .vscode
 jsconfig.json
 dist
+coverage
+.nyc_output

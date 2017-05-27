@@ -1,17 +1,18 @@
 import test from 'ava';
 import LogSuppress from 'log-suppress';
 import async from 'async';
+import r from 'randomstring';
 
 const { Publisher, Subscriber } = require('../src')();
 
-LogSuppress.init(console);
+// LogSuppress.init(console);
 
 test.cb('Supports simple pub&sub', (t) => {
     t.plan(2);
 
-    const publisher = new Publisher({ name: 'publisher' });
-    const subscriber = new Subscriber({ name: 'subscriber' });
-    const subscriber2 = new Subscriber({ name: 'subscriber2' });
+    const publisher = new Publisher({ name: `${t.title}: publisher` });
+    const subscriber = new Subscriber({ name: `${t.title}: subscriber` });
+    const subscriber2 = new Subscriber({ name: `${t.title}: subscriber2` });
 
     async.each(
         [subscriber, subscriber2],
@@ -20,25 +21,29 @@ test.cb('Supports simple pub&sub', (t) => {
     );
 
     const tester = (done, req) => {
-        t.deepEqual(req.args, [1, 2, 3], 'Arguments should have been [1, 2, 3]');
+        t.deepEqual(req.args, [1, 2, 3]);
         done();
     };
 
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.on('test', tester.bind(null, done)),
-        (_) => t.end()
+        (_) => {
+            [publisher, subscriber, subscriber2].forEach((c) => c.close());
+
+            t.end();
+        }
     );
 });
 
 test.cb('Supports keys', (t) => {
-    const key = 'key 1';
+    const key = r.generate();
 
     t.plan(2);
 
-    const publisher = new Publisher({ name: 'keyed publisher', key });
-    const subscriber = new Subscriber({ name: 'keyed subscriber', key });
-    const subscriber2 = new Subscriber({ name: 'keyed subscriber2', key });
+    const publisher = new Publisher({ name: `${t.title}: keyed publisher`, key });
+    const subscriber = new Subscriber({ name: `${t.title}: keyed subscriber`, key });
+    const subscriber2 = new Subscriber({ name: `${t.title}: keyed subscriber2`, key });
 
     async.each(
         [subscriber, subscriber2],
@@ -47,25 +52,29 @@ test.cb('Supports keys', (t) => {
     );
 
     const tester = (done, req) => {
-        t.deepEqual(req.args, [1, 2, 4], 'Arguments should have been [1, 2, 4]');
+        t.deepEqual(req.args, [1, 2, 4]);
         done();
     };
 
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.on('test', tester.bind(null, done)),
-        (_) => t.end()
+        (_) => {
+            [publisher, subscriber, subscriber2].forEach((c) => c.close());
+
+            t.end();
+        }
     );
 });
 
 test.cb('Supports namespaces', (t) => {
-    let namespace = 'ns 1';
+    let namespace = r.generate();
 
     t.plan(2);
 
-    let publisher = new Publisher({ name: 'ns publisher', namespace });
-    let subscriber = new Subscriber({ name: 'ns subscriber', namespace });
-    let subscriber2 = new Subscriber({ name: 'ns subscriber2', namespace });
+    let publisher = new Publisher({ name: `${t.title}: ns publisher`, namespace });
+    let subscriber = new Subscriber({ name: `${t.title}: ns subscriber`, namespace });
+    let subscriber2 = new Subscriber({ name: `${t.title}: ns subscriber2`, namespace });
 
     async.each(
         [subscriber, subscriber2],
@@ -74,7 +83,7 @@ test.cb('Supports namespaces', (t) => {
     );
 
     const tester = (done, req) => {
-        t.deepEqual(req.args, [1, 2, 4], 'Arguments should have been [1, 2, 4]');
+        t.deepEqual(req.args, [1, 2, 4]);
 
         done();
     };
@@ -82,19 +91,23 @@ test.cb('Supports namespaces', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.on('test', tester.bind(null, done)),
-        (_) => t.end()
+        (_) => {
+            [publisher, subscriber, subscriber2].forEach((c) => c.close());
+
+            t.end();
+        }
     );
 });
 
 test.cb('Supports keys & namespaces', (t) => {
-    let key = 'key 2';
-    let namespace = 'ns 2';
+    let key = r.generate();
+    let namespace = r.generate();
 
     t.plan(2);
 
-    let publisher = new Publisher({ name: 'kns publisher', key, namespace });
-    let subscriber = new Subscriber({ name: 'kns subscriber', key, namespace });
-    let subscriber2 = new Subscriber({ name: 'kns subscriber2', key, namespace });
+    let publisher = new Publisher({ name: `${t.title}: kns publisher`, key, namespace });
+    let subscriber = new Subscriber({ name: `${t.title}: kns subscriber`, key, namespace });
+    let subscriber2 = new Subscriber({ name: `${t.title}: kns subscriber2`, key, namespace });
 
     async.each(
         [subscriber, subscriber2],
@@ -103,7 +116,7 @@ test.cb('Supports keys & namespaces', (t) => {
     );
 
     const tester = (done, req) => {
-        t.deepEqual(req.args, [1, 2, 5], 'Arguments should have been [1, 2, 5]');
+        t.deepEqual(req.args, [1, 2, 5]);
 
         done();
     };
@@ -111,6 +124,10 @@ test.cb('Supports keys & namespaces', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.on('test', tester.bind(null, done)),
-        (_) => t.end()
+        (_) => {
+            [publisher, subscriber, subscriber2].forEach((c) => c.close());
+
+            t.end();
+        }
     );
 });

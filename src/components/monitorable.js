@@ -1,23 +1,31 @@
+const axon = require('@dashersw/axon');
+
 module.exports = (Base) => class Monitorable extends Base {
     startDiscovery() {
         super.startDiscovery();
 
-        this.discovery.on('added', this.onMonitorAdded.bind(this));
+        this.discovery.on('added', (obj) => {
+            let adv = obj.advertisement;
+
+            if (adv.type != 'monitor' ||
+                adv.environment &&
+                adv.environment != this.advertisement.environment ||
+                adv.key && adv.key != this.advertisement.key)
+                return;
+
+            this.onMonitorAdded(obj);
+        });
     }
 
     onMonitorAdded(obj) {
         let adv = obj.advertisement;
 
-        if (adv.type != 'monitor') return;
-
-        if (adv.key && adv.key != this.advertisement.key) return;
-
-        let statusPublisher = new axon.PubEmitterSocket();
+        this.monitorStatusPublisher = new axon.PubEmitterSocket();
 
         let address = obj.address;
         if (this.constructor.useHostNames) address = obj.hostName;
 
-        statusPublisher.connect(adv.port, address);
+        this.monitorStatusPublisher.connect(adv.port, address);
         let statusInterval = this.discoveryOptions.statusInterval || 5000;
 
         setInterval(() => this.onMonitorInterval(), statusInterval);
@@ -33,7 +41,7 @@ module.exports = (Base) => class Monitorable extends Base {
                 nodes.push(id);
         }
 
-        statusPublisher.emit('status', {
+        this.monitorStatusPublisher.emit('status', {
             id: this.discovery.me.id,
             nodes: nodes,
         });

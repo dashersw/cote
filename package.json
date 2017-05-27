@@ -13,7 +13,7 @@
   ],
   "description": "A Node.js library for building zero-configuration microservices.",
   "scripts": {
-    "test": "ava",
+    "test": "nyc ava --verbose",
     "build": "babel src --presets babel-preset-es2015 -D -d dist -s",
     "clean": "rm -rf dist",
     "prepublish": "npm run build"
@@ -23,21 +23,21 @@
     "email": "armagan@amcalar.com"
   },
   "main": "dist/index.js",
-  "licenses": "MIT",
+  "license": "MIT",
   "repository": "dashersw/cote",
   "engines": {
     "node": ">=v0.10.0"
   },
   "dependencies": {
     "@dashersw/axon": "2.0.3",
-    "charm": "0.1.2",
-    "colors": "0.x.x",
-    "eventemitter2": "0.4.x",
-    "lodash": "4.13.1",
+    "charm": "1.0.2",
+    "colors": "1.1.2",
+    "eventemitter2": "4.1.0",
+    "lodash": "4.17.4",
     "node-discover": "0.4.0",
-    "node-uuid": "1.4.7",
+    "uuid": "3.0.1",
     "portfinder": "1.0.13",
-    "socket.io": "1.7.3"
+    "socket.io": "2.0.1"
   },
   "devDependencies": {
     "async": "^2.3.0",
@@ -49,7 +49,9 @@
     "eslint": "^3.19.0",
     "eslint-config-google": "^0.7.1",
     "humanize-number": "0.0.2",
-    "log-suppress": "^1.0.3"
+    "log-suppress": "^1.0.3",
+    "nyc": "^10.3.2",
+    "randomstring": "^1.1.5"
   },
   "eslintConfig": {
     "env": {
@@ -58,13 +60,23 @@
     "parserOptions": {
       "ecmaVersion": 6
     },
-    "extends": ["google"],
+    "extends": [
+      "google"
+    ],
     "rules": {
       "require-jsdoc": "off",
       "new-cap": "off",
       "guard-for-in": "off",
-      "object-curly-spacing": ["error", "always"],
-      "max-len": ["error", { "code": 120 }]
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "max-len": [
+        "error",
+        {
+          "code": 120
+        }
+      ]
     }
   }
 }

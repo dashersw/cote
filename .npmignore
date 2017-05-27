@@ -5,3 +5,5 @@ examples
 jsconfig.json
 test
 src
+coverage
+.nyc_output

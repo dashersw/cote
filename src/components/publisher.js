@@ -13,7 +13,7 @@ module.exports = class Publisher extends Configurable(Component) {
         const onPort = (err, port) => {
             this.advertisement.port = +port;
 
-            this.sock.sock.bind(port);
+            this.sock.bind(port);
             this.sock.sock.server.on('error', (err) => {
                 if (err.code != 'EADDRINUSE') throw err;
 
