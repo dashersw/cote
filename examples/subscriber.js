@@ -1,9 +1,9 @@
-var Subscriber = require('../').Subscriber;
+let Subscriber = require('../').Subscriber;
 
-var randomSubscriber = new Subscriber({
+let randomSubscriber = new Subscriber({
     name: 'randomSub',
     // namespace:'rnd',
-    subscribesTo: ['randomUpdate']
+    subscribesTo: ['randomUpdate'],
 });
 
 randomSubscriber.on('randomUpdate', function(req) {
