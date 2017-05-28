@@ -7,8 +7,7 @@ var Discovery = require('./components/discovery'),
     Monitor = require('./components/monitor'),
     MonitoringTool = require('./monitoring-tool'),
     TimeBalancedRequester = require('./components/time-balanced-requester'),
-    PendingBalancedRequester = require(
-        './components/pending-balanced-requester');
+    PendingBalancedRequester = require('./components/pending-balanced-requester');
 
 var _ = require('lodash');
 

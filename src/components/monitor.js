@@ -1,4 +1,4 @@
-var EventEmitter = require('eventemitter2').EventEmitter2,
+let EventEmitter = require('eventemitter2').EventEmitter2,
     util = require('util'),
     Discovery = require('./discovery'),
     axon = require('@dashersw/axon'),
@@ -7,7 +7,7 @@ var EventEmitter = require('eventemitter2').EventEmitter2,
     charm = require('charm')();
 
 
-var Monitor = function(advertisement, discoveryOptions) {
+let Monitor = function(advertisement, discoveryOptions) {
     discoveryOptions = discoveryOptions || {};
 
     _.defaults(discoveryOptions, {
@@ -18,17 +18,17 @@ var Monitor = function(advertisement, discoveryOptions) {
     advertisement.type = 'monitor';
     advertisement.key = Monitor.environment + (advertisement.key || '');
 
-    var that = this,
+    let that = this,
         d = this.discovery = new Discovery(advertisement, discoveryOptions),
         host = discoveryOptions && discoveryOptions.address || '0.0.0.0',
         interval = discoveryOptions.interval || 5000;
 
-    portfinder.getPort({host: host, port: advertisement.port}, onPort);
+    portfinder.getPort({ host: host, port: advertisement.port }, onPort);
 
     function onPort(err, port) {
         advertisement.port = +port;
 
-        var sub = new axon.SubEmitterSocket(port);
+        let sub = new axon.SubEmitterSocket(port);
         sub.bind(port);
 
         sub.sock.server.on('error', function(err) {
@@ -52,7 +52,7 @@ var Monitor = function(advertisement, discoveryOptions) {
 
     (function draw() {
         charm.erase('screen');
-        var index = 3;
+        let index = 3;
         charm.position(0, 2);
         charm.foreground('green').
             write('Name').move(16).
@@ -63,7 +63,7 @@ var Monitor = function(advertisement, discoveryOptions) {
         charm.erase('down');
 
         d.eachNode(function(node) {
-            var port = node.advertisement.port || '----';
+            let port = node.advertisement.port || '----';
             port += '';
             charm.position(0, index).foreground('cyan').
                 write(node.advertisement.name.slice(0, 20)).move(20 - node.advertisement.name.length, 0).

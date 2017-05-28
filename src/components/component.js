@@ -33,6 +33,7 @@ module.exports = class Component extends EventEmitter {
             ) return;
 
             this.onAdded(obj);
+            this.emit('cote:added', obj);
         });
         this.discovery.on('removed', (obj) => {
             if (
@@ -42,6 +43,7 @@ module.exports = class Component extends EventEmitter {
             ) return;
 
             this.onRemoved(obj);
+            this.emit('cote:removed', obj);
         });
     }
 
@@ -50,11 +52,7 @@ module.exports = class Component extends EventEmitter {
     onRemoved() {};
 
     close() {
-        if (!this.discovery) return;
-
-        this.discovery.stop();
-
-        if (this.discovery.broadcast && this.discovery.broadcast.socket)
-            this.discovery.broadcast.socket.close();
+      this.sock && this.sock.close();
+      this.discovery && this.discovery.stop();
     }
 };
