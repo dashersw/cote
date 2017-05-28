@@ -32,25 +32,19 @@ class Discovery extends Discover {
 
         options.log && this.log(this.helloLogger());
 
-        this.on('added', function(obj) {
+        this.on('added', (obj) => {
             if (!options.monitor &&
                 !_.isEqual(obj.advertisement.key, advertisement.key)) return;
             options.log && options.helloLogsEnabled &&
-            obj.log(obj.statusLogger('online'));
+            this.log(this.statusLogger('online'));
         });
 
-        this.on('removed', function(obj) {
+        this.on('removed', (obj) => {
             if (!options.monitor &&
                 !_.isEqual(obj.advertisement.key, advertisement.key)) return;
             options.log && options.statusLogsEnabled &&
-            obj.log(obj.statusLogger('offline'));
+            this.log(this.statusLogger('offline'));
         });
-
-        // BIND ALL METHODS
-        this.setDefaults = this.log.bind(this);
-        this.log = this.log.bind(this);
-        this.helloLogger = this.helloLogger.bind(this);
-        this.statusLogger = this.statusLogger.bind(this);
     }
 
     static setDefaults(options) {
