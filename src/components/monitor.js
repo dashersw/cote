@@ -12,7 +12,7 @@ let Monitor = function(advertisement, discoveryOptions) {
 
     _.defaults(discoveryOptions, {
         monitor: true,
-        log: false
+        log: false,
     });
 
     advertisement.type = 'monitor';
@@ -34,7 +34,7 @@ let Monitor = function(advertisement, discoveryOptions) {
         sub.sock.server.on('error', function(err) {
             if (err.code != 'EADDRINUSE') throw err;
 
-            portfinder.getPort({host: host, port: advertisement.port}, onPort);
+            portfinder.getPort({ host: host, port: advertisement.port }, onPort);
         });
 
         sub.sock.on('bind', function() {
