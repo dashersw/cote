@@ -24,7 +24,7 @@ var Sockend = function(io, advertisement, discoveryOptions) {
     this.requesterTransformators = [];
 
     var that = this,
-        d = Discovery(advertisement, discoveryOptions);
+        d = new Discovery(advertisement, discoveryOptions);
 
     var namespaces = {};
 

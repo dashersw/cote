@@ -7,41 +7,44 @@ var Discovery = require('./components/discovery'),
     Monitor = require('./components/monitor'),
     MonitoringTool = require('./monitoring-tool'),
     TimeBalancedRequester = require('./components/time-balanced-requester'),
-    PendingBalancedRequester = require('./components/pending-balanced-requester');
+    PendingBalancedRequester = require(
+        './components/pending-balanced-requester');
 
 var _ = require('lodash');
 
 function cote(options) {
-    options = options || {};
+  options = options || {};
 
-    var defaults = {
-        environment: '',
-        useHostNames: false,
-        broadcast: null,
-        multicast: null
-    };
+  var defaults = {
+    environment: '',
+    useHostNames: false,
+    broadcast: null,
+    multicast: null,
+  };
 
-    var environmentSettings = {
-        environment: process.env.COTE_ENV,
-        useHostNames: !!process.env.COTE_USE_HOST_NAMES,
-        broadcast: process.env.COTE_BROADCAST_ADDRESS ||
-            (process.env.DOCKERCLOUD_IP_ADDRESS ? '10.7.255.255' : undefined),
-        multicast: process.env.COTE_MULTICAST_ADDRESS
-    };
+  var environmentSettings = {
+    environment: process.env.COTE_ENV,
+    useHostNames: !!process.env.COTE_USE_HOST_NAMES,
+    broadcast: process.env.COTE_BROADCAST_ADDRESS ||
+    (process.env.DOCKERCLOUD_IP_ADDRESS ? '10.7.255.255' : undefined),
+    multicast: process.env.COTE_MULTICAST_ADDRESS,
+  };
 
-    _.defaults(options, environmentSettings, defaults);
+  _.defaults(options, environmentSettings, defaults);
 
-    var components = [Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester,
-        PendingBalancedRequester];
+  Discovery.setDefaults(options);
 
-    components.forEach(function(component) {
-        component.setEnvironment(options.environment);
-        component.setUseHostNames && component.setUseHostNames(options.useHostNames);
-    });
+  var components = [
+    Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester,
+    PendingBalancedRequester];
 
-    Discovery.setDefaults(options);
+  components.forEach(function(component) {
+    component.setEnvironment(options.environment);
+    component.setUseHostNames &&
+    component.setUseHostNames(options.useHostNames);
+  });
 
-    return cote;
+  return cote;
 }
 
 cote.Requester = Requester;

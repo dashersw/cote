@@ -1,94 +1,94 @@
-var Discover = require('node-discover'),
-    colors = require('colors'),
-    _ = require('lodash');
+const Discover = require('node-discover');
+const colors = require('colors');
+const _ = require('lodash');
 
-var Discovery = function(advertisement, options = {}) {
+
+class Discovery extends Discover {
+
+  constructor(advertisement, options = {}) {
+
     _.defaults(options, Discovery.defaults, {
-        helloInterval: 2000,
-        checkInterval: 4000,
-        nodeTimeout: 5000,
-        masterTimeout: 6000,
-        monitor: false,
-        log: true,
-        helloLogsEnabled: true,
-        statusLogsEnabled: true,
-        ignoreProcess: false
+      helloInterval: 2000,
+      checkInterval: 4000,
+      nodeTimeout: 5000,
+      masterTimeout: 6000,
+      monitor: false,
+      log: true,
+      helloLogsEnabled: true,
+      statusLogsEnabled: true,
+      ignoreProcess: false,
     });
 
-    _.defaults(advertisement, {
-        type: 'service'
+    super(options);
+
+    this.advertisement = _.defaults(advertisement, {
+      type: 'service',
     });
 
-    var d = new Discover(options);
+    this.advertise(advertisement);
 
-    d.me.processId = d.broadcast.processUuid;
-    d.me.processCommand = process.argv.slice(1).map(function(n) {
-        return n.split('/').slice(-2).join('/');
+    this.me.processId = this.broadcast.processUuid;
+    this.me.processCommand = process.argv.slice(1).map((n) => {
+      return n.split('/').slice(-2).join('/');
     }).join(' ');
 
-    d.advertise(advertisement);
+    options.log && this.log(this.helloLogger());
 
-    options.log && log(helloLogger(d));
-
-    d.on('added', function(obj) {
-        if (!options.monitor && obj.advertisement.key != advertisement.key) return;
-
-        options.log && options.helloLogsEnabled && log(statusLogger(obj, 'online'));
+    this.on('added', function(obj) {
+      if (!options.monitor && !_.isEqual(obj.advertisement.key, advertisement.key)) return;
+      options.log && options.helloLogsEnabled && this.log(this.statusLogger('online'));
     });
 
-    d.on('removed', function(obj) {
-        if (!options.monitor && obj.advertisement.key != advertisement.key) return;
-
-        options.log && options.statusLogsEnabled && log(statusLogger(obj, 'offline'));
+    this.on('removed', function(obj) {
+      if (!options.monitor && !_.isEqual(obj.advertisement.key, advertisement.key)) return;
+      options.log && options.statusLogsEnabled && this.log(this.statusLogger('offline'));
     });
 
-    return d;
-};
+    // BIND ALL METHODS
+    this.setDefaults = this.log.bind(this);
+    this.log = this.log.bind(this);
+    this.helloLogger = this.helloLogger.bind(this);
+    this.statusLogger = this.statusLogger.bind(this);
 
-Discovery.setDefaults = function(options) {
-    Discovery.defaults = options;
-};
+  }
 
-var helloLogger = function(d) {
-    var adv = d.me,
-        log = [];
+  static setDefaults(options) {
 
-    d.me.id = d.broadcast.instanceUuid;
+    this.defaults = options;
 
-    log.push('\nHello! I\'m'.white);
-    log = log.concat(statusLogger(adv));
-    log.push('\n========================\n'.white);
+  }
 
-    return log;
-};
+  log(logs) {
 
-var statusLogger = function(obj, config) {
-    var adv = obj.advertisement,
-        log = [],
-        status;
+    console.log.apply(console.log, logs);
 
-    switch (config) {
-        case 'online':
-            status = '.online'.green;
-            break;
-        case 'offline':
-            status = '.offline'.red;
-            break;
+  }
+
+  helloLogger() {
+
+    return _.concat('\nHello! I\'m'.white, this.statusLogger(), '\n========================\n'.white);
+
+  }
+
+  statusLogger(status) {
+
+    const logs = [];
+
+    if (status) {
+      const statusLog = _.isEqual(status, 'online') ? '.online'.green : '.offline'.red;
+      logs.push(this.advertisement.type.magenta + statusLog);
     }
 
-    if (status)
-        log.push(adv.type.magenta + status)
+    logs.push(`${this.advertisement.name.white} ${' #'.grey}${this.broadcast.instanceUuid.grey}`);
 
-    log.push(adv.name.white + '#'.grey + obj.id.grey);
+    if (this.advertisement.port) {
+      logs.push('on', this.advertisement.port.toString().blue);
+    }
 
-    if (adv.port)
-        log.push('on', adv.port.toString().blue);
+    return logs;
 
-    return log;
-};
+  }
 
-var log = function(log) {
-    console.log.apply(console.log, log);
-};
+}
 
 module.exports = Discovery;
