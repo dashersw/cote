@@ -1,3 +1,3 @@
-var cote = require('../');
+const cote = require('../');
 
-new cote.Monitor({name: 'Monitor'});
+new cote.Monitor({ name: 'Monitor' });

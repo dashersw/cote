@@ -12,28 +12,77 @@
     "fault-tolerant"
   ],
   "description": "A Node.js library for building zero-configuration microservices.",
+  "scripts": {
+    "build": "babel src --presets babel-preset-es2015 -D -d dist -s",
+    "clean": "rm -rf dist",
+    "coverage": "nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" report",
+    "lint": "eslint src test",
+    "lint-fix": "eslint --fix src test",
+    "prepublish": "npm run build",
+    "test": "nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" ava --timeout=30000"
+  },
   "author": {
     "name": "Armagan Amcalar",
     "email": "armagan@amcalar.com"
   },
+  "main": "dist/index.js",
   "license": "MIT",
   "repository": "dashersw/cote",
   "engines": {
-    "node": ">=v0.10.0"
+    "node": ">=v4.0.0"
   },
   "dependencies": {
-    "@dashersw/axon": "2.0.3",
-    "charm": "0.1.2",
-    "colors": "0.x.x",
-    "eventemitter2": "0.4.x",
-    "lodash": "4.13.1",
+    "@dashersw/axon": "2.0.5",
+    "charm": "1.0.2",
+    "colors": "1.1.2",
+    "eventemitter2": "4.1.0",
+    "lodash": "4.17.4",
     "node-discover": "0.4.0",
-    "node-uuid": "1.4.7",
+    "uuid": "3.0.1",
     "portfinder": "1.0.13",
-    "socket.io": "1.7.3"
+    "socket.io": "2.0.1"
   },
   "devDependencies": {
+    "async": "^2.3.0",
+    "ava": "^0.17.0",
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2015": "^6.24.1",
+    "commander": "2.2.0",
+    "coveralls": "^2.13.1",
+    "eslint": "^3.19.0",
+    "eslint-config-google": "^0.7.1",
     "humanize-number": "0.0.2",
-    "commander": "2.2.0"
+    "log-suppress": "^1.0.3",
+    "nyc": "^10.3.2",
+    "randomstring": "^1.1.5",
+    "request": "^2.81.0",
+    "sinon": "^2.3.2",
+    "socket.io-client": "2.0.1"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true
+    },
+    "parserOptions": {
+      "ecmaVersion": 6
+    },
+    "extends": [
+      "google"
+    ],
+    "rules": {
+      "require-jsdoc": "off",
+      "new-cap": "off",
+      "guard-for-in": "off",
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "max-len": [
+        "error",
+        {
+          "code": 120
+        }
+      ]
+    }
   }
 }

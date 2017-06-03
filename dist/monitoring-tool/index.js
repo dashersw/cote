@@ -1,15 +1,18 @@
-module.exports = function(port) {
-    var fs = require('fs'),
-        _ = require('lodash'),
-        cote = require('../');
+'use strict';
 
-    var app = require('http').createServer(handler),
-        io = require('socket.io').listen(app);
+module.exports = function (port) {
+    var fs = require('fs');
+    var _ = require('lodash');
+    var cote = require('../');
+    var portfinder = require('portfinder');
+
+    var server = require('http').createServer(handler);
+    var io = require('socket.io').listen(server);
 
     // Instantiate a monitor, sockend and publisher components
     var monitor = new cote.Monitor({
         name: 'monitor'
-    }, {disableScreen: true});
+    }, { disableScreen: true });
 
     var sockend = new cote.Sockend(io, {
         name: 'sockend',
@@ -24,18 +27,25 @@ module.exports = function(port) {
         key: 'monitoring'
     });
 
-// Graph related variables
+    // Graph related variables
     var graph = {
         nodes: [],
         links: []
     };
     var rawLinks = {};
 
-// Sockend
-    app.listen(port || 5555);
+    var onPort = function onPort(err, port) {
+        server.listen(port);
+        server.on('error', function (err) {
+            if (err.code != 'EADDRINUSE') throw err;
 
+            portfinder.getPort({ port: port }, onPort);
+        });
+    };
 
-    monitor.on('status', function(status) {
+    portfinder.getPort({ port: port || 5555 }, onPort);
+
+    monitor.on('status', function (status) {
         var node = monitor.discovery.nodes[status.id];
         if (!node) return;
 
@@ -47,23 +57,22 @@ module.exports = function(port) {
         };
     });
 
-    monitor.discovery.on('removed', function(node) {
+    monitor.discovery.on('removed', function (node) {
         delete rawLinks[node.id];
         var removedNode = node.id;
 
-        for (nodeId in rawLinks) {
+        for (var nodeId in rawLinks) {
             var rawLink = rawLinks[nodeId];
 
             var removedNodeIndex = rawLink.target.indexOf(removedNode);
             if (removedNodeIndex > -1) {
                 rawLink.target.splice(removedNodeIndex, 1);
-                if (!rawLink.target.length)
-                    delete rawLinks[nodeId];
+                if (!rawLink.target.length) delete rawLinks[nodeId];
             }
         }
     });
 
-    setInterval(function() {
+    setInterval(function () {
         graph.nodes = [];
 
         var hosts = getHosts(monitor.discovery.nodes);
@@ -77,7 +86,7 @@ module.exports = function(port) {
 
         // Update links
         var indexMap = {};
-        graph.nodes.forEach(function(node, index) {
+        graph.nodes.forEach(function (node, index) {
             indexMap[node.id] = index;
         });
         graph.links = getLinks(rawLinks, indexMap);
@@ -86,29 +95,27 @@ module.exports = function(port) {
         publisher.publish('statusUpdate', graph);
     }, 5000);
 
-
     function handler(req, res) {
-        fs.readFile(__dirname + '/frontend/index.html',
-            function(err, data) {
-                if (err) {
-                    res.writeHead(500);
-                    return res.end('Error loading index.html');
-                }
-                res.writeHead(200);
-                res.end(data);
-            });
+        fs.readFile(__dirname + '/frontend/index.html', function (err, data) {
+            if (err) {
+                res.writeHead(500);
+                return res.end('Error loading index.html');
+            }
+            res.writeHead(200);
+            res.end(data);
+        });
     }
 
     function getProcesses(nodes) {
         var processes = _.groupBy(nodes, 'processId');
 
-        return _.map(processes, function(process, processId) {
+        return _.map(processes, function (process, processId) {
             return {
                 id: processId,
                 type: 'process',
                 name: process[0].processCommand
-            }
-        }).filter(function(process) {
+            };
+        }).filter(function (process) {
             return process.id != monitor.discovery.me.processId;
         });
     }
@@ -116,18 +123,18 @@ module.exports = function(port) {
     function getHosts(nodes) {
         var nodesByHosts = _.groupBy(nodes, 'hostName');
 
-        _.forEach(nodesByHosts, function(nodesByHost, hostId) {
+        _.forEach(nodesByHosts, function (nodesByHost, hostId) {
             var nodesByProcess = _.groupBy(nodesByHost, 'processId');
 
-            _.forEach(nodesByProcess, function(processNodes, processId) {
+            _.forEach(nodesByProcess, function (processNodes, processId) {
                 if (processId == monitor.discovery.me.processId) return;
 
                 rawLinks[processId] = {
                     source: processId,
-                    target: processNodes.map(function(node) {
+                    target: processNodes.map(function (node) {
                         return node.id;
                     })
-                }
+                };
             });
 
             rawLinks[hostId] = {
@@ -137,7 +144,7 @@ module.exports = function(port) {
         });
 
         var hosts = Object.keys(nodesByHosts);
-        hosts = _.map(hosts, function(host) {
+        hosts = _.map(hosts, function (host) {
             return {
                 id: host,
                 type: 'host',
@@ -148,12 +155,11 @@ module.exports = function(port) {
     }
 
     function getNodes(nodes) {
-        nodes = _.filter(nodes, function(node) {
-            return node.processId != monitor.discovery.me.processId &&
-                node.advertisement.name != 'sockendSub' && node.advertisement.name != 'sockendReq';
+        nodes = _.filter(nodes, function (node) {
+            return node.processId != monitor.discovery.me.processId && node.advertisement.name != 'sockendSub' && node.advertisement.name != 'sockendReq';
         });
 
-        simplifiedNodes = _.map(nodes, function(node) {
+        var simplifiedNodes = _.map(nodes, function (node) {
             return {
                 id: node.id,
                 type: 'node',
@@ -165,17 +171,19 @@ module.exports = function(port) {
     }
 
     function getLinks(rawLinks, indexMap) {
-        var links = _.map(rawLinks, function(rawLink) {
-            return rawLink.target.map(function(target) {
+        var links = _.map(rawLinks, function (rawLink) {
+            return rawLink.target.map(function (target) {
                 return { // flip source & target for semantics :)
-                    source: indexMap[target],//monitor.discovery.nodes[target].advertisement.name + '#' + target,
-                    target: indexMap[rawLink.source]//monitor.discovery.nodes[rawLink.source].advertisement.name + '#' + rawLink.source
-                };
+                    source: indexMap[target], // monitor.discovery.nodes[target].advertisement.name + '#' + target,
+                    target: indexMap[rawLink.source] };
             });
         });
 
-        return _.flatten(links).filter(function(link) {
-            return link.source != undefined && link.target != undefined;
+        return _.flatten(links).filter(function (link) {
+            return link.source && link.target;
         });
     }
+
+    return { monitor: monitor, server: server };
 };
+//# sourceMappingURL=index.js.map
