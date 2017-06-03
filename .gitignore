@@ -2,3 +2,5 @@ node_modules
 .idea
 .vscode
 jsconfig.json
+coverage
+.nyc_output
