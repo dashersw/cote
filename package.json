@@ -18,8 +18,9 @@
     "coverage": "nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" report",
     "lint": "eslint src test",
     "lint-fix": "eslint --fix src test",
-    "prepublish": "npm run build",
-    "test": "nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" ava --timeout=30000"
+    "prepublish": "npm run snyk-protect && npm run build",
+    "test": "nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" ava --timeout=30000",
+    "snyk-protect": "snyk protect"
   },
   "author": {
     "name": "Armagan Amcalar",
@@ -40,7 +41,8 @@
     "node-discover": "0.4.0",
     "uuid": "3.0.1",
     "portfinder": "1.0.13",
-    "socket.io": "2.0.1"
+    "socket.io": "2.0.2",
+    "snyk": "^1.33.0"
   },
   "devDependencies": {
     "async": "^2.3.0",
@@ -84,5 +86,6 @@
         }
       ]
     }
-  }
+  },
+  "snyk": true
 }
