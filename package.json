@@ -40,7 +40,7 @@
     "node-discover": "0.4.0",
     "uuid": "3.0.1",
     "portfinder": "1.0.13",
-    "socket.io": "2.0.1"
+    "socket.io": "2.0.2"
   },
   "devDependencies": {
     "async": "^2.3.0",
