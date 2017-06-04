@@ -27,7 +27,7 @@ test.cb('Supports multiple responders with promise and disconnection', (t) => {
 
     responders.forEach((r) => r.on('test', (req) => {
         return new Promise((resolve, reject) => {
-            const handler = resolve;
+            let handler = resolve;
             if (req.args.slice(-1) % 3) handler = reject;
 
             setTimeout(() => handler(req.args), Math.random() * 1000 + 500);
