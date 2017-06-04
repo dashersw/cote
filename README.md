@@ -1,10 +1,10 @@
 cote — A Node.js library for building zero-configuration microservices
 ====
 
-[![Known Vulnerabilities](https://snyk.io/test/npm/cote/badge.svg)](https://snyk.io/test/npm/cote)
 [![npm version](https://badge.fury.io/js/cote.svg)](https://badge.fury.io/js/cote)
 [![Build Status](https://travis-ci.org/dashersw/cote.svg?branch=master)](https://travis-ci.org/dashersw/cote)
 [![Coverage Status](https://coveralls.io/repos/github/dashersw/cote/badge.svg)](https://coveralls.io/github/dashersw/cote)
+[![dependencies Status](https://david-dm.org/dashersw/cote/status.svg)](https://david-dm.org/dashersw/cote)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/dashersw/cote/master/LICENSE)
 
 **cote lets you write zero-configuration microservices in Node.js without nginx,
