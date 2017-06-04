@@ -175,7 +175,9 @@ module.exports = function (port) {
             return rawLink.target.map(function (target) {
                 return { // flip source & target for semantics :)
                     source: indexMap[target], // monitor.discovery.nodes[target].advertisement.name + '#' + target,
-                    target: indexMap[rawLink.source] };
+                    target: indexMap[rawLink.source] // monitor.discovery.nodes[rawLink.source].advertisement.name +
+                    // '#' + rawLink.source
+                };
             });
         });
 
