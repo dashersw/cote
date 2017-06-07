@@ -118,7 +118,7 @@ each core is already at its limits, distributed computing will decide how your
 application performs. ~~Distributed systems~~ Microservices also pose great
 architectural benefits such as fault-tolerance and scalability.
 
-Components of such ~~a distributed system~~ microservices should be able to
+Components of ~~a distributed system~~ such microservices should be able to
 find other components
 <a href="http://en.wikipedia.org/wiki/Zero_configuration_networking">
 zeroconf</a> and communicate over a set of conventions. Sometimes they may work
