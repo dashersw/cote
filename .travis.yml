@@ -17,3 +17,6 @@ matrix:
   - node_js: '8'
     after_success:
     - ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls
+notifications:
+  slack:
+    secure: uSf31QK2ggqCLkG5Uevw0n0DR1/kzxn/NGU2lnSkZLSYZi+e5vIw+/fq6DzqnJXWaND/0D1hda29XXZ0mtA4gKV7kJndSfbADlA76ByHtGzcnsYG3VY/iiIvBEVTdFTssLzvADKrMhr8mSjz6xgXqmVrgQEzd6puIhkFby+VnlnFYuBW/OuufxKmnUpBkR+MZFLq56tVpWCpNQLi/b89jTXmwmuzRxDj/lwEzhZ6RWDxf9e+jURpI01xTU+dGHrTyqa6MXeXUjMDoVD9zplr4VRF8r4qBrE+rVTIMjXd6SZlFYTjZNgAtryvopo91r0askLxd3jY2ybtGsasQ0//2SvXgq09bUAt988s/OYkuWfGLsxl40bXgxrZ9+yS4F14gcoJ+RpWcyn4rY3TynULcwcv3u7nT7pUlqAaZ1UcaCSA+FuMYXuyG9vcDC89jRisw9waG1xT3wZ3xp4uFyi5qMU7/byHZaVd25+0J/Ra3UEY18nV/aKrYKlp84GhFAa0+01iLm22HR/SrafSaeXsu4/4dmjDA2xuABds0JhopRbf4MTdo0SSg7vGc1bm/0RXZU29njah5BAk9e4OnczgU+VTvP8II2lwlIcrej9YVYF9WLQyHHfhRFLcHPnG1GRj8/lojCKa17TQ4mketAgrJRzQH2W2DLAlAmHWS57Jja0=
