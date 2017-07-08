@@ -95,7 +95,7 @@ test.serial.cb('Server throws unknown error', (t) => {
 
     process.on('uncaughtException', function(err) {
         if (err.message != 'unknown error') {
-            originalListeners.forEach((l) => process.on('uncaughtException', l));
+            originalListeners.forEach((l) => l(err));
 
             throw err;
         }
