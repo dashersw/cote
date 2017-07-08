@@ -55,19 +55,21 @@ module.exports = function(port) {
         };
     });
 
-    monitor.discovery.on('removed', function(node) {
-        delete rawLinks[node.id];
-        const removedNode = node.id;
+    monitor.sock.sock.on('bind', () => {
+        monitor.discovery.on('removed', function(node) {
+            delete rawLinks[node.id];
+            const removedNode = node.id;
 
-        for (let nodeId in rawLinks) {
-            const rawLink = rawLinks[nodeId];
+            for (let nodeId in rawLinks) {
+                const rawLink = rawLinks[nodeId];
 
-            const removedNodeIndex = rawLink.target.indexOf(removedNode);
-            if (removedNodeIndex > -1) {
-                rawLink.target.splice(removedNodeIndex, 1);
-                if (!rawLink.target.length) delete rawLinks[nodeId];
+                const removedNodeIndex = rawLink.target.indexOf(removedNode);
+                if (removedNodeIndex > -1) {
+                    rawLink.target.splice(removedNodeIndex, 1);
+                    if (!rawLink.target.length) delete rawLinks[nodeId];
+                }
             }
-        }
+        });
     });
 
     setInterval(function() {
@@ -172,7 +174,7 @@ module.exports = function(port) {
                 (target) => ({ // flip source & target for semantics :)
                     source: indexMap[target], // monitor.discovery.nodes[target].advertisement.name + '#' + target,
                     target: indexMap[rawLink.source], // monitor.discovery.nodes[rawLink.source].advertisement.name +
-                                                      // '#' + rawLink.source
+                    // '#' + rawLink.source
                 })
             )
         );

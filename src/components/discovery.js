@@ -1,4 +1,4 @@
-const Discover = require('node-discover');
+const Discover = require('@dashersw/node-discover');
 const colors = require('colors');
 const _ = require('lodash');
 

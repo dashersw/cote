@@ -35,7 +35,7 @@ test.cb('Supports disconnection', (t) => {
 
     async.timesLimit(10, 2, (time, done) => {
         if (time == 9) t.end();
-        requester.send({ type: 'test', args: [5, 2, time] });
+        requester.send({ type: 'test', args: [5, 2, time] }).catch(() => {});
         setTimeout(() => done(), 500);
     }, (err, results) => { });
 });

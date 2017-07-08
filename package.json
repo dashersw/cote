@@ -33,11 +33,11 @@
   },
   "dependencies": {
     "@dashersw/axon": "2.0.5",
+    "@dashersw/node-discover": "^0.7.1",
     "charm": "1.0.2",
     "colors": "1.1.2",
     "eventemitter2": "4.1.0",
     "lodash": "4.17.4",
-    "node-discover": "0.6.2",
     "portfinder": "1.0.13",
     "socket.io": "2.0.2",
     "uuid": "3.0.1"

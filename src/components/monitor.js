@@ -15,8 +15,10 @@ module.exports = class Monitor extends Configurable(Component) {
         });
         super(advertisement, discoveryOptions);
 
+        this.stream = stream;
+
         this.sock = new axon.SubEmitterSocket();
-        this.startDiscovery();
+        this.sock.sock.on('bind', () => this.startDiscovery());
 
         this.sock.on('status', (status) => this.emit('status', status));
 
@@ -38,13 +40,16 @@ module.exports = class Monitor extends Configurable(Component) {
             host: this.discoveryOptions.address,
             port: this.advertisement.port,
         }, onPort);
+    }
 
+    startDiscovery() {
+        super.startDiscovery();
 
         if (this.discoveryOptions.disableScreen) return;
 
         const interval = this.discoveryOptions.interval || 5000;
 
-        charm.pipe(stream || process.stdout);
+        charm.pipe(this.stream || process.stdout);
         charm.reset().erase('screen').position(0, 0).
             write('                                                                                    ');
 
