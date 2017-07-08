@@ -1078,7 +1078,10 @@ Most cloud providers block IP broadcast and multicast, therefore you can't run
 cote in a multi-host environment without special software for an overlay
 network. For this purpose, Docker is the best tool. Deploy your application in
 Docker containers and you can take advantage of its overlay networks. cote works
-out of the box with Docker Swarm and Docker Cloud.
+out of the box with Docker Cloud and users of Docker Swarm can make use of the
+[Weave Net plugin](https://www.weave.works/docs/net/latest/plugin-v2/). Weave
+also has [an addon](https://www.weave.works/docs/net/latest/kube-addon/) for
+enabling multicast/broadcast for Kubernetes.
 
 # Contribution
 
