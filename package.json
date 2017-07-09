@@ -19,7 +19,7 @@
     "lint": "eslint src test",
     "lint-fix": "eslint --fix src test",
     "prepublish": "npm run build",
-    "test": "nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" ava --timeout=30000"
+    "test": "nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" ava --timeout=60000"
   },
   "author": {
     "name": "Armagan Amcalar",
