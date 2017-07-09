@@ -104,7 +104,8 @@ via Docker and can scale to multiple machines.
     1. [Multicast address](#multicast-address)
     1. [Broadcast address](#broadcast-address)
     1. [Controlling cote with environment variables](#controlling-cote-with-environment-variables)
-1. [Deploying with Docker](#deploying-with-docker)
+1. [Deploying with Docker Cloud](#deploying-with-docker-cloud)
+1. [Using centralized discovery tools](#using-centralized-discovery-tools)
 1. [FAQ](#faq)
 1. [Contribution](#contribution)
 1. [License](#mit-license)
@@ -792,7 +793,8 @@ graph in action.
 While cote is extremely simple to get started, the requirements for a system
 running in production may demand further tweaking and advanced settings. Here
 are some of the advanced features of cote, which can be adjusted on several
-levels — as environment variables, as direct settings for the cote module when requiring it, or as direct settings for each component.
+levels — as environment variables, as direct settings for the cote module when
+requiring it, or as direct settings for each component.
 
 Until now, we only saw instantiating cote components with a single argument. In
 fact, all cote components have two constructor parameters. The first is used as
@@ -1030,28 +1032,102 @@ Here's a list of environment variables cote supports:
 
 | Variable name               | Description |
 | --------------------------: | :---------- |
-| COTE_ENV                    | See [Environments](#environments)
-| COTE_MULTICAST_ADDRESS      | See [Multicast address](#multicast-address)
-| COTE_BROADCAST_ADDRESS      | See [Broadcast address](#broadcast-address)
+| COTE_ENV                    | See [Environments](#environments).
+| COTE_MULTICAST_ADDRESS      | See [Multicast address](#multicast-address).
+| COTE_BROADCAST_ADDRESS      | See [Broadcast address](#broadcast-address).
 | DOCKERCLOUD_IP_ADDRESS      | Default broadcast address in Docker Cloud is `10.7.255.255`. Passing any value to this variable will change default broadcast value from `255.255.255.255` to `10.7.255.255`. This setting shouldn't be changed by users, but rather is there to make cote play extremely well with Docker Cloud.
 | COTE_USE_HOST_NAMES         | In certain, extremely rare conditions, auto-discovery might fail due to components reporting wrong IP addresses. If you find out that is the case, you can command cote to use the reported host names instead.
+| COTE_DISCOVERY_REDIS        | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| COTE_DISCOVERY_REDIS_URL    | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| COTE_DISCOVERY_REDIS_HOST   | See [Using centralized discovery tools](#using-centralized-discovery-tools).
 
-## Deploying with Docker
+## Deploying with Docker Cloud
 
-cote plays extremely well with Docker. Even if your cloud provider doesn't
+cote plays extremely well with Docker Cloud. Even if your cloud provider doesn't
 support IP broadcast or multicast, you can still have the same functionality
-with Docker's overlay networks.
+with Docker Cloud's Weave overlay networks.
 
 Just deploy your cote applications just like any other Node.js application and
 even when your containers run in different machines on different continents, as
-long as they share an overlay network — which Docker assigns by default anyway —
-everything will work as expected.
+long as they share an overlay network — which Docker Cloud assigns by default
+anyway — everything will work as expected.
 
 Make sure to check out
 [the e-commerce case study](https://github.com/dashersw/cote-workshop) that
 implements a complete e-commerce application with microservices using
 [cote](https://github.com/dashersw/cote). It features example Dockerfiles and
 docker-compose configurations in addition to Docker Cloud configurations.
+
+It also has a Docker Swarm configuration to get you started on using cote with
+Docker Swarm, in any cloud environment.
+
+## Using centralized discovery tools
+
+cote is built to be zero-configuration, and relies on IP broadcast/multicast
+to work. However, as of 2017, cloud providers don't support this functionality
+out of the box. In these cases, one can use Docker Cloud and its Weave network
+integration. However, Docker Cloud may not be suitable for everyone, due to
+varying reasons.
+
+### Welcome redis
+
+In these cases, in order to let cote work, we developed a plugin mechanism to
+accomodate different solutions that can serve as the automated service
+discovery tool. Currently, redis is supported out of the box, and cote
+makes use of the [node_redis](https://github.com/NodeRedis/node_redis)
+library, in case you want to use redis as the central discovery tool. If you
+need to use anything other than redis, please open 
+[a new issue](https://github.com/dashersw/cote/issues/new) and we may be
+able to help.
+
+### Configuring redis
+
+cote aims to be as zero-conf as possible. Therefore, the discovery backend
+should be invisible to the developer. Since IP broadcast/multicast
+functionality is environment-specific, it makes sense to configure a
+centralized solution via environment variables as well. This way, the
+container deployment configurations such as Docker Swarm stack definitions
+can make use of the additional redis backend functionality, while developers
+can still use IP broadcast/multicast locally, with the same source code.
+
+That's why cote uses environment variables that start with 
+`COTE_DISCOVERY_REDIS`. cote transforms any environment variable that
+starts with `COTE_DISCOVERY_REDIS` to proper configuration for the
+[node_redis](https://github.com/NodeRedis/node_redis) library. For example,
+`COTE_DISCOVERY_REDIS_URL=redis` becomes `{ url: 'redis' }` and
+`COTE_DISCOVERY_REDIS_HOST=redis COTE_DISCOVERY_REDIS_PORT=6379` becomes
+`{ host: 'redis', port: '6379' }`.
+
+| Variable name               | Description |
+| --------------------------: | :---------- |
+| COTE_DISCOVERY_REDIS        | If you are running redis on localhost, setting this variable to true will use the locally available redis at port 6379. If you need any other redis URL or host, you don't need to use this variable.
+| COTE_DISCOVERY_REDIS_URL    | Sets the redis connection URL. Has to start with either `redis://` or `//`. Enables the redis plugin.
+| COTE_DISCOVERY_REDIS_HOST   | Sets the redis connection host name. Enables the redis plugin.
+| COTE_DISCOVERY_REDIS_PORT   | Sets the redis connection port. Enables the redis plugin.
+
+cote also supports other connection options supported by
+[node_redis](https://github.com/NodeRedis/node_redis) in the same manner.
+
+#### Example
+
+As an environment variable:
+```sh
+COTE_DISCOVERY_REDIS_HOST=redis node service.js
+```
+
+As part of cote's module configuration:
+
+```js
+const cote = require('cote')({ redis: { host: 'redis' } });
+```
+
+As part of each component's discovery configuration:
+
+```js
+const cote = require('cote');
+
+const req = new cote.Requester({ name: 'req' }, { redis: { host: 'redis' } });
+```
 
 # FAQ
 
@@ -1082,6 +1158,11 @@ out of the box with Docker Cloud and users of Docker Swarm can make use of the
 [Weave Net plugin](https://www.weave.works/docs/net/latest/plugin-v2/). Weave
 also has [an addon](https://www.weave.works/docs/net/latest/kube-addon/) for
 enabling multicast/broadcast for Kubernetes.
+
+If you find the solutions with Docker Swarm and Kubernetes to be hard to get
+started with, you can use redis as a centralized discovery tool. Check out
+[Using centralized discovery tools](#using-centralized-discovery-tools) to
+see how you can set up redis to work with cote.
 
 # Contribution
 
