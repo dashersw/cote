@@ -61,12 +61,12 @@ module.exports = class Sockend extends Configurable(Component) {
                 });
             };
 
-            let server = io;
+            let server = io.of('/');
             if (namespace) server = io.of('/' + namespace);
             server.on('connection', obj.requesterSocketHandler);
 
-            for (let sId in server.sockets.sockets) {
-                obj.requesterSocketHandler(server.sockets.sockets[sId]);
+            for (let sId in server.sockets) {
+                obj.requesterSocketHandler(server.sockets[sId]);
             }
         });
 

@@ -109,3 +109,25 @@ test.cb(`Sockend ns req&res / pub&sub`, (t) => {
         });
     });
 });
+
+test.cb(`Sockend ns late bound req&res`, (t) => {
+    t.plan(1);
+
+    const namespace = r.generate();
+    const key = r.generate();
+
+    portfinder.getPort({ port: 40000 }, (err, port) => {
+        const server = io(port);
+        server.of(`/${namespace}`, (socket) => {
+            const responder = new Responder({ name: `${t.title}: ns responder`, namespace, key, respondsTo: ['ns test'] });
+            responder.on('ns test', (req, cb) => cb(req.args));
+            client.emit('ns test', { args: [7, 8, 9] }, (res) => {
+                t.deepEqual(res, [7, 8, 9]);
+                t.end();
+            });
+        });
+
+        new Sockend(server, { name: 'ns sockend', key });
+        const client = ioClient(`http://0.0.0.0:${port}/${namespace}`);
+    });
+});
