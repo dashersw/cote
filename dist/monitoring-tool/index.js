@@ -57,19 +57,21 @@ module.exports = function (port) {
         };
     });
 
-    monitor.discovery.on('removed', function (node) {
-        delete rawLinks[node.id];
-        var removedNode = node.id;
+    monitor.sock.sock.on('bind', function () {
+        monitor.discovery.on('removed', function (node) {
+            delete rawLinks[node.id];
+            var removedNode = node.id;
 
-        for (var nodeId in rawLinks) {
-            var rawLink = rawLinks[nodeId];
+            for (var nodeId in rawLinks) {
+                var rawLink = rawLinks[nodeId];
 
-            var removedNodeIndex = rawLink.target.indexOf(removedNode);
-            if (removedNodeIndex > -1) {
-                rawLink.target.splice(removedNodeIndex, 1);
-                if (!rawLink.target.length) delete rawLinks[nodeId];
+                var removedNodeIndex = rawLink.target.indexOf(removedNode);
+                if (removedNodeIndex > -1) {
+                    rawLink.target.splice(removedNodeIndex, 1);
+                    if (!rawLink.target.length) delete rawLinks[nodeId];
+                }
             }
-        }
+        });
     });
 
     setInterval(function () {

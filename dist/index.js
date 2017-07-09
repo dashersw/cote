@@ -30,6 +30,29 @@ var cote = function cote(options) {
         multicast: process.env.COTE_MULTICAST_ADDRESS
     };
 
+    var keys = Object.keys(process.env).filter(function (k) {
+        return k.slice(0, 15) == 'COTE_DISCOVERY_';
+    });
+
+    keys.forEach(function (k) {
+        var keyName = k.slice(15);
+        var keyArray = keyName.split('_').map(function (k) {
+            return k.toLowerCase();
+        });
+        var pluginName = keyArray.shift();
+
+        var pluginObj = environmentSettings[pluginName] = environmentSettings[pluginName] || {};
+
+        keyArray.forEach(function (k) {
+            pluginObj[k] = process.env['COTE_DISCOVERY_' + pluginName.toUpperCase() + '_' + k.toUpperCase()];
+        });
+
+        // Discovery plugins (such as redis) may not have access to real IP addresses.
+        // Therefore we automatically default to `true` for `COTE_USE_HOST_NAMES`,
+        // since host names are accurate.
+        environmentSettings.useHostNames = true;
+    });
+
     _.defaults(options, environmentSettings, defaults);
 
     Discovery.setDefaults(options);

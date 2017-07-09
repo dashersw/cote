@@ -78,12 +78,12 @@ module.exports = function (_Configurable) {
                 });
             };
 
-            var server = io;
+            var server = io.of('/');
             if (namespace) server = io.of('/' + namespace);
             server.on('connection', obj.requesterSocketHandler);
 
-            for (var sId in server.sockets.sockets) {
-                obj.requesterSocketHandler(server.sockets.sockets[sId]);
+            for (var sId in server.sockets) {
+                obj.requesterSocketHandler(server.sockets[sId]);
             }
         });
 
