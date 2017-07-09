@@ -1138,9 +1138,7 @@ of services since its inception in 2013. cote follows
 [Semantic Versioning](http://semver.org) and although it's production-ready, we
 haven't released a version 1.0.0 yet. Although cote added many features in time,
 there hasn't been a single breaking API change since the beginning, so we didn't
-need to update the major version. In the near future, we want to release a
-version 1.0.0 after working out the
-[ES6 rewrite](https://github.com/dashersw/cote/issues/37).
+need to update the major version.
 
 ## Usage with PM2
 
