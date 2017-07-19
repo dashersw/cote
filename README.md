@@ -474,7 +474,7 @@ an update will be done over the new rate.
 ```js
 const cote = require('cote');
 
-const responder = new cote.Requester({ name: 'currency conversion responder' });
+const responder = new cote.Responder({ name: 'currency conversion responder' });
 const subscriber = new cote.Subscriber({ name: 'arbitration subscriber' });
 
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
