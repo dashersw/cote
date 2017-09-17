@@ -296,7 +296,7 @@ Now you can save this file as `conversion-service.js` and run it via
 ```js
 const cote = require('cote');
 
-const responder = new cote.Requester({ name: 'currency conversion responder' });
+const responder = new cote.Responder({ name: 'currency conversion responder' });
 
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
 
