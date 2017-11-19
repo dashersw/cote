@@ -1,3 +1,5 @@
+![cote](https://user-images.githubusercontent.com/698308/32996603-1517088a-cd85-11e7-85c5-8ef9b3ae2e49.png)
+
 cote — A Node.js library for building zero-configuration microservices
 ====
 
