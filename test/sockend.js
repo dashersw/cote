@@ -116,7 +116,7 @@ test.cb(`Sockend ns late bound req&res`, (t) => {
     const namespace = r.generate();
     const key = r.generate();
 
-    portfinder.getPort({ port: 40000 }, (err, port) => {
+    portfinder.getPort({ port: 50000 }, (err, port) => {
         const server = io(port);
         server.of(`/${namespace}`, (socket) => {
             const responder = new Responder({ name: `${t.title}: ns responder`, namespace, key,
