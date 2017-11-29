@@ -1,11 +1,9 @@
 import test from 'ava';
 import LogSuppress from 'log-suppress';
 import r from 'randomstring';
-import sinon from 'sinon';
 import io from 'socket.io';
 import portfinder from 'portfinder';
 import ioClient from 'socket.io-client';
-import async from 'async';
 
 const environment = r.generate();
 const { Responder, Sockend, Publisher } = require('../')({ environment });
@@ -78,11 +76,12 @@ test.cb(`Sockend ns req&res / pub&sub`, (t) => {
     portfinder.getPort({ port: 30000 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'ns sockend', key });
-        const responder = new Responder({ name: `${t.title}: ns responder`, namespace, key, respondsTo: ['ns test'] });
-        const responder2 = new Responder({ name: `${t.title}: ns responder 2`, namespace, key, respondsTo: ['ns test'] });
-        const responder3 = new Responder({ name: `${t.title}: ns responder 3`, namespace, key });
-        const publisher = new Publisher({ name: `${t.title}: ns publisher`, namespace, key, broadcasts: ['published message'] });
-        const publisher2 = new Publisher({ name: `${t.title}: ns publisher 2`, namespace, key, broadcasts: ['published message'] });
+        const responder = new Responder({ name: `${t.title}: ns responder`, namespace, key,
+            respondsTo: ['ns test'] });
+        const responder2 = new Responder({ name: `${t.title}: ns responder 2`, namespace, key,
+            respondsTo: ['ns test'] });
+        const publisher = new Publisher({ name: `${t.title}: ns publisher`, namespace, key,
+            broadcasts: ['published message'] });
 
         responder.on('ns test', (req, cb) => cb(req.args));
         responder2.on('ns test', (req, cb) => cb(req.args));
@@ -98,12 +97,13 @@ test.cb(`Sockend ns req&res / pub&sub`, (t) => {
             server.of(namespace).on('connection', (sock) => {
                 client.emit('ns test', { args: [7, 8, 9] }, (res) => {
                     t.deepEqual(res, [7, 8, 9]);
-                    if (publisher.sock.sock.socks.length > 0)
+                    if (publisher.sock.sock.socks.length > 0) {
                         publisher.publish('published message', { content: 'ns content' });
-                    else
+                    } else {
                         publisher.sock.sock.on('connect', () => {
                             publisher.publish('published message', { content: 'ns content' });
                         });
+                    }
                 });
             });
         });
@@ -119,7 +119,8 @@ test.cb(`Sockend ns late bound req&res`, (t) => {
     portfinder.getPort({ port: 40000 }, (err, port) => {
         const server = io(port);
         server.of(`/${namespace}`, (socket) => {
-            const responder = new Responder({ name: `${t.title}: ns responder`, namespace, key, respondsTo: ['ns test'] });
+            const responder = new Responder({ name: `${t.title}: ns responder`, namespace, key,
+                respondsTo: ['ns test'] });
             responder.on('ns test', (req, cb) => cb(req.args));
             client.emit('ns test', { args: [7, 8, 9] }, (res) => {
                 t.deepEqual(res, [7, 8, 9]);
