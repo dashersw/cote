@@ -1009,7 +1009,7 @@ below.
 
 As an environment variable:
 ```sh
-COTE_BROADCAST_ADDRESS=239.1.11.111 node service.js
+COTE_BROADCAST_ADDRESS=255.255.255.255 node service.js
 ```
 
 As part of cote's module configuration:
@@ -1094,7 +1094,7 @@ be part of the revolution.
 MIT License
 ----
 
-Copyright (c) 2013 Armagan Amcalar
+Copyright (c) 2018 Armagan Amcalar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
