@@ -1011,7 +1011,7 @@ below.
 
 As an environment variable:
 ```sh
-COTE_BROADCAST_ADDRESS=239.1.11.111 node service.js
+COTE_BROADCAST_ADDRESS=255.255.255.255 node service.js
 ```
 
 As part of cote's module configuration:
