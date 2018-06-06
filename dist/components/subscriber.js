@@ -51,7 +51,6 @@ module.exports = function (_Monitorable) {
                     } else {
                         args[0] = namespace + args[0];
                     }
-                    console.log('args', args);
                     _this.emit.apply(_this, args);
                 });
             })(topic);

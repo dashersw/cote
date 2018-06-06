@@ -131,7 +131,6 @@ module.exports = function (_Configurable) {
                     emitter = emitter.to(data.__room);
                     data = data.__data;
                 }
-                console.log(topic, data);
                 emitter.emit(topic, data);
             });
         });
