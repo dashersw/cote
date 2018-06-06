@@ -124,7 +124,7 @@ module.exports = function (_Configurable) {
                 }
 
                 topic = topic.join('');
-
+                //support channels somehow
                 io.of(namespace).emit(topic, data);
             });
         });
