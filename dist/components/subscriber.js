@@ -42,8 +42,16 @@ module.exports = function (_Monitorable) {
                         args[_key] = arguments[_key];
                     }
 
-                    if (args.length == 1) args.unshift(topic.substr(9));else args[0] = namespace + args[0];
-
+                    if (args.length == 1) {
+                        if (!_this.advertisement.__sockend && args[0].__room) {
+                            // unwrap if this is a wrapper
+                            args[0] = args[0].__data;
+                        }
+                        args.unshift(topic.substr(9));
+                    } else {
+                        args[0] = namespace + args[0];
+                    }
+                    console.log('args', args);
                     _this.emit.apply(_this, args);
                 });
             })(topic);

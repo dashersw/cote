@@ -38,7 +38,20 @@ module.exports = class Publisher extends Configurable(Component) {
 
         topic = 'message::' + namespace + topic;
 
-        this.sock.emit(topic, data);
+        // if sending to room, construct wrapper
+        const roomDelim = this.advertisement.roomDelimiter || '#';
+        if (topic.indexOf(roomDelim) > 0) {
+            const wrapper = {__data: data};
+            const parts = topic.split(roomDelim);
+            topic = parts[0];
+            const room = parts[1];
+            if (room) {
+                wrapper.__room = room;
+            }
+            this.sock.emit(topic, wrapper);
+        } else {
+            this.sock.emit(topic, data);
+        }
     };
 
     get type() {

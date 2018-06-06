@@ -23,11 +23,14 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
 
             ((topic) => {
                 this.sock.on(topic, (...args) => {
-                    if (args.length == 1)
+                    if (args.length == 1) {
+                        if (!this.advertisement.__sockend && args[0].__room) { // unwrap if this is a wrapper
+                            args[0] = args[0].__data;
+                        }
                         args.unshift(topic.substr(9));
-                    else
+                    } else {
                         args[0] = namespace + args[0];
-
+                    }
                     this.emit(...args);
                 });
             })(topic);
@@ -41,7 +44,7 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
 
         const alreadyConnected = this.sock.sock.socks.some((s) =>
             (this.constructor.useHostNames ? s._host == obj.hostName : s.remoteAddress == address) &&
-             s.remotePort == obj.advertisement.port);
+            s.remotePort == obj.advertisement.port);
 
         if (alreadyConnected) return;
 
@@ -63,6 +66,7 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
     get type() {
         return 'sub-emitter';
     }
+
     get oppo() {
         return 'pub-emitter';
     }

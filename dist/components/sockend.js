@@ -105,7 +105,8 @@ module.exports = function (_Configurable) {
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts
+                subscribesTo: obj.advertisement.broadcasts,
+                __sockend: true
             }, discoveryOptions);
 
             subscriber.onMonitorAdded = function () {};
@@ -124,8 +125,14 @@ module.exports = function (_Configurable) {
                 }
 
                 topic = topic.join('');
-                //support channels somehow
-                io.of(namespace).emit(topic, data);
+                var emitter = io.of(namespace);
+                // if this is a wrapper, set room and unwrap
+                if (data && data.__room) {
+                    emitter = emitter.to(data.__room);
+                    data = data.__data;
+                }
+                console.log(topic, data);
+                emitter.emit(topic, data);
             });
         });
         return _this;

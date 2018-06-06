@@ -89,13 +89,15 @@ module.exports = class Sockend extends Configurable(Component) {
                 namespace: namespace,
                 key: originalKey,
                 subscribesTo: obj.advertisement.broadcasts,
+                __sockend: true,
             }, discoveryOptions);
 
-            subscriber.onMonitorAdded = () => { };
+            subscriber.onMonitorAdded = () => {
+            };
 
             obj.subscriber = subscriber;
 
-            subscriber.on('**', function(data) {
+            subscriber.on('**', function (data) {
                 if (this.event == 'cote:added' || this.event == 'cote:removed') return;
 
                 let topic = this.event.split('::');
@@ -107,8 +109,13 @@ module.exports = class Sockend extends Configurable(Component) {
                 }
 
                 topic = topic.join('');
-                //support channels somehow
-                io.of(namespace).emit(topic, data);
+                let emitter = io.of(namespace);
+                // if this is a wrapper, set room and unwrap
+                if (data && data.__room) {
+                    emitter = emitter.to(data.__room);
+                    data = data.__data;
+                }
+                emitter.emit(topic, data);
             });
         });
     };

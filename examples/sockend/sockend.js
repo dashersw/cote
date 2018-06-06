@@ -1,7 +1,16 @@
-var cote = require('cote'),
-    app = require('http').createServer(handler),
+let cote;
+try {
+    cote = require('cote');
+} catch (e) {
+    cote = require('../../');
+}
+let app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
     fs = require('fs');
+
+io.on('connection', (socket)=>{
+   socket.join('room1');
+});
 
 app.listen(process.argv[2] || 5555);
 
@@ -17,4 +26,4 @@ function handler(req, res) {
     });
 };
 
-var sockend = new cote.Sockend(io, { name: 'sockend' });
+let sockend = new cote.Sockend(io, { name: 'sockend' });
