@@ -33,30 +33,32 @@ module.exports = class Publisher extends Configurable(Component) {
     publish(topic, data) {
         let namespace = '';
 
-        if (this.advertisement.namespace)
+        if (this.advertisement.namespace) {
             namespace = this.advertisement.namespace + '::';
+        }
 
-        topic = 'message::' + namespace + topic;
 
         // if sending to room, construct wrapper
-        const roomDelim = this.advertisement.roomDelimiter || '#';
+        const roomDelim = '::';
         if (topic.indexOf(roomDelim) > 0) {
             const wrapper = {__data: data};
             const parts = topic.split(roomDelim);
-            topic = parts[0];
-            const room = parts[1];
+            topic = parts[1];
+            const room = parts[0];
             if (room) {
                 wrapper.__room = room;
             }
-            this.sock.emit(topic, wrapper);
-        } else {
-            this.sock.emit(topic, data);
+            data = wrapper;
         }
+
+        topic = 'message::' + namespace + topic;
+        this.sock.emit(topic, data);
     };
 
     get type() {
         return 'pub-emitter';
     }
+
     get oppo() {
         return 'sub-emitter';
     }

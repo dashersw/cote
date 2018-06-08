@@ -701,20 +701,17 @@ level with WebSockets over socket.io. `Sockend` makes `Responder`s and
 It's the magic and the lost link for microservices. Without any configuration,
 you can expose APIs directly to the front-end. 
 
-`Sockend` even supports socket.io rooms. All you need to do is add the room name to
-the published topic separated by #. You can also specify a different delimiter by
-adding `roomDelimiter` to the publisher configuration object (it defaults to #).
+`Sockend` supports socket.io rooms. All you need to do is prefix the topic with `roomname::`.
 
 ```js
 const randomPublisher = new cote.Publisher({
     name: 'Random Publisher',
     // namespace: 'rnd',
     // key: 'a certain key',
-    broadcasts: ['randomUpdate'],
-    roomDelimiter: '#'
+    broadcasts: ['randomUpdate']
 });
 
-randomPublisher.publish('randomUpdate#room1', { val: 500 });
+randomPublisher.publish('room1::randomUpdate', { val: 500 });
 ``` 
 
 Example:

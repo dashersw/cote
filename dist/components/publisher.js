@@ -52,24 +52,25 @@ module.exports = function (_Configurable) {
         value: function publish(topic, data) {
             var namespace = '';
 
-            if (this.advertisement.namespace) namespace = this.advertisement.namespace + '::';
-
-            topic = 'message::' + namespace + topic;
+            if (this.advertisement.namespace) {
+                namespace = this.advertisement.namespace + '::';
+            }
 
             // if sending to room, construct wrapper
-            var roomDelim = this.advertisement.roomDelimiter || '#';
+            var roomDelim = '::';
             if (topic.indexOf(roomDelim) > 0) {
                 var wrapper = { __data: data };
                 var parts = topic.split(roomDelim);
-                topic = parts[0];
-                var room = parts[1];
+                topic = parts[1];
+                var room = parts[0];
                 if (room) {
                     wrapper.__room = room;
                 }
-                this.sock.emit(topic, wrapper);
-            } else {
-                this.sock.emit(topic, data);
+                data = wrapper;
             }
+
+            topic = 'message::' + namespace + topic;
+            this.sock.emit(topic, data);
         }
     }, {
         key: 'type',
