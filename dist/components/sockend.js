@@ -101,11 +101,13 @@ module.exports = function (_Configurable) {
             publisherNamespaces['/' + normalizedNamespace] = true;
             obj.namespace = namespace;
 
+            var broadcasts = new Set(obj.advertisement.broadcasts);
+
             var subscriber = new Subscriber({
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts
+                subscribesTo: ['*']
             }, discoveryOptions);
 
             subscriber.onMonitorAdded = function () {};
@@ -118,14 +120,25 @@ module.exports = function (_Configurable) {
                 var topic = this.event.split('::');
                 var namespace = '';
 
+                var room = void 0;
                 if (topic.length > 1) {
-                    namespace += '/' + topic[0];
+                    if (topic[0].startsWith('#')) {
+                        room = topic[0].replace('#', '');
+                    } else {
+                        namespace += '/' + topic[0];
+                    }
                     topic = topic.slice(1);
                 }
 
                 topic = topic.join('');
 
-                io.of(namespace).emit(topic, data);
+                if (!broadcasts.has(topic) && !broadcasts.has('*')) return;
+
+                var emitter = io.of(namespace);
+                if (room) {
+                    emitter = emitter.to(room);
+                }
+                emitter.emit(topic, data);
             });
         });
         return _this;

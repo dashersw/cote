@@ -33,17 +33,18 @@ module.exports = class Publisher extends Configurable(Component) {
     publish(topic, data) {
         let namespace = '';
 
-        if (this.advertisement.namespace)
+        if (this.advertisement.namespace) {
             namespace = this.advertisement.namespace + '::';
+        }
 
         topic = 'message::' + namespace + topic;
-
         this.sock.emit(topic, data);
     };
 
     get type() {
         return 'pub-emitter';
     }
+
     get oppo() {
         return 'sub-emitter';
     }

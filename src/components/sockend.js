@@ -84,31 +84,45 @@ module.exports = class Sockend extends Configurable(Component) {
             publisherNamespaces['/' + normalizedNamespace] = true;
             obj.namespace = namespace;
 
+            const broadcasts = new Set(obj.advertisement.broadcasts);
+
             const subscriber = new Subscriber({
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts,
+                subscribesTo: ['*'],
             }, discoveryOptions);
 
-            subscriber.onMonitorAdded = () => { };
+            subscriber.onMonitorAdded = () => {
+            };
 
             obj.subscriber = subscriber;
 
-            subscriber.on('**', function(data) {
+            subscriber.on('**', function (data) {
                 if (this.event == 'cote:added' || this.event == 'cote:removed') return;
 
                 let topic = this.event.split('::');
                 let namespace = '';
 
+                let room;
                 if (topic.length > 1) {
-                    namespace += '/' + topic[0];
+                    if (topic[0].startsWith('#')) {
+                        room = topic[0].replace('#', '');
+                    } else {
+                        namespace += '/' + topic[0];
+                    }
                     topic = topic.slice(1);
                 }
 
                 topic = topic.join('');
 
-                io.of(namespace).emit(topic, data);
+                if (!broadcasts.has(topic) && !broadcasts.has('*')) return;
+
+                let emitter = io.of(namespace);
+                if (room) {
+                    emitter = emitter.to(room);
+                }
+                emitter.emit(topic, data);
             });
         });
     };

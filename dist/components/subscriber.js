@@ -42,8 +42,11 @@ module.exports = function (_Monitorable) {
                         args[_key] = arguments[_key];
                     }
 
-                    if (args.length == 1) args.unshift(topic.substr(9));else args[0] = namespace + args[0];
-
+                    if (args.length == 1) {
+                        args.unshift(topic.substr(9));
+                    } else {
+                        args[0] = namespace + args[0];
+                    }
                     _this.emit.apply(_this, args);
                 });
             })(topic);

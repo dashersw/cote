@@ -3,6 +3,13 @@
 var socket = io.connect();
 var socketNamespaced = io.connect('/rnd');
 
+socket.on('randomUpdate',function(data){
+    console.log(data);
+});
+socket.on('randomUpdate1',function(data){
+    console.log(data);
+});
+
 setInterval(function() {
     var req = {
         val: Math.floor(Math.random() * 10)
