@@ -73,7 +73,7 @@ test.cb('Sockend simple pub&sub filter topics', (t) => {
 
     const publisher = new Publisher({ name: `${t.title}: simple publisher`, key, broadcasts: ['published message'] });
 
-    portfinder.getPort({ port: 20000 }, (err, port) => {
+    portfinder.getPort({ port: 20001 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'pub&sub sockend', key });
 
@@ -103,7 +103,7 @@ test.cb('Sockend pub&sub with room', (t) => {
 
     const publisher = new Publisher({ name: `${t.title}: room publisher`, key, broadcasts: ['published message'] });
 
-    portfinder.getPort({ port: 20000 }, (err, port) => {
+    portfinder.getPort({ port: 20002 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'pub&sub sockend', key });
 
