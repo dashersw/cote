@@ -19,7 +19,7 @@ function publishUpdate() {
     randomPublisher.publish('randomUpdate@room1', { room1: val.val });
 
     // should not be recieved as socket has not joined room2
-    randomPublisher.publish('#room2::randomUpdate', { room2: val.val });
+    randomPublisher.publish('randomUpdate@room2', { room2: val.val });
 }
 
 publishUpdate();

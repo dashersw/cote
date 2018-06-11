@@ -56,19 +56,6 @@ module.exports = function (_Configurable) {
                 namespace = this.advertisement.namespace + '::';
             }
 
-            // if sending to room, construct wrapper
-            // const roomDelim = '::';
-            // if (topic.indexOf(roomDelim) > 0) {
-            //     const wrapper = { __data: data };
-            //     const parts = topic.split(roomDelim);
-            //     topic = parts[1];
-            //     const room = parts[0];
-            //     if (room) {
-            //         wrapper.__room = room;
-            //     }
-            //     data = wrapper;
-            // }
-
             topic = 'message::' + namespace + topic;
             this.sock.emit(topic, data);
         }
