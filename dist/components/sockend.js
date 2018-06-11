@@ -120,20 +120,19 @@ module.exports = function (_Configurable) {
                 var topic = this.event.split('::');
                 var namespace = '';
 
+                var room = void 0;
                 if (topic.length > 1) {
-                    namespace += '/' + topic[0];
+                    if (topic[0].startsWith('#')) {
+                        room = topic[0].replace('#', '');
+                    } else {
+                        namespace += '/' + topic[0];
+                    }
                     topic = topic.slice(1);
                 }
 
-                var room = void 0;
                 topic = topic.join('');
-                if (topic.indexOf('@')) {
-                    var parts = topic.split('@');
-                    topic = parts[0];
-                    room = parts[1];
-                }
 
-                if (!broadcasts.has(topic)) return;
+                if (!broadcasts.has(topic) && !broadcasts.has('*')) return;
 
                 var emitter = io.of(namespace);
                 if (room) {

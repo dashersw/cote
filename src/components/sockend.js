@@ -104,20 +104,19 @@ module.exports = class Sockend extends Configurable(Component) {
                 let topic = this.event.split('::');
                 let namespace = '';
 
+                let room;
                 if (topic.length > 1) {
-                    namespace += '/' + topic[0];
+                    if (topic[0].startsWith('#')) {
+                        room = topic[0].replace('#', '');
+                    } else {
+                        namespace += '/' + topic[0];
+                    }
                     topic = topic.slice(1);
                 }
 
-                let room;
                 topic = topic.join('');
-                if (topic.indexOf('@')) {
-                    const parts = topic.split('@');
-                    topic = parts[0];
-                    room = parts[1];
-                }
 
-                if (!broadcasts.has(topic)) return;
+                if (!broadcasts.has(topic) && !broadcasts.has('*')) return;
 
                 let emitter = io.of(namespace);
                 if (room) {
