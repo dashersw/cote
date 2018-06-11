@@ -57,17 +57,17 @@ module.exports = function (_Configurable) {
             }
 
             // if sending to room, construct wrapper
-            var roomDelim = '::';
-            if (topic.indexOf(roomDelim) > 0) {
-                var wrapper = { __data: data };
-                var parts = topic.split(roomDelim);
-                topic = parts[1];
-                var room = parts[0];
-                if (room) {
-                    wrapper.__room = room;
-                }
-                data = wrapper;
-            }
+            // const roomDelim = '::';
+            // if (topic.indexOf(roomDelim) > 0) {
+            //     const wrapper = { __data: data };
+            //     const parts = topic.split(roomDelim);
+            //     topic = parts[1];
+            //     const room = parts[0];
+            //     if (room) {
+            //         wrapper.__room = room;
+            //     }
+            //     data = wrapper;
+            // }
 
             topic = 'message::' + namespace + topic;
             this.sock.emit(topic, data);

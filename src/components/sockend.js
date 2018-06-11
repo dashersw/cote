@@ -84,12 +84,13 @@ module.exports = class Sockend extends Configurable(Component) {
             publisherNamespaces['/' + normalizedNamespace] = true;
             obj.namespace = namespace;
 
+            const broadcasts = new Set(obj.advertisement.broadcasts);
+
             const subscriber = new Subscriber({
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts,
-                __sockend: true,
+                subscribesTo: ['*'],
             }, discoveryOptions);
 
             subscriber.onMonitorAdded = () => {
@@ -108,12 +109,19 @@ module.exports = class Sockend extends Configurable(Component) {
                     topic = topic.slice(1);
                 }
 
+                let room;
                 topic = topic.join('');
+                if (topic.indexOf('@')) {
+                    const parts = topic.split('@');
+                    topic = parts[0];
+                    room = parts[1];
+                }
+
+                if (!broadcasts.has(topic)) return;
+
                 let emitter = io.of(namespace);
-                // if this is a wrapper, set room and unwrap
-                if (data && data.__room) {
-                    emitter = emitter.to(data.__room);
-                    data = data.__data;
+                if (room) {
+                    emitter = emitter.to(room);
                 }
                 emitter.emit(topic, data);
             });

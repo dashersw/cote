@@ -16,10 +16,10 @@ function publishUpdate() {
 
     // publish an event with arbitrary data at any time
     randomPublisher.publish('randomUpdate', val);
-    randomPublisher.publish('room1::randomUpdate', { room1: val.val });
+    randomPublisher.publish('randomUpdate@room1', { room1: val.val });
 
     // should not be recieved as socket has not joined room2
-    randomPublisher.publish('room2::randomUpdate', { room1: val.val });
+    randomPublisher.publish('#room2::randomUpdate', { room2: val.val });
 }
 
 publishUpdate();

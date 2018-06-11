@@ -101,12 +101,13 @@ module.exports = function (_Configurable) {
             publisherNamespaces['/' + normalizedNamespace] = true;
             obj.namespace = namespace;
 
+            var broadcasts = new Set(obj.advertisement.broadcasts);
+
             var subscriber = new Subscriber({
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts,
-                __sockend: true
+                subscribesTo: ['*']
             }, discoveryOptions);
 
             subscriber.onMonitorAdded = function () {};
@@ -124,12 +125,19 @@ module.exports = function (_Configurable) {
                     topic = topic.slice(1);
                 }
 
+                var room = void 0;
                 topic = topic.join('');
+                if (topic.indexOf('@')) {
+                    var parts = topic.split('@');
+                    topic = parts[0];
+                    room = parts[1];
+                }
+
+                if (!broadcasts.has(topic)) return;
+
                 var emitter = io.of(namespace);
-                // if this is a wrapper, set room and unwrap
-                if (data && data.__room) {
-                    emitter = emitter.to(data.__room);
-                    data = data.__data;
+                if (room) {
+                    emitter = emitter.to(room);
                 }
                 emitter.emit(topic, data);
             });
