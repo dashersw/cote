@@ -88,8 +88,7 @@ module.exports = class Sockend extends Configurable(Component) {
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts,
-                isSockend: true,
+                subscribesTo: obj.advertisement.broadcasts
             }, discoveryOptions);
 
             subscriber.onMonitorAdded = () => {

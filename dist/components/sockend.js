@@ -105,8 +105,7 @@ module.exports = function (_Configurable) {
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts,
-                isSockend: true
+                subscribesTo: obj.advertisement.broadcasts
             }, discoveryOptions);
 
             subscriber.onMonitorAdded = function () {};
