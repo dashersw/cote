@@ -3,10 +3,10 @@
 var socket = io.connect();
 var socketNamespaced = io.connect('/rnd');
 
-socket.on('randomUpdate',function(data){
+socket.on('update1',function(data){
     console.log(data);
 });
-socket.on('randomUpdate1',function(data){
+socket.on('update2',function(data){
     console.log(data);
 });
 

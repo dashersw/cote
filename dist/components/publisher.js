@@ -48,6 +48,19 @@ module.exports = function (_Configurable) {
     }
 
     _createClass(Publisher, [{
+        key: 'wrap',
+        value: function wrap(topic, data) {
+            if (topic.indexOf('@') > 0) {
+                var parts = topic.split('@');
+                return {
+                    topic: parts[0],
+                    room: parts[1],
+                    data: data
+                };
+            }
+            return { topic: topic, data: data };
+        }
+    }, {
         key: 'publish',
         value: function publish(topic, data) {
             var namespace = '';
@@ -57,7 +70,10 @@ module.exports = function (_Configurable) {
             }
 
             topic = 'message::' + namespace + topic;
-            this.sock.emit(topic, data);
+            var wrapper = this.wrap(topic, data);
+            topic = wrapper.topic;
+            delete wrapper.topic;
+            this.sock.emit(topic, wrapper);
         }
     }, {
         key: 'type',

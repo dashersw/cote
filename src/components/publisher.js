@@ -30,6 +30,18 @@ module.exports = class Publisher extends Configurable(Component) {
         }, onPort);
     }
 
+    wrap(topic, data) {
+        if (topic.indexOf('@') > 0) {
+            const parts = topic.split('@');
+            return {
+                topic: parts[0],
+                room: parts[1],
+                data: data,
+            };
+        }
+        return { topic: topic, data: data };
+    }
+
     publish(topic, data) {
         let namespace = '';
 
@@ -38,7 +50,10 @@ module.exports = class Publisher extends Configurable(Component) {
         }
 
         topic = 'message::' + namespace + topic;
-        this.sock.emit(topic, data);
+        const wrapper = this.wrap(topic, data);
+        topic = wrapper.topic;
+        delete wrapper.topic;
+        this.sock.emit(topic, wrapper);
     };
 
     get type() {

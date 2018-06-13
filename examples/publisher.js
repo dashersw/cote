@@ -4,7 +4,7 @@ let Publisher = require('../').Publisher;
 let randomPublisher = new Publisher({
     name: 'randomPub',
     // namespace: 'rnd',
-    broadcasts: ['*'],
+    broadcasts: ['update1', 'update2'],
 });
 
 function publishUpdate() {
@@ -15,12 +15,11 @@ function publishUpdate() {
     console.log('emitting', val);
 
     // publish an event with arbitrary data at any time
-    randomPublisher.publish('randomUpdate', val);
-    randomPublisher.publish('randomUpdate1', { rand1: val.val });
-    randomPublisher.publish('#room1::randomUpdate', { room1: val.val });
+    randomPublisher.publish('update1', val);
+    randomPublisher.publish('update1@room1', { room1: val.val });
 
-    // should not be recieved as socket has not joined room2
-    randomPublisher.publish('#room2::randomUpdate', { room2: val.val });
+    randomPublisher.publish('update3', { rand1: 'should not be getting this' });
+    randomPublisher.publish('update1@room2', { room2: 'should not be getting this' });
 }
 
 publishUpdate();

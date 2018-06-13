@@ -67,36 +67,6 @@ test.cb('Sockend simple pub&sub', (t) => {
     });
 });
 
-test.cb('Sockend simple pub&sub filter topics', (t) => {
-    t.plan(1);
-    const key = r.generate();
-
-    const publisher = new Publisher({ name: `${t.title}: simple publisher`, key, broadcasts: ['published message'] });
-
-    portfinder.getPort({ port: 20001 }, (err, port) => {
-        const server = io(port);
-        new Sockend(server, { name: 'pub&sub sockend', key });
-
-        const client = ioClient.connect(`http://0.0.0.0:${port}`);
-
-        let gotmsg='did not get a message';
-        client.on('published message', (msg) => {
-            gotmsg=msg;
-        });
-
-        setTimeout(()=>{
-            t.is(gotmsg, 'did not get a message');
-            t.end();
-        }, 1000);
-
-        server.on('connection', (sock) => {
-            publisher.sock.sock.on('connect', (sdf) => {
-                publisher.publish('published message 1', { content: 'simple content' });
-            });
-        });
-    });
-});
-
 test.cb('Sockend pub&sub with room', (t) => {
     t.plan(1);
     const key = r.generate();
@@ -117,33 +87,7 @@ test.cb('Sockend pub&sub with room', (t) => {
         server.on('connection', (sock) => {
             sock.join('room1');
             publisher.sock.sock.on('connect', (sdf) => {
-                publisher.publish('#room1::published message', { content: 'simple content' });
-            });
-        });
-    });
-});
-
-test.cb('Sockend pub&sub all topics on room', (t) => {
-    t.plan(1);
-    const key = r.generate();
-
-    const publisher = new Publisher({ name: `${t.title}: room publisher`, key, broadcasts: ['*'] });
-
-    portfinder.getPort({ port: 20003 }, (err, port) => {
-        const server = io(port);
-        new Sockend(server, { name: 'pub&sub sockend', key });
-
-        const client = ioClient.connect(`http://0.0.0.0:${port}`);
-
-        client.on('published message', (msg) => {
-            t.deepEqual(msg, { content: 'simple content' });
-            t.end();
-        });
-
-        server.on('connection', (sock) => {
-            sock.join('room1');
-            publisher.sock.sock.on('connect', (sdf) => {
-                publisher.publish('#room1::published message', { content: 'simple content' });
+                publisher.publish('published message@room1', { content: 'simple content' });
             });
         });
     });
