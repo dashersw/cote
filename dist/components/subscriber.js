@@ -30,7 +30,6 @@ module.exports = function (_Monitorable) {
 
         _this.advertisement.subscribesTo = _this.advertisement.subscribesTo || ['*'];
 
-        var self = _this;
         _this.advertisement.subscribesTo.forEach(function (topic) {
             var namespace = '';
             if (_this.advertisement.namespace) {
@@ -50,9 +49,6 @@ module.exports = function (_Monitorable) {
                     } else {
                         args[0] = namespace + args[0];
                     }
-                    if (!self.advertisement.isSockend) {
-                        self.strip(args);
-                    }
                     _this.emit.apply(_this, args);
                 });
             })(topic);
@@ -61,11 +57,6 @@ module.exports = function (_Monitorable) {
     }
 
     _createClass(Subscriber, [{
-        key: 'strip',
-        value: function strip(args) {
-            args[1] = args[1].data;
-        }
-    }, {
         key: 'onAdded',
         value: function onAdded(obj) {
             var _this2 = this;

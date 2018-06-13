@@ -97,7 +97,7 @@ module.exports = class Sockend extends Configurable(Component) {
 
             obj.subscriber = subscriber;
 
-            subscriber.on('**', function(data) {
+            subscriber.on('**', function (data) {
                 if (this.event == 'cote:added' || this.event == 'cote:removed') return;
 
                 let topic = this.event.split('::');
@@ -105,12 +105,15 @@ module.exports = class Sockend extends Configurable(Component) {
                 topic = topic.join('');
 
                 let emitter = io.of(namespace);
-                let room = data.room;
-                data = data.data;
-                if (room) {
-                    emitter = emitter.to(room);
+                if (data.__rooms) {
+                    const rooms = data.__rooms;
+                    delete data.__rooms;
+                    rooms.map((room) => {
+                        emitter.to(room).emit(topic, data);
+                    });
+                } else {
+                    emitter.emit(topic, data);
                 }
-                emitter.emit(topic, data);
             });
         });
     };

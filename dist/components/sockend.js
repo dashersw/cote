@@ -121,12 +121,15 @@ module.exports = function (_Configurable) {
                 topic = topic.join('');
 
                 var emitter = io.of(namespace);
-                var room = data.room;
-                data = data.data;
-                if (room) {
-                    emitter = emitter.to(room);
+                if (data.__rooms) {
+                    var rooms = data.__rooms;
+                    delete data.__rooms;
+                    rooms.map(function (room) {
+                        emitter.to(room).emit(topic, data);
+                    });
+                } else {
+                    emitter.emit(topic, data);
                 }
-                emitter.emit(topic, data);
             });
         });
         return _this;

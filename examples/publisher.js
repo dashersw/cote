@@ -16,10 +16,10 @@ function publishUpdate() {
 
     // publish an event with arbitrary data at any time
     randomPublisher.publish('update1', val);
-    randomPublisher.publish('update1@room1', { room1: val.val });
+    randomPublisher.publish('update1', { val: val.val + ' on room1', __rooms: ['room1', 'room3'] });
 
-    randomPublisher.publish('update3', { rand1: 'should not be getting this' });
-    randomPublisher.publish('update1@room2', { room2: 'should not be getting this' });
+    randomPublisher.publish('update3', { val: 'should not be getting this' });
+    randomPublisher.publish('update1', { val: 'should not be getting this', __rooms: ['room2'] });
 }
 
 publishUpdate();

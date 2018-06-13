@@ -14,7 +14,6 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
 
         this.advertisement.subscribesTo = this.advertisement.subscribesTo || ['*'];
 
-        const self=this;
         this.advertisement.subscribesTo.forEach((topic) => {
             let namespace = '';
             if (this.advertisement.namespace) {
@@ -30,17 +29,10 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
                     } else {
                         args[0] = namespace + args[0];
                     }
-                    if (!self.advertisement.isSockend) {
-                        self.strip(args);
-                    }
                     this.emit(...args);
                 });
             })(topic);
         });
-    }
-
-    strip(args) {
-        args[1] = args[1].data;
     }
 
     onAdded(obj) {
