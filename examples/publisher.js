@@ -1,21 +1,25 @@
-var Publisher = require('../').Publisher;
+let Publisher = require('../').Publisher;
 
 // Instantiate a new Publisher component.
-var randomPublisher = new Publisher({
+let randomPublisher = new Publisher({
     name: 'randomPub',
     // namespace: 'rnd',
-    broadcasts: ['randomUpdate']
+    broadcasts: ['update1', 'update2'],
 });
 
 function publishUpdate() {
-    var val = {
-        val: ~~(Math.random() * 1000)
+    let val = {
+        val: ~~(Math.random() * 1000),
     };
 
     console.log('emitting', val);
 
     // publish an event with arbitrary data at any time
-    randomPublisher.publish('randomUpdate', val);
+    randomPublisher.publish('update1', val);
+    randomPublisher.publish('update1@room1', { room1: val.val });
+
+    randomPublisher.publish('update3', { rand1: 'should not be getting this' });
+    randomPublisher.publish('update1@room2', { room2: 'should not be getting this' });
 }
 
 publishUpdate();

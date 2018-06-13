@@ -67,6 +67,32 @@ test.cb('Sockend simple pub&sub', (t) => {
     });
 });
 
+test.cb('Sockend pub&sub with room', (t) => {
+    t.plan(1);
+    const key = r.generate();
+
+    const publisher = new Publisher({ name: `${t.title}: room publisher`, key, broadcasts: ['published message'] });
+
+    portfinder.getPort({ port: 20002 }, (err, port) => {
+        const server = io(port);
+        new Sockend(server, { name: 'pub&sub sockend', key });
+
+        const client = ioClient.connect(`http://0.0.0.0:${port}`);
+
+        client.on('published message', (msg) => {
+            t.deepEqual(msg, { content: 'simple content' });
+            t.end();
+        });
+
+        server.on('connection', (sock) => {
+            sock.join('room1');
+            publisher.sock.sock.on('connect', (sdf) => {
+                publisher.publish('published message@room1', { content: 'simple content' });
+            });
+        });
+    });
+});
+
 test.cb(`Sockend ns req&res / pub&sub`, (t) => {
     t.plan(2);
 

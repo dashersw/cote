@@ -699,7 +699,21 @@ randomSubscriber.on('randomUpdate', (req) => {
 level with WebSockets over socket.io. `Sockend` makes `Responder`s and
 `Publisher`s available to the front-end and adhere to socket.io namespaces.
 It's the magic and the lost link for microservices. Without any configuration,
-you can expose APIs directly to the front-end.
+you can expose APIs directly to the front-end. 
+
+`Sockend` supports socket.io rooms. All you need to do is add `@roomname` to 
+the published topic.
+
+```js
+const randomPublisher = new cote.Publisher({
+    name: 'Random Publisher',
+    // namespace: 'rnd',
+    // key: 'a certain key',
+    broadcasts: ['randomUpdate']
+});
+
+randomPublisher.publish('randomUpdate@room1', { val: 500 });
+``` 
 
 Example:
 
@@ -709,6 +723,10 @@ Example:
 <script>
 var socket = io.connect();
 var socketNamespaced = io.connect('/rnd');
+
+socket.on('randomUpdate',function(data){
+    console.log(data);
+});
 
 setInterval(function() {
     var req = {
@@ -752,6 +770,10 @@ const cote = require('cote'),
     app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
     fs = require('fs');
+
+io.on('connection', (socket)=>{
+   socket.join('room1');
+});
 
 app.listen(process.argv[2] || 5555);
 

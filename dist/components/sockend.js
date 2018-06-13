@@ -105,7 +105,8 @@ module.exports = function (_Configurable) {
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts
+                subscribesTo: obj.advertisement.broadcasts,
+                isSockend: true
             }, discoveryOptions);
 
             subscriber.onMonitorAdded = function () {};
@@ -117,15 +118,15 @@ module.exports = function (_Configurable) {
 
                 var topic = this.event.split('::');
                 var namespace = '';
-
-                if (topic.length > 1) {
-                    namespace += '/' + topic[0];
-                    topic = topic.slice(1);
-                }
-
                 topic = topic.join('');
 
-                io.of(namespace).emit(topic, data);
+                var emitter = io.of(namespace);
+                var room = data.room;
+                data = data.data;
+                if (room) {
+                    emitter = emitter.to(room);
+                }
+                emitter.emit(topic, data);
             });
         });
         return _this;
