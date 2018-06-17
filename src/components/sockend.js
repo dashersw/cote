@@ -88,7 +88,7 @@ module.exports = class Sockend extends Configurable(Component) {
                 name: 'sockendSub',
                 namespace: namespace,
                 key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts
+                subscribesTo: obj.advertisement.broadcasts,
             }, discoveryOptions);
 
             subscriber.onMonitorAdded = () => {
@@ -101,13 +101,21 @@ module.exports = class Sockend extends Configurable(Component) {
 
                 let topic = this.event.split('::');
                 let namespace = '';
+                if (topic.length > 1) {
+                    namespace += '/' + topic[0];
+                    topic = topic.slice(1);
+                }
                 topic = topic.join('');
 
                 let emitter = io.of(namespace);
+                if (data.__room) {
+                    data.__rooms = new Set(data.__rooms || []);
+                    data.__rooms.add(data.__room);
+                }
                 if (data.__rooms) {
                     const rooms = data.__rooms;
                     delete data.__rooms;
-                    rooms.map((room) => {
+                    rooms.forEach((room) => {
                         emitter.to(room).emit(topic, data);
                     });
                 } else {
