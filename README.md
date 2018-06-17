@@ -701,21 +701,6 @@ level with WebSockets over socket.io. `Sockend` makes `Responder`s and
 It's the magic and the lost link for microservices. Without any configuration,
 you can expose APIs directly to the front-end. 
 
-`Sockend` supports socket.io rooms. All you need to do is add a `__rooms` or `__room` attribute to 
-the published message.
-
-```js
-const randomPublisher = new cote.Publisher({
-    name: 'Random Publisher',
-    // namespace: 'rnd',
-    // key: 'a certain key',
-    broadcasts: ['randomUpdate']
-});
-
-randomPublisher.publish('randomUpdate', { val: 500, __rooms: ['room1','room2'] });
-randomPublisher.publish('randomUpdate', { val: 500, __room: 'room1' });
-``` 
-
 Example:
 
 `index.html`
@@ -795,10 +780,25 @@ const sockend = new cote.Sockend(io, {
     // key: 'a certain key'
 });
 ```
-
 Now, fire up a few `Responder`s and `Publisher`s (from the `examples` folder)
 on default or 'rnd' namespace and watch them glow with magic on
 `http://localhost:5555`.
+
+#####Socket.io Rooms
+`Sockend` supports socket.io rooms. All you need to do is add a `__rooms` or `__room` attribute to 
+the published message.
+
+```js
+const randomPublisher = new cote.Publisher({
+    name: 'Random Publisher',
+    // namespace: 'rnd',
+    // key: 'a certain key',
+    broadcasts: ['randomUpdate']
+});
+
+randomPublisher.publish('randomUpdate', { val: 500, __rooms: ['room1','room2'] });
+randomPublisher.publish('randomUpdate', { val: 500, __room: 'room1' });
+``` 
 
 ### Monitor
 
