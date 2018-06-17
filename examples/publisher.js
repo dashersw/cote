@@ -15,7 +15,7 @@ function publishUpdate() {
     console.log('emitting', val);
 
     // publish an event with arbitrary data at any time
-    randomPublisher.publish('update1', val);
+    randomPublisher.publish('update1', { val: val.val + ' without room' });
     randomPublisher.publish('update1', { val: val.val + ' on room1 and room3', __rooms: ['room1', 'room3'] });
     randomPublisher.publish('update1', { val: val.val + ' on room1 only', __room: 'room1' });
 
