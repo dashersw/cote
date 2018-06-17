@@ -784,7 +784,7 @@ Now, fire up a few `Responder`s and `Publisher`s (from the `examples` folder)
 on default or 'rnd' namespace and watch them glow with magic on
 `http://localhost:5555`.
 
-#####Socket.io Rooms
+##### Socket.io Rooms
 `Sockend` supports socket.io rooms. All you need to do is add a `__rooms` or `__room` attribute to 
 the published message.
 
