@@ -67,7 +67,7 @@ test.cb('Sockend simple pub&sub', (t) => {
     });
 });
 
-test.cb('Sockend pub&sub with room', (t) => {
+test.cb('Sockend pub&sub with __rooms', (t) => {
     t.plan(1);
     const key = r.generate();
 
@@ -88,6 +88,32 @@ test.cb('Sockend pub&sub with room', (t) => {
             sock.join('room1');
             publisher.sock.sock.on('connect', (sdf) => {
                 publisher.publish('published message', { content: 'simple content', __rooms: ['room1'] });
+            });
+        });
+    });
+});
+
+test.cb('Sockend pub&sub with __room', (t) => {
+    t.plan(1);
+    const key = r.generate();
+
+    const publisher = new Publisher({ name: `${t.title}: room publisher`, key, broadcasts: ['published message'] });
+
+    portfinder.getPort({ port: 20002 }, (err, port) => {
+        const server = io(port);
+        new Sockend(server, { name: 'pub&sub sockend', key });
+
+        const client = ioClient.connect(`http://0.0.0.0:${port}`);
+
+        client.on('published message', (msg) => {
+            t.deepEqual(msg, { content: 'simple content' });
+            t.end();
+        });
+
+        server.on('connection', (sock) => {
+            sock.join('room1');
+            publisher.sock.sock.on('connect', (sdf) => {
+                publisher.publish('published message', { content: 'simple content', __room: 'room1' });
             });
         });
     });

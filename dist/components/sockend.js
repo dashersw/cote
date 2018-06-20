@@ -127,6 +127,7 @@ module.exports = function (_Configurable) {
                 if (data.__room) {
                     data.__rooms = new Set(data.__rooms || []);
                     data.__rooms.add(data.__room);
+                    delete data.__room;
                 }
                 if (data.__rooms) {
                     var rooms = data.__rooms;

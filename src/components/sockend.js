@@ -111,6 +111,7 @@ module.exports = class Sockend extends Configurable(Component) {
                 if (data.__room) {
                     data.__rooms = new Set(data.__rooms || []);
                     data.__rooms.add(data.__room);
+                    delete data.__room;
                 }
                 if (data.__rooms) {
                     const rooms = data.__rooms;
