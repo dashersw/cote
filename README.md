@@ -33,7 +33,7 @@ Develop your first microservices in under two minutes:
 in `time-service.js`...
 ```js
 const cote = require('cote');
-const timeService = new cote.Responder({name: 'Time Service'});
+const timeService = new cote.Responder({ name: 'Time Service' });
 
 timeService.on('time', (req, cb) => {
     cb(new Date());
@@ -43,9 +43,9 @@ timeService.on('time', (req, cb) => {
 in `client.js`...
 ```js
 const cote = require('cote');
-const client = new cote.Requester({name: 'Client'});
+const client = new cote.Requester({ name: 'Client' });
 
-client.send({type: 'time'}, (time) => {
+client.send({ type: 'time' }, (time) => {
     console.log(time);
 });
 ```
@@ -528,13 +528,13 @@ const randomRequester = new cote.Requester({
     name: 'Random Requester',
     // namespace: 'rnd',
     // key: 'a certain key',
-    requests: ['randomRequest']
+    requests: ['randomRequest'],
 });
 
 setInterval(() => {
     const req = {
         type: 'randomRequest',
-        val: Math.floor(Math.random() * 10)
+        val: Math.floor(Math.random() * 10),
     };
 
     randomRequester.send(req, (res) => {
@@ -551,13 +551,13 @@ Example:
 
 ```js
 const cote = require('cote');
-const randomRequester = new cote.Requester({name: 'Random Requester'});
+const randomRequester = new cote.Requester({ name: 'Random Requester' });
 
 const makeRequest = (req) => randomRequester.send(req);
 
 const req = {
     type: 'randomRequest',
-    val: Math.floor(Math.random() * 10)
+    val: Math.floor(Math.random() * 10),
 };
 
 makeRequest(req)
@@ -590,7 +590,7 @@ const randomResponder = new cote.Responder({
     name: 'Random Responder',
     // namespace: 'rnd',
     // key: 'a certain key',
-    respondsTo: ['randomRequest'] // types of requests this responder
+    respondsTo: ['randomRequest'], // types of requests this responder
                                   // can respond to.
 });
 
@@ -614,7 +614,7 @@ const cote = require('cote');
 const UserModel = require('UserModel'); // a promise-based model API such as
                                         // mongoose.
 
-const userResponder = new cote.Responder({name: 'User Responder'});
+const userResponder = new cote.Responder({ name: 'User Responder' });
 
 userResponder.on('find', (req) => UserModel.findOne(req.query));
 ```
@@ -622,11 +622,11 @@ userResponder.on('find', (req) => UserModel.findOne(req.query));
 `requester.js`
 ```js
 const cote = require('cote');
-const userRequester = new cote.Requester({name: 'User Requester'});
+const userRequester = new cote.Requester({ name: 'User Requester' });
 
 userRequester
-    .send({type: 'find', query: {username: 'foo'}})
-    .then(user => console.log(user))
+    .send({ type: 'find', query: { username: 'foo' } })
+    .then((user) => console.log(user))
     .then(process.exit);
 ```
 
@@ -656,13 +656,13 @@ const randomPublisher = new cote.Publisher({
     name: 'Random Publisher',
     // namespace: 'rnd',
     // key: 'a certain key',
-    broadcasts: ['randomUpdate']
+    broadcasts: ['randomUpdate'],
 });
 
 // Wait for the publisher to find an open port and listen on it.
 setInterval(function() {
     const val = {
-        val: Math.floor(Math.random() * 1000)
+        val: Math.floor(Math.random() * 1000),
     };
 
     console.log('emitting', val);
@@ -685,7 +685,7 @@ const randomSubscriber = new cote.Subscriber({
     name: 'Random Subscriber',
     // namespace: 'rnd',
     // key: 'a certain key',
-    subscribesTo: ['randomUpdate']
+    subscribesTo: ['randomUpdate'],
 });
 
 randomSubscriber.on('randomUpdate', (req) => {
@@ -707,29 +707,29 @@ Example:
 ```html
 <script src="/socket.io/socket.io.js"></script>
 <script>
-var socket = io.connect();
-var socketNamespaced = io.connect('/rnd');
+let socket = io.connect();
+let socketNamespaced = io.connect('/rnd');
 
-socket.on('randomUpdate',function(data){
+socket.on('randomUpdate', function(data) {
     console.log(data);
 });
 
 setInterval(function() {
-    var req = {
-        val: Math.floor(Math.random() * 10)
+    let req = {
+        val: Math.floor(Math.random() * 10),
     };
 
-    var req2 = {
-        val: Math.floor(Math.random() * 10)
+    let req2 = {
+        val: Math.floor(Math.random() * 10),
     };
 
-    var req3 = {
-        val: Math.floor(Math.random() * 10)
+    let req3 = {
+        val: Math.floor(Math.random() * 10),
     };
 
-    var req4 = {
-        val: Math.floor(Math.random() * 10)
-    }
+    let req4 = {
+        val: Math.floor(Math.random() * 10),
+    };
 
     socket.emit('randomRequest', req, function(data) {
         console.log('normal', req.val, data);
@@ -758,7 +758,7 @@ const cote = require('cote'),
     fs = require('fs');
 
 io.on('connection', (socket)=>{
-   socket.join('room1');
+    socket.join('room1');
 });
 
 app.listen(process.argv[2] || 5555);
@@ -793,10 +793,10 @@ const randomPublisher = new cote.Publisher({
     name: 'Random Publisher',
     // namespace: 'rnd',
     // key: 'a certain key',
-    broadcasts: ['randomUpdate']
+    broadcasts: ['randomUpdate'],
 });
 
-randomPublisher.publish('randomUpdate', { val: 500, __rooms: ['room1','room2'] });
+randomPublisher.publish('randomUpdate', { val: 500, __rooms: ['room1', 'room2'] });
 randomPublisher.publish('randomUpdate', { val: 500, __room: 'room1' });
 ``` 
 
@@ -906,12 +906,12 @@ const cote = require('cote');
 
 const purchaseRequester = new cote.Requester({
     name: 'Purchase Requester',
-    key: 'purchase'
+    key: 'purchase',
 });
 
 const inventoryRequester = new cote.Requester({
     name: 'Inventory Requester',
-    key: 'inventory'
+    key: 'inventory',
 });
 ```
 
@@ -944,12 +944,12 @@ const cote = require('cote');
 
 const responder = new cote.Responder({
     name: 'Conversion Sockend Responder',
-    namespace: 'conversion'
+    namespace: 'conversion',
 });
 
 const conversionRequester = new cote.Requester({
     name: 'Conversion Requester',
-    key: 'conversion backend'
+    key: 'conversion backend',
 });
 
 responder.on('convert', (req, cb) => {
@@ -964,7 +964,7 @@ const cote = require('cote');
 
 const responder = new cote.Responder({
     name: 'Conversion Responder',
-    key: 'conversion backend'
+    key: 'conversion backend',
 });
 
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
