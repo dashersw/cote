@@ -1,9 +1,9 @@
 import test from 'ava';
-import LogSuppress from 'log-suppress';
+import LogSuppress from '../lib/log-suppress';
 import r from 'randomstring';
 
 const environment = r.generate();
-const{ Publisher, Subscriber, MonitoringTool } = require('../')({ environment });
+const { Publisher, Subscriber, MonitoringTool } = require('../')({ environment });
 
 LogSuppress.init(console);
 

@@ -1,5 +1,5 @@
 import test from 'ava';
-import LogSuppress from 'log-suppress';
+import LogSuppress from '../lib/log-suppress';
 import r from 'randomstring';
 import request from 'request';
 import fs from 'fs';

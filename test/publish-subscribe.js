@@ -1,5 +1,5 @@
 import test from 'ava';
-import LogSuppress from 'log-suppress';
+import LogSuppress from '../lib/log-suppress';
 import async from 'async';
 import r from 'randomstring';
 import sinon from 'sinon';
