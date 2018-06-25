@@ -52,10 +52,11 @@ module.exports = function (_Configurable) {
         value: function publish(topic, data) {
             var namespace = '';
 
-            if (this.advertisement.namespace) namespace = this.advertisement.namespace + '::';
+            if (this.advertisement.namespace) {
+                namespace = this.advertisement.namespace + '::';
+            }
 
             topic = 'message::' + namespace + topic;
-
             this.sock.emit(topic, data);
         }
     }, {

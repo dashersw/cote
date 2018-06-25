@@ -117,15 +117,27 @@ module.exports = function (_Configurable) {
 
                 var topic = this.event.split('::');
                 var namespace = '';
-
                 if (topic.length > 1) {
                     namespace += '/' + topic[0];
                     topic = topic.slice(1);
                 }
-
                 topic = topic.join('');
 
-                io.of(namespace).emit(topic, data);
+                var emitter = io.of(namespace);
+                if (data.__room) {
+                    data.__rooms = new Set(data.__rooms || []);
+                    data.__rooms.add(data.__room);
+                    delete data.__room;
+                }
+                if (data.__rooms) {
+                    var rooms = data.__rooms;
+                    delete data.__rooms;
+                    rooms.forEach(function (room) {
+                        emitter.to(room).emit(topic, data);
+                    });
+                } else {
+                    emitter.emit(topic, data);
+                }
             });
         });
         return _this;

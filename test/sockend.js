@@ -67,6 +67,58 @@ test.cb('Sockend simple pub&sub', (t) => {
     });
 });
 
+test.cb('Sockend pub&sub with __rooms', (t) => {
+    t.plan(1);
+    const key = r.generate();
+
+    const publisher = new Publisher({ name: `${t.title}: room publisher`, key, broadcasts: ['published message'] });
+
+    portfinder.getPort({ port: 20001 }, (err, port) => {
+        const server = io(port);
+        new Sockend(server, { name: 'pub&sub sockend', key });
+
+        const client = ioClient.connect(`http://0.0.0.0:${port}`);
+
+        client.on('published message', (msg) => {
+            t.deepEqual(msg, { content: 'simple content' });
+            t.end();
+        });
+
+        server.on('connection', (sock) => {
+            sock.join('room1');
+            publisher.sock.sock.on('connect', (sdf) => {
+                publisher.publish('published message', { content: 'simple content', __rooms: ['room1'] });
+            });
+        });
+    });
+});
+
+test.cb('Sockend pub&sub with __room', (t) => {
+    t.plan(1);
+    const key = r.generate();
+
+    const publisher = new Publisher({ name: `${t.title}: room publisher`, key, broadcasts: ['published message'] });
+
+    portfinder.getPort({ port: 20002 }, (err, port) => {
+        const server = io(port);
+        new Sockend(server, { name: 'pub&sub sockend', key });
+
+        const client = ioClient.connect(`http://0.0.0.0:${port}`);
+
+        client.on('published message', (msg) => {
+            t.deepEqual(msg, { content: 'simple content' });
+            t.end();
+        });
+
+        server.on('connection', (sock) => {
+            sock.join('room1');
+            publisher.sock.sock.on('connect', (sdf) => {
+                publisher.publish('published message', { content: 'simple content', __room: 'room1' });
+            });
+        });
+    });
+});
+
 test.cb(`Sockend ns req&res / pub&sub`, (t) => {
     t.plan(2);
 
@@ -76,12 +128,18 @@ test.cb(`Sockend ns req&res / pub&sub`, (t) => {
     portfinder.getPort({ port: 30000 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'ns sockend', key });
-        const responder = new Responder({ name: `${t.title}: ns responder`, namespace, key,
-            respondsTo: ['ns test'] });
-        const responder2 = new Responder({ name: `${t.title}: ns responder 2`, namespace, key,
-            respondsTo: ['ns test'] });
-        const publisher = new Publisher({ name: `${t.title}: ns publisher`, namespace, key,
-            broadcasts: ['published message'] });
+        const responder = new Responder({
+            name: `${t.title}: ns responder`, namespace, key,
+            respondsTo: ['ns test'],
+        });
+        const responder2 = new Responder({
+            name: `${t.title}: ns responder 2`, namespace, key,
+            respondsTo: ['ns test'],
+        });
+        const publisher = new Publisher({
+            name: `${t.title}: ns publisher`, namespace, key,
+            broadcasts: ['published message'],
+        });
 
         responder.on('ns test', (req, cb) => cb(req.args));
         responder2.on('ns test', (req, cb) => cb(req.args));
@@ -119,8 +177,10 @@ test.cb(`Sockend ns late bound req&res`, (t) => {
     portfinder.getPort({ port: 50000 }, (err, port) => {
         const server = io(port);
         server.of(`/${namespace}`, (socket) => {
-            const responder = new Responder({ name: `${t.title}: ns responder`, namespace, key,
-                respondsTo: ['ns test'] });
+            const responder = new Responder({
+                name: `${t.title}: ns responder`, namespace, key,
+                respondsTo: ['ns test'],
+            });
             responder.on('ns test', (req, cb) => cb(req.args));
             client.emit('ns test', { args: [7, 8, 9] }, (res) => {
                 t.deepEqual(res, [7, 8, 9]);

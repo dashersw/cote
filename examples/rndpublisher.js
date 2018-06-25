@@ -1,17 +1,17 @@
-var Publisher = require('../').Publisher;
+let Publisher = require('../').Publisher;
 
 // Instantiate a new Publisher component.
-var randomPublisher = new Publisher({
+let randomPublisher = new Publisher({
     name: 'randomPub',
     namespace: 'rnd',
-    broadcasts: ['randomUpdate']
+    broadcasts: ['randomUpdate'],
 });
 
 // Wait for the publisher to find an open port and listen on it.
 randomPublisher.on('ready', function() {
     setInterval(function() {
-        var val = {
-            val: ~~(Math.random() * 1000)
+        let val = {
+            val: ~~(Math.random() * 1000),
         };
 
         console.log('emitting', val);

@@ -32,7 +32,9 @@ module.exports = function (_Monitorable) {
 
         _this.advertisement.subscribesTo.forEach(function (topic) {
             var namespace = '';
-            if (_this.advertisement.namespace) namespace = _this.advertisement.namespace + '::';
+            if (_this.advertisement.namespace) {
+                namespace = _this.advertisement.namespace + '::';
+            }
 
             topic = 'message::' + namespace + topic;
 
@@ -42,8 +44,11 @@ module.exports = function (_Monitorable) {
                         args[_key] = arguments[_key];
                     }
 
-                    if (args.length == 1) args.unshift(topic.substr(9));else args[0] = namespace + args[0];
-
+                    if (args.length == 1) {
+                        args.unshift(topic.substr(9));
+                    } else {
+                        args[0] = namespace + args[0];
+                    }
                     _this.emit.apply(_this, args);
                 });
             })(topic);
@@ -77,7 +82,9 @@ module.exports = function (_Monitorable) {
         key: 'formatTypeWithNamespace',
         value: function formatTypeWithNamespace(type) {
             var namespace = '';
-            if (this.advertisement.namespace) namespace = this.advertisement.namespace + '::';
+            if (this.advertisement.namespace) {
+                namespace = this.advertisement.namespace + '::';
+            }
 
             return namespace + type;
         }
