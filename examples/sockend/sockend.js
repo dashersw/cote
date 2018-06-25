@@ -8,7 +8,7 @@ let app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
     fs = require('fs');
 
-io.on('connection', (socket)=>{
+io.on('connection', (socket) => {
    socket.join('room1');
 });
 

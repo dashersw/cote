@@ -699,7 +699,7 @@ randomSubscriber.on('randomUpdate', (req) => {
 level with WebSockets over socket.io. `Sockend` makes `Responder`s and
 `Publisher`s available to the front-end and adhere to socket.io namespaces.
 It's the magic and the lost link for microservices. Without any configuration,
-you can expose APIs directly to the front-end. 
+you can expose APIs directly to the front-end.
 
 Example:
 
@@ -757,7 +757,7 @@ const cote = require('cote'),
     io = require('socket.io').listen(app),
     fs = require('fs');
 
-io.on('connection', (socket)=>{
+io.on('connection', (socket) => {
     socket.join('room1');
 });
 
@@ -785,7 +785,7 @@ on default or 'rnd' namespace and watch them glow with magic on
 `http://localhost:5555`.
 
 ##### Socket.io Rooms
-`Sockend` supports socket.io rooms. All you need to do is add a `__rooms` or `__room` attribute to 
+`Sockend` supports socket.io rooms. All you need to do is add a `__rooms` or `__room` attribute to
 the published message.
 
 ```js
@@ -798,7 +798,7 @@ const randomPublisher = new cote.Publisher({
 
 randomPublisher.publish('randomUpdate', { val: 500, __rooms: ['room1', 'room2'] });
 randomPublisher.publish('randomUpdate', { val: 500, __room: 'room1' });
-``` 
+```
 
 ### Monitor
 
@@ -1101,7 +1101,7 @@ accomodate different solutions that can serve as the automated service
 discovery tool. Currently, redis is supported out of the box, and cote
 makes use of the [node_redis](https://github.com/NodeRedis/node_redis)
 library, in case you want to use redis as the central discovery tool. If you
-need to use anything other than redis, please open 
+need to use anything other than redis, please open
 [a new issue](https://github.com/dashersw/cote/issues/new) and we may be
 able to help.
 
@@ -1115,7 +1115,7 @@ container deployment configurations such as Docker Swarm stack definitions
 can make use of the additional redis backend functionality, while developers
 can still use IP broadcast/multicast locally, with the same source code.
 
-That's why cote uses environment variables that start with 
+That's why cote uses environment variables that start with
 `COTE_DISCOVERY_REDIS`. cote transforms any environment variable that
 starts with `COTE_DISCOVERY_REDIS` to proper configuration for the
 [node_redis](https://github.com/NodeRedis/node_redis) library. For example,
