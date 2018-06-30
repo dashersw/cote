@@ -1,8 +1,12 @@
+![cote](https://user-images.githubusercontent.com/698308/32996603-1517088a-cd85-11e7-85c5-8ef9b3ae2e49.png)
+
 cote — A Node.js library for building zero-configuration microservices
 ====
 
-[![Known Vulnerabilities](https://snyk.io/test/npm/cote/badge.svg)](https://snyk.io/test/npm/cote)
 [![npm version](https://badge.fury.io/js/cote.svg)](https://badge.fury.io/js/cote)
+[![Build Status](https://travis-ci.org/dashersw/cote.svg?branch=master)](https://travis-ci.org/dashersw/cote)
+[![Coverage Status](https://coveralls.io/repos/github/dashersw/cote/badge.svg)](https://coveralls.io/github/dashersw/cote)
+[![dependencies Status](https://david-dm.org/dashersw/cote/status.svg)](https://david-dm.org/dashersw/cote)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/dashersw/cote/master/LICENSE)
 
 **cote lets you write zero-configuration microservices in Node.js without nginx,
@@ -29,7 +33,7 @@ Develop your first microservices in under two minutes:
 in `time-service.js`...
 ```js
 const cote = require('cote');
-const timeService = new cote.Responder({name: 'Time Service'});
+const timeService = new cote.Responder({ name: 'Time Service' });
 
 timeService.on('time', (req, cb) => {
     cb(new Date());
@@ -39,9 +43,9 @@ timeService.on('time', (req, cb) => {
 in `client.js`...
 ```js
 const cote = require('cote');
-const client = new cote.Requester({name: 'Client'});
+const client = new cote.Requester({ name: 'Client' });
 
-client.send({type: 'time'}, (time) => {
+client.send({ type: 'time' }, (time) => {
     console.log(time);
 });
 ```
@@ -53,11 +57,22 @@ configuration, no third party components, no nginx, no kafka, no consul and
 
 Microservices case study
 ----
-
 Make sure to check out
 [the e-commerce case study](https://github.com/dashersw/cote-workshop) that
 implements a complete e-commerce application with microservices using
-[cote](https://github.com/dashersw/cote).
+[cote](https://github.com/dashersw/cote). It features;
+
++ a back-office with real-time updates for managing the catalogue of products
+and displaying sales with a RESTful API (express.js)
++ a storefront for end-users with real-time updates to products where they
+can buy the products with WebSockets (socket.io)
++ a user microservice for user CRUD
++ a product microservice for product CRUD
++ a purchase microservice that enables users to buy products
++ a payment microservice that deals with money transactions that occur as
+a result of purchases
++ Docker compose configuration for running the system locally
++ Docker cloud configuration for running the system in Docker Cloud
 
 cote plays very well with Docker, taking advantage of its network overlay
 features. The case study implements a scalable microservices application
@@ -91,7 +106,8 @@ via Docker and can scale to multiple machines.
     1. [Multicast address](#multicast-address)
     1. [Broadcast address](#broadcast-address)
     1. [Controlling cote with environment variables](#controlling-cote-with-environment-variables)
-1. [Deploying with Docker](#deploying-with-docker)
+1. [Deploying with Docker Cloud](#deploying-with-docker-cloud)
+1. [Using centralized discovery tools](#using-centralized-discovery-tools)
 1. [FAQ](#faq)
 1. [Contribution](#contribution)
 1. [License](#mit-license)
@@ -282,7 +298,7 @@ Now you can save this file as `conversion-service.js` and run it via
 ```js
 const cote = require('cote');
 
-const responder = new cote.Requester({ name: 'currency conversion responder' });
+const responder = new cote.Responder({ name: 'currency conversion responder' });
 
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
 
@@ -460,7 +476,7 @@ an update will be done over the new rate.
 ```js
 const cote = require('cote');
 
-const responder = new cote.Requester({ name: 'currency conversion responder' });
+const responder = new cote.Responder({ name: 'currency conversion responder' });
 const subscriber = new cote.Subscriber({ name: 'arbitration subscriber' });
 
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
@@ -512,14 +528,13 @@ const randomRequester = new cote.Requester({
     name: 'Random Requester',
     // namespace: 'rnd',
     // key: 'a certain key',
-    // environment: 'test',
-    requests: ['randomRequest']
+    requests: ['randomRequest'],
 });
 
 setInterval(() => {
     const req = {
         type: 'randomRequest',
-        val: Math.floor(Math.random() * 10)
+        val: Math.floor(Math.random() * 10),
     };
 
     randomRequester.send(req, (res) => {
@@ -536,13 +551,13 @@ Example:
 
 ```js
 const cote = require('cote');
-const randomRequester = new cote.Requester({name: 'Random Requester'});
+const randomRequester = new cote.Requester({ name: 'Random Requester' });
 
 const makeRequest = (req) => randomRequester.send(req);
 
 const req = {
     type: 'randomRequest',
-    val: Math.floor(Math.random() * 10)
+    val: Math.floor(Math.random() * 10),
 };
 
 makeRequest(req)
@@ -575,8 +590,7 @@ const randomResponder = new cote.Responder({
     name: 'Random Responder',
     // namespace: 'rnd',
     // key: 'a certain key',
-    // environment: 'test',
-    respondsTo: ['randomRequest'] // types of requests this responder
+    respondsTo: ['randomRequest'], // types of requests this responder
                                   // can respond to.
 });
 
@@ -600,7 +614,7 @@ const cote = require('cote');
 const UserModel = require('UserModel'); // a promise-based model API such as
                                         // mongoose.
 
-const userResponder = new cote.Responder({name: 'User Responder'});
+const userResponder = new cote.Responder({ name: 'User Responder' });
 
 userResponder.on('find', (req) => UserModel.findOne(req.query));
 ```
@@ -608,11 +622,11 @@ userResponder.on('find', (req) => UserModel.findOne(req.query));
 `requester.js`
 ```js
 const cote = require('cote');
-const userRequester = new cote.Requester({name: 'User Requester'});
+const userRequester = new cote.Requester({ name: 'User Requester' });
 
 userRequester
-    .send({type: 'find', query: {username: 'foo'}})
-    .then(user => console.log(user))
+    .send({ type: 'find', query: { username: 'foo' } })
+    .then((user) => console.log(user))
     .then(process.exit);
 ```
 
@@ -642,14 +656,13 @@ const randomPublisher = new cote.Publisher({
     name: 'Random Publisher',
     // namespace: 'rnd',
     // key: 'a certain key',
-    // environment: 'test',
-    broadcasts: ['randomUpdate']
+    broadcasts: ['randomUpdate'],
 });
 
 // Wait for the publisher to find an open port and listen on it.
 setInterval(function() {
     const val = {
-        val: Math.floor(Math.random() * 1000)
+        val: Math.floor(Math.random() * 1000),
     };
 
     console.log('emitting', val);
@@ -672,8 +685,7 @@ const randomSubscriber = new cote.Subscriber({
     name: 'Random Subscriber',
     // namespace: 'rnd',
     // key: 'a certain key',
-    // environment: 'test',
-    subscribesTo: ['randomUpdate']
+    subscribesTo: ['randomUpdate'],
 });
 
 randomSubscriber.on('randomUpdate', (req) => {
@@ -695,25 +707,29 @@ Example:
 ```html
 <script src="/socket.io/socket.io.js"></script>
 <script>
-var socket = io.connect();
-var socketNamespaced = io.connect('/rnd');
+let socket = io.connect();
+let socketNamespaced = io.connect('/rnd');
+
+socket.on('randomUpdate', function(data) {
+    console.log(data);
+});
 
 setInterval(function() {
-    var req = {
-        val: Math.floor(Math.random() * 10)
+    let req = {
+        val: Math.floor(Math.random() * 10),
     };
 
-    var req2 = {
-        val: Math.floor(Math.random() * 10)
+    let req2 = {
+        val: Math.floor(Math.random() * 10),
     };
 
-    var req3 = {
-        val: Math.floor(Math.random() * 10)
+    let req3 = {
+        val: Math.floor(Math.random() * 10),
     };
 
-    var req4 = {
-        val: Math.floor(Math.random() * 10)
-    }
+    let req4 = {
+        val: Math.floor(Math.random() * 10),
+    };
 
     socket.emit('randomRequest', req, function(data) {
         console.log('normal', req.val, data);
@@ -741,6 +757,10 @@ const cote = require('cote'),
     io = require('socket.io').listen(app),
     fs = require('fs');
 
+io.on('connection', (socket) => {
+    socket.join('room1');
+});
+
 app.listen(process.argv[2] || 5555);
 
 function handler(req, res) {
@@ -757,14 +777,28 @@ function handler(req, res) {
 
 const sockend = new cote.Sockend(io, {
     name: 'Sockend',
-    // key: 'a certain key',
-    // environment: 'test'
+    // key: 'a certain key'
 });
 ```
-
 Now, fire up a few `Responder`s and `Publisher`s (from the `examples` folder)
 on default or 'rnd' namespace and watch them glow with magic on
 `http://localhost:5555`.
+
+##### Socket.io Rooms
+`Sockend` supports socket.io rooms. All you need to do is add a `__rooms` or `__room` attribute to
+the published message.
+
+```js
+const randomPublisher = new cote.Publisher({
+    name: 'Random Publisher',
+    // namespace: 'rnd',
+    // key: 'a certain key',
+    broadcasts: ['randomUpdate'],
+});
+
+randomPublisher.publish('randomUpdate', { val: 500, __rooms: ['room1', 'room2'] });
+randomPublisher.publish('randomUpdate', { val: 500, __room: 'room1' });
+```
 
 ### Monitor
 
@@ -784,7 +818,8 @@ graph in action.
 While cote is extremely simple to get started, the requirements for a system
 running in production may demand further tweaking and advanced settings. Here
 are some of the advanced features of cote, which can be adjusted on several
-levels — as environment variables, as direct settings for the cote module when requiring it, or as direct settings for each component.
+levels — as environment variables, as direct settings for the cote module when
+requiring it, or as direct settings for each component.
 
 Until now, we only saw instantiating cote components with a single argument. In
 fact, all cote components have two constructor parameters. The first is used as
@@ -835,16 +870,6 @@ there.
 const cote = require('cote')({ environment: 'developer-2' });
 ```
 
-It's also possible to provide this configuration to each component during their
-instantiation.
-
-```js
-const cote = require('cote');
-
-const req1 = new cote.Requester({ name: 'req-1' }, { environment: 'env-1' });
-const req2 = new cote.Requester({ name: 'req-2' }, { environment: 'env-2' });
-```
-
 Now the components in these services won't discover and communicate with each
 other.
 
@@ -881,12 +906,12 @@ const cote = require('cote');
 
 const purchaseRequester = new cote.Requester({
     name: 'Purchase Requester',
-    key: 'purchase'
+    key: 'purchase',
 });
 
 const inventoryRequester = new cote.Requester({
     name: 'Inventory Requester',
-    key: 'inventory'
+    key: 'inventory',
 });
 ```
 
@@ -919,12 +944,12 @@ const cote = require('cote');
 
 const responder = new cote.Responder({
     name: 'Conversion Sockend Responder',
-    namespace: 'conversion'
+    namespace: 'conversion',
 });
 
 const conversionRequester = new cote.Requester({
     name: 'Conversion Requester',
-    key: 'conversion backend'
+    key: 'conversion backend',
 });
 
 responder.on('convert', (req, cb) => {
@@ -939,7 +964,7 @@ const cote = require('cote');
 
 const responder = new cote.Responder({
     name: 'Conversion Responder',
-    key: 'conversion backend'
+    key: 'conversion backend',
 });
 
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
@@ -1009,7 +1034,7 @@ below.
 
 As an environment variable:
 ```sh
-COTE_BROADCAST_ADDRESS=239.1.11.111 node service.js
+COTE_BROADCAST_ADDRESS=255.255.255.255 node service.js
 ```
 
 As part of cote's module configuration:
@@ -1032,22 +1057,102 @@ Here's a list of environment variables cote supports:
 
 | Variable name               | Description |
 | --------------------------: | :---------- |
-| COTE_ENV                    | See [Environments](#environments)
-| COTE_MULTICAST_ADDRESS      | See [Multicast address](#multicast-address)
-| COTE_BROADCAST_ADDRESS      | See [Broadcast address](#broadcast-address)
+| COTE_ENV                    | See [Environments](#environments).
+| COTE_MULTICAST_ADDRESS      | See [Multicast address](#multicast-address).
+| COTE_BROADCAST_ADDRESS      | See [Broadcast address](#broadcast-address).
 | DOCKERCLOUD_IP_ADDRESS      | Default broadcast address in Docker Cloud is `10.7.255.255`. Passing any value to this variable will change default broadcast value from `255.255.255.255` to `10.7.255.255`. This setting shouldn't be changed by users, but rather is there to make cote play extremely well with Docker Cloud.
 | COTE_USE_HOST_NAMES         | In certain, extremely rare conditions, auto-discovery might fail due to components reporting wrong IP addresses. If you find out that is the case, you can command cote to use the reported host names instead.
+| COTE_DISCOVERY_REDIS        | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| COTE_DISCOVERY_REDIS_URL    | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| COTE_DISCOVERY_REDIS_HOST   | See [Using centralized discovery tools](#using-centralized-discovery-tools).
 
-## Deploying with Docker
+## Deploying with Docker Cloud
 
-cote plays extremely well with Docker. Even if your cloud provider doesn't
+cote plays extremely well with Docker Cloud. Even if your cloud provider doesn't
 support IP broadcast or multicast, you can still have the same functionality
-with Docker's overlay networks.
+with Docker Cloud's Weave overlay networks.
 
 Just deploy your cote applications just like any other Node.js application and
 even when your containers run in different machines on different continents, as
-long as they share an overlay network — which Docker assigns by default anyway —
-everything will work as expected.
+long as they share an overlay network — which Docker Cloud assigns by default
+anyway — everything will work as expected.
+
+Make sure to check out
+[the e-commerce case study](https://github.com/dashersw/cote-workshop) that
+implements a complete e-commerce application with microservices using
+[cote](https://github.com/dashersw/cote). It features example Dockerfiles and
+docker-compose configurations in addition to Docker Cloud configurations.
+
+It also has a Docker Swarm configuration to get you started on using cote with
+Docker Swarm, in any cloud environment.
+
+## Using centralized discovery tools
+
+cote is built to be zero-configuration, and relies on IP broadcast/multicast
+to work. However, as of 2017, cloud providers don't support this functionality
+out of the box. In these cases, one can use Docker Cloud and its Weave network
+integration. However, Docker Cloud may not be suitable for everyone, due to
+varying reasons.
+
+### Welcome redis
+
+In these cases, in order to let cote work, we developed a plugin mechanism to
+accomodate different solutions that can serve as the automated service
+discovery tool. Currently, redis is supported out of the box, and cote
+makes use of the [node_redis](https://github.com/NodeRedis/node_redis)
+library, in case you want to use redis as the central discovery tool. If you
+need to use anything other than redis, please open
+[a new issue](https://github.com/dashersw/cote/issues/new) and we may be
+able to help.
+
+### Configuring redis
+
+cote aims to be as zero-conf as possible. Therefore, the discovery backend
+should be invisible to the developer. Since IP broadcast/multicast
+functionality is environment-specific, it makes sense to configure a
+centralized solution via environment variables as well. This way, the
+container deployment configurations such as Docker Swarm stack definitions
+can make use of the additional redis backend functionality, while developers
+can still use IP broadcast/multicast locally, with the same source code.
+
+That's why cote uses environment variables that start with
+`COTE_DISCOVERY_REDIS`. cote transforms any environment variable that
+starts with `COTE_DISCOVERY_REDIS` to proper configuration for the
+[node_redis](https://github.com/NodeRedis/node_redis) library. For example,
+`COTE_DISCOVERY_REDIS_URL=redis` becomes `{ url: 'redis' }` and
+`COTE_DISCOVERY_REDIS_HOST=redis COTE_DISCOVERY_REDIS_PORT=6379` becomes
+`{ host: 'redis', port: '6379' }`.
+
+| Variable name               | Description |
+| --------------------------: | :---------- |
+| COTE_DISCOVERY_REDIS        | If you are running redis on localhost, setting this variable to true will use the locally available redis at port 6379. If you need any other redis URL or host, you don't need to use this variable.
+| COTE_DISCOVERY_REDIS_URL    | Sets the redis connection URL. Has to start with either `redis://` or `//`. Enables the redis plugin.
+| COTE_DISCOVERY_REDIS_HOST   | Sets the redis connection host name. Enables the redis plugin.
+| COTE_DISCOVERY_REDIS_PORT   | Sets the redis connection port. Enables the redis plugin.
+
+cote also supports other connection options supported by
+[node_redis](https://github.com/NodeRedis/node_redis) in the same manner.
+
+#### Example
+
+As an environment variable:
+```sh
+COTE_DISCOVERY_REDIS_HOST=redis node service.js
+```
+
+As part of cote's module configuration:
+
+```js
+const cote = require('cote')({ redis: { host: 'redis' } });
+```
+
+As part of each component's discovery configuration:
+
+```js
+const cote = require('cote');
+
+const req = new cote.Requester({ name: 'req' }, { redis: { host: 'redis' } });
+```
 
 # FAQ
 
@@ -1058,9 +1163,7 @@ of services since its inception in 2013. cote follows
 [Semantic Versioning](http://semver.org) and although it's production-ready, we
 haven't released a version 1.0.0 yet. Although cote added many features in time,
 there hasn't been a single breaking API change since the beginning, so we didn't
-need to update the major version. In the near future, we want to release a
-version 1.0.0 after working out the
-[ES6 rewrite](https://github.com/dashersw/cote/issues/37).
+need to update the major version.
 
 ## Usage with PM2
 
@@ -1074,7 +1177,15 @@ Most cloud providers block IP broadcast and multicast, therefore you can't run
 cote in a multi-host environment without special software for an overlay
 network. For this purpose, Docker is the best tool. Deploy your application in
 Docker containers and you can take advantage of its overlay networks. cote works
-out of the box with Docker Swarm and Docker Cloud.
+out of the box with Docker Cloud and users of Docker Swarm can make use of the
+[Weave Net plugin](https://www.weave.works/docs/net/latest/plugin-v2/). Weave
+also has [an addon](https://www.weave.works/docs/net/latest/kube-addon/) for
+enabling multicast/broadcast for Kubernetes.
+
+If you find the solutions with Docker Swarm and Kubernetes to be hard to get
+started with, you can use redis as a centralized discovery tool. Check out
+[Using centralized discovery tools](#using-centralized-discovery-tools) to
+see how you can set up redis to work with cote.
 
 # Contribution
 
