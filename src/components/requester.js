@@ -30,9 +30,9 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
     send(...args) {
         if (args.length == 1 || typeof args[args.length - 1] != 'function') {
             return new Promise((resolve, reject) => {
-                this.sock.send(...args, (err, res) => {
-                    if (err) return reject(err);
-                    resolve(res);
+                this.sock.send(...args, (res) => {
+                    if (res) return resolve(res);
+                    reject(res);
                 });
             });
         }
