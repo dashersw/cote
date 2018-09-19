@@ -357,14 +357,15 @@ addition to this, the conversion services should be updated to include a
 #### Creating the arbitration service
 
 A simple implementation of such a service would look like the following. First,
-we require cote and instantiate a responder for the API.
+we require cote and instantiate a responder for the API. Because now we have two responders, `arbitration API` and
+`currency conversion responder`, we need to add segmentation by using `key` property. If we had no keys in our examples, some requests from our `client.js` would end up in `currency conversion responder` and we would get correct response, but some of the requests would end up in `arbitration API`, and since arbitration responder isn't listening to `'convert'` events, the request would remain unanswered.
 
 `arbitration-service.js`
 
 ```js
 const cote = require('cote');
 
-const responder = new cote.Responder({ name: 'arbitration API' });
+const responder = new cote.Responder({ name: 'arbitration API', key:'arbitration' });
 ```
 
 Let's say we keep the rates in a local variable. This could just as well be a
@@ -379,7 +380,7 @@ update it from a back office application. The backoffice integration isn't
 important at this moment, but [here is an example how back offices could
 interact with cote responders in the backend](https://github.com/dashersw/cote-workshop/tree/master/admin). Basically, this
 service should have a responder to take in the new rates for a currency
-exchange.
+exchange. 
 
 ```js
 responder.on('update rate', (req, cb) => {
@@ -463,6 +464,18 @@ subscriber.on('update rate', (update) => {
 });
 ```
 
+Let's not forget to change the use of requester and responder in our conversion service and in our client to use segmentation key.
+
+conversion-service.js
+```js
+const responder = new cote.Responder({ name: 'currency conversion responder', key:'currecy' });
+```
+
+client.js
+```js
+const requester = new cote.Requester({ name: 'currency conversion requester', key:'currency' });
+```
+
 That's it! From now on, this conversion service will synchronize with the
 arbitration service and receive its updates. The new conversion requests after
 an update will be done over the new rate.
@@ -476,7 +489,7 @@ an update will be done over the new rate.
 ```js
 const cote = require('cote');
 
-const responder = new cote.Responder({ name: 'currency conversion responder' });
+const responder = new cote.Responder({ name: 'currency conversion responder', key:'currecy' });
 const subscriber = new cote.Subscriber({ name: 'arbitration subscriber' });
 
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
@@ -493,6 +506,29 @@ responder.on('convert', (req, cb) => {
 </p>
 </details>
 
+</p>
+</details>
+
+<details>
+<summary>
+    Click to see the complete <code>client.js</code> file.
+</summary>
+<p>
+
+```js
+const cote = require('cote');
+
+const requester = new cote.Requester({ name: 'currency conversion requester', key:'currency' });
+
+const request = { type: 'convert', from: 'usd', to: 'eur', amount: 100 };
+
+requester.send(request, (res) => {
+    console.log(res);
+});
+```
+
+</p>
+</details>
 
 Components Reference
 ----
