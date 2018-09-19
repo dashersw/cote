@@ -547,7 +547,7 @@ Requesters also support `Promise`s, which gives you great flexibility when
 working with promise-based libraries or when you want to chain multiple
 `Requester`s and `Responder`s.
 
-Example:
+Example with promises:
 
 ```js
 const cote = require('cote');
@@ -565,6 +565,27 @@ makeRequest(req)
     .catch(console.log)
     .then(process.exit);
 ```
+
+Example with `async / await`:
+
+```js
+const cote = require('cote');
+const randomRequester = new cote.Requester({ name: 'Random Requester' });
+
+const req = {
+    type: 'randomRequest',
+    val: Math.floor(Math.random() * 10),
+};
+
+async function  makeRequest () {
+  const response = await randomRequester.send(req);
+  console.log(response);
+}
+
+makeRequest(req)
+    .then(process.exit);
+```
+
 
 ### Responder
 
@@ -606,7 +627,7 @@ randomResponder.on('randomRequest', (req, cb) => {
 working with promise-based libraries or when you want to chain multiple
 `Requester`s and `Responder`s.
 
-Example:
+Example with promises:
 
 `responder.js`
 ```js
@@ -629,6 +650,34 @@ userRequester
     .then((user) => console.log(user))
     .then(process.exit);
 ```
+
+Example with `async / await`
+
+`responder.js`
+```js
+const cote = require('cote');
+
+const sumResponder = new cote.Responder({ name: 'Sum Responder' });
+
+// Responder event needs to return a promise, so that requester 
+//will resolve / reject. That is why we make our function `async`
+userResponder.on('sum', async (req) => req.a + req.b);
+```
+
+`requester.js`
+```js
+const cote = require('cote');
+const sumRequester = new cote.Requester({ name: 'Sum Requester' });
+
+async function requestSum() {
+  const sum = await userRequester.send({ type:'sum', a:3, b:5 });
+  console.log(sum);
+}
+
+requestSum()
+    .then(process.exit);
+```
+
 
 ### Publisher
 
