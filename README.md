@@ -582,7 +582,6 @@ async makeRequest (){
     console.log(response);
 
     process.exit();
-
 }
 
 makeRequest();
@@ -674,6 +673,7 @@ const userRequester = new cote.Requester({ name: 'User Requester' });
 async makeRequest(){
     const user = await userRequester.send({ type: 'find', query: { username: 'foo' });
     console.log(user);
+
     process.exit();
 }
 
