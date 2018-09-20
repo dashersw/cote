@@ -572,18 +572,20 @@ Example with `async / await`:
 const cote = require('cote');
 const randomRequester = new cote.Requester({ name: 'Random Requester' });
 
-const req = {
-    type: 'randomRequest',
-    val: Math.floor(Math.random() * 10),
-};
+async makeRequest (){
+    const req = {
+        type: 'randomRequest',
+        val: Math.floor(Math.random() * 10),
+    };
 
-async function  makeRequest () {
-  const response = await randomRequester.send(req);
-  console.log(response);
+    const response = await randomRequester.send(req);
+    console.log(response);
+
+    process.exit();
+
 }
 
-makeRequest(req)
-    .then(process.exit);
+makeRequest();
 ```
 
 
@@ -656,26 +658,27 @@ Example with `async / await`
 `responder.js`
 ```js
 const cote = require('cote');
+const UserModel = require('UserModel'); // a promise-based model API such as
+                                        // mongoose.
 
-const sumResponder = new cote.Responder({ name: 'Sum Responder' });
+const userResponder = new cote.Responder({ name: 'User Responder' });
 
-// Responder event needs to return a promise, so that requester 
-//will resolve / reject. That is why we make our function `async`
-userResponder.on('sum', async (req) => req.a + req.b);
+userResponder.on('find', (req) => UserModel.findOne(req.query));
 ```
 
 `requester.js`
 ```js
 const cote = require('cote');
-const sumRequester = new cote.Requester({ name: 'Sum Requester' });
+const userRequester = new cote.Requester({ name: 'User Requester' });
 
-async function requestSum() {
-  const sum = await userRequester.send({ type:'sum', a:3, b:5 });
-  console.log(sum);
+async makeRequest(){
+    const user = await userRequester.send({ type: 'find', query: { username: 'foo' });
+    console.log(user);
+    process.exit();
 }
 
-requestSum()
-    .then(process.exit);
+makeRequest();
+
 ```
 
 
