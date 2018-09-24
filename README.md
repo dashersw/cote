@@ -547,7 +547,7 @@ Requesters also support `Promise`s, which gives you great flexibility when
 working with promise-based libraries or when you want to chain multiple
 `Requester`s and `Responder`s.
 
-Example:
+Example with promises:
 
 ```js
 const cote = require('cote');
@@ -565,6 +565,28 @@ makeRequest(req)
     .catch(console.log)
     .then(process.exit);
 ```
+
+Example with `async / await`:
+
+```js
+const cote = require('cote');
+const randomRequester = new cote.Requester({ name: 'Random Requester' });
+
+async makeRequest (){
+    const req = {
+        type: 'randomRequest',
+        val: Math.floor(Math.random() * 10),
+    };
+
+    const response = await randomRequester.send(req);
+    console.log(response);
+
+    process.exit();
+}
+
+makeRequest();
+```
+
 
 ### Responder
 
@@ -606,7 +628,7 @@ randomResponder.on('randomRequest', (req, cb) => {
 working with promise-based libraries or when you want to chain multiple
 `Requester`s and `Responder`s.
 
-Example:
+Example with promises:
 
 `responder.js`
 ```js
@@ -629,6 +651,36 @@ userRequester
     .then((user) => console.log(user))
     .then(process.exit);
 ```
+
+Example with `async / await`
+
+`responder.js`
+```js
+const cote = require('cote');
+const UserModel = require('UserModel'); // a promise-based model API such as
+                                        // mongoose.
+
+const userResponder = new cote.Responder({ name: 'User Responder' });
+
+userResponder.on('find', (req) => UserModel.findOne(req.query));
+```
+
+`requester.js`
+```js
+const cote = require('cote');
+const userRequester = new cote.Requester({ name: 'User Requester' });
+
+async makeRequest(){
+    const user = await userRequester.send({ type: 'find', query: { username: 'foo' });
+    console.log(user);
+
+    process.exit();
+}
+
+makeRequest();
+
+```
+
 
 ### Publisher
 
