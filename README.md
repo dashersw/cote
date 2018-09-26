@@ -572,7 +572,7 @@ Example with `async / await`:
 const cote = require('cote');
 const randomRequester = new cote.Requester({ name: 'Random Requester' });
 
-async makeRequest (){
+async function makeRequest (){
     const req = {
         type: 'randomRequest',
         val: Math.floor(Math.random() * 10),
