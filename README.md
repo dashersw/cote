@@ -598,7 +598,7 @@ const randomResponder = new cote.Responder({
 randomResponder.on('randomRequest', (req, cb) => {
     const answer = Math.floor(Math.random() * 10);
     console.log('request', req.val, 'answering with', answer);
-    cb(answer);
+    cb(null, answer);
 });
 ```
 
