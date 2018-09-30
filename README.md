@@ -356,9 +356,15 @@ addition to this, the conversion services should be updated to include a
 
 #### Creating the arbitration service
 
-Lets build on top of our conversion service. A simple implementation of such a service would look like the following. First,
-we require cote and instantiate a responder for the API. Because now we have two responders, `arbitration API` and
-`currency conversion responder`, we need to add segmentation by using `key` property. If we had no keys in our examples, some requests from our `client.js` would end up in `currency conversion responder` and we would get correct response, but some of the requests would end up in `arbitration API`, and since arbitration responder isn't listening to `'convert'` events, the request would remain unanswered.
+A simple implementation of such a service would look like the following. First,
+we require cote and instantiate a responder for the API. Since we now have two
+responders, `arbitration API` and `currency conversion responder`, we need to
+introduce service segmentation by using `key` property. If we had no keys in
+our examples, some requests from our `client.js` would end up in
+`currency conversion responder` and we would get a correct response, but some
+other requests would end up in `arbitration API`, and since arbitration
+responder isn't listening to `'convert'` events, the request would remain
+ unanswered.
 
 `arbitration-service.js`
 
@@ -378,9 +384,9 @@ const rates = {};
 Now the responder shall respond to an `rate updated` request, allowing admins to
 update it from a back office application. The backoffice integration isn't
 important at this moment, but [here is an example how back offices could
-interact with cote responders in the backend](https://github.com/dashersw/cote-workshop/tree/master/admin). Basically, this
-service should have a responder to take in the new rates for a currency
-exchange. 
+interact with cote responders in the backend](https://github.com/dashersw/cote-workshop/tree/master/admin).
+Basically, this service should have a responder to take in the new rates for a
+currency exchange.
 
 ```js
 responder.on('update rate', (req, cb) => {
@@ -429,6 +435,7 @@ const rates = {};
 
 responder.on('update rate', (req, cb) => {
     rates[req.currencies] = req.rate;
+
     cb(null, `changed ${req.currencies} rate to ${req.rate}`);
 
     publisher.publish('rate updated', req);
@@ -498,13 +505,13 @@ const subscriber = new cote.Subscriber({ name: 'arbitration subscriber' });
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
 
 subscriber.on('rate updated', (update) => {
-  rates[update.currencies] = update.rate;
+    rates[update.currencies] = update.rate;
 });
 
 responder.on('convert', (req, cb) => {
     const convertedRate = req.amount * rates[`${req.from}_${req.to}`];
 
-    cb(`${req.amount} ${req.from} => ${convertedRate} ${req.to}`);
+    cb(null, `${req.amount} ${req.from} => ${convertedRate} ${req.to}`);
 });
 ```
 
@@ -658,6 +665,7 @@ const randomResponder = new cote.Responder({
 randomResponder.on('randomRequest', (req, cb) => {
     const answer = Math.floor(Math.random() * 10);
     console.log('request', req.val, 'answering with', answer);
+
     cb(null, answer);
 });
 ```
