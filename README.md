@@ -572,7 +572,7 @@ Example with `async / await`:
 const cote = require('cote');
 const randomRequester = new cote.Requester({ name: 'Random Requester' });
 
-async makeRequest (){
+async function makeRequest () {
     const req = {
         type: 'randomRequest',
         val: Math.floor(Math.random() * 10),
@@ -670,7 +670,7 @@ userResponder.on('find', (req) => UserModel.findOne(req.query));
 const cote = require('cote');
 const userRequester = new cote.Requester({ name: 'User Requester' });
 
-async makeRequest(){
+async function makeRequest() {
     const user = await userRequester.send({ type: 'find', query: { username: 'foo' });
     console.log(user);
 
