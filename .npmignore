@@ -1,5 +1,6 @@
 .idea
 .vscode
+.history
 benchmark
 examples
 jsconfig.json
