@@ -282,7 +282,7 @@ Here's how a simple implementation might look like.
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
 
 responder.on('convert', (req, cb) => {
-    cb(req.amount * rates[`${req.from}_${req.to}`]);
+    cb(null, req.amount * rates[`${req.from}_${req.to}`]);
 });
 ```
 
@@ -303,7 +303,7 @@ const responder = new cote.Responder({ name: 'currency conversion responder' });
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
 
 responder.on('convert', (req, cb) => {
-    cb(req.amount * rates[`${req.from}_${req.to}`]);
+    cb(null, req.amount * rates[`${req.from}_${req.to}`]);
 });
 ```
 
@@ -384,7 +384,7 @@ exchange.
 ```js
 responder.on('update rate', (req, cb) => {
     rates[req.currencies] = req.rate; // { currencies: 'usd_eur', rate: 0.91 }
-    cb('OK!');
+    cb(null, 'OK!');
 });
 ```
 
@@ -404,7 +404,7 @@ Now whenever there's a new rate, we should utilize this `Publisher`. The
 ```js
 responder.on('update rate', (req, cb) => {
     rates[req.currencies] = req.rate;
-    cb('OK!');
+    cb(null, 'OK!');
 
     publisher.publish('update rate', req);
 });
@@ -426,7 +426,7 @@ const rates = {};
 
 responder.on('update rate', (req, cb) => {
     rates[req.currencies] = req.rate;
-    cb('OK!');
+    cb(null, 'OK!');
 
     publisher.publish('update rate', req);
 });
@@ -486,7 +486,7 @@ subscriber.on('update rate', (update) => {
 });
 
 responder.on('convert', (req, cb) => {
-    cb(req.amount * rates[`${req.from}_${req.to}`]);
+    cb(null, req.amount * rates[`${req.from}_${req.to}`]);
 });
 ```
 
@@ -620,7 +620,7 @@ const randomResponder = new cote.Responder({
 randomResponder.on('randomRequest', (req, cb) => {
     const answer = Math.floor(Math.random() * 10);
     console.log('request', req.val, 'answering with', answer);
-    cb(answer);
+    cb(null, answer);
 });
 ```
 
@@ -1022,7 +1022,7 @@ const responder = new cote.Responder({
 const rates = { usd_eur: 0.91, eur_usd: 1.10 };
 
 responder.on('convert', (req, cb) => {
-    cb(req.amount * rates[`${req.from}_${req.to}`]);
+    cb(null, req.amount * rates[`${req.from}_${req.to}`]);
 });
 ```
 
