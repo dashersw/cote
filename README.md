@@ -632,6 +632,29 @@ async function makeRequest () {
 makeRequest();
 ```
 
+#### Timeout
+
+A timeout could be configured for all Requesters as an environment variable
+`COTE_REQUEST_TIMEOUT`, or in advertisement options for specific Requester,
+or in a property called `__timeout` in first argument of `requester.send`
+method. Latter setting overrides former. Timeout is specified in milliseconds.
+
+**As environment variable for all requesters:**
+
+```sh
+COTE_REQUEST_TIMEOUT=1000 node service.js
+```
+
+**In advertisement settings:**
+
+```js
+new cote.Requester({ name: `Requester with timeout`, timeout: 1000 });
+```
+
+**In send data:**
+```js
+requester.send({ type: 'find', __timeout: 2000 });
+```
 
 ### Responder
 
@@ -1163,6 +1186,7 @@ Here's a list of environment variables cote supports:
 | COTE_DISCOVERY_REDIS        | See [Using centralized discovery tools](#using-centralized-discovery-tools).
 | COTE_DISCOVERY_REDIS_URL    | See [Using centralized discovery tools](#using-centralized-discovery-tools).
 | COTE_DISCOVERY_REDIS_HOST   | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| COTE_REQUEST_TIMEOUT        | See [Requester Timeout](#timeout).
 
 ## Deploying with Docker Cloud
 
