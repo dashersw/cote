@@ -25,6 +25,7 @@ module.exports = function (_Monitorable) {
 
         _this.sock = new axon.types[_this.type]();
         _this.sock.set('retry timeout', 0);
+        _this.timeout = advertisement.timeout || process.env.COTE_REQUEST_TIMEOUT;
 
         _this.startDiscovery();
         return _this;
@@ -50,25 +51,23 @@ module.exports = function (_Monitorable) {
     }, {
         key: 'send',
         value: function send() {
-            var _this3 = this,
-                _sock2;
+            var _this3 = this;
 
             for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
                 args[_key] = arguments[_key];
             }
 
-            if (args.length == 1 || typeof args[args.length - 1] != 'function') {
-                return new Promise(function (resolve, reject) {
-                    var _sock;
+            var hasCallback = typeof args[args.length - 1] == 'function';
+            var timeout = args[0].__timeout || this.timeout;
 
-                    (_sock = _this3.sock).send.apply(_sock, args.concat([function (err, res) {
-                        if (err) return reject(err);
-                        resolve(res);
-                    }]));
-                });
-            }
+            if (hasCallback) return sendOverSocket.apply(undefined, [this.sock, timeout].concat(args));
 
-            (_sock2 = this.sock).send.apply(_sock2, args);
+            return new Promise(function (resolve, reject) {
+                sendOverSocket.apply(undefined, [_this3.sock, timeout].concat(args, [function (err, res) {
+                    if (err) return reject(err);
+                    resolve(res);
+                }]));
+            });
         }
     }, {
         key: 'type',
@@ -84,4 +83,26 @@ module.exports = function (_Monitorable) {
 
     return Requester;
 }(Monitorable(Configurable(Component)));
+
+function sendOverSocket(sock, timeout) {
+    for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+        args[_key2 - 2] = arguments[_key2];
+    }
+
+    if (!timeout) return sock.send.apply(sock, args);
+
+    var cb = args.pop();
+
+    var timeoutHandle = setTimeout(function () {
+        delete sock.callbacks[messageCallback.id];
+        cb(new Error('Request timed out.'));
+    }, timeout);
+
+    var messageCallback = function messageCallback() {
+        clearTimeout(timeoutHandle);
+        cb.apply(undefined, arguments);
+    };
+
+    sock.send.apply(sock, args.concat([messageCallback]));
+}
 //# sourceMappingURL=requester.js.map
