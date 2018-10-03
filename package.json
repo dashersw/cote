@@ -29,7 +29,7 @@
   "license": "MIT",
   "repository": "dashersw/cote",
   "engines": {
-    "node": ">=v4.0.0"
+    "node": ">=v6.0.0"
   },
   "dependencies": {
     "@dashersw/axon": "2.0.5",
