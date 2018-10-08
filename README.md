@@ -901,9 +901,45 @@ const sockend = new cote.Sockend(io, {
     // key: 'a certain key'
 });
 ```
-Now, fire up a few `Responder`s and `Publisher`s (from the `examples` folder)
+
+To connect responder and sockend, you need to add `respondsTo:` parameter to your options.
+```
+const randomResponder = new Responder({
+    name: 'randomRep',
+    respondsTo: ['randomRequest', 'promised request'], // types of requests this responder
+    							  // can respond to.
+});
+```
+To connect publisher and sockend, you need to add `broadcasts:` parameter to your options 
+
+```
+let randomPublisher = new Publisher({
+    name: 'randomPub',
+    broadcasts: ['update1', 'update2'],
+});
+```
+
+If your socket is connected to a namespace, you need to add the same namespace to the components that you want to expose.
+Even though socket.io are prefixed with `/`, with sockend you need to omit `/`.
+
+socket.io-client
+```
+io.connect('/rnd'); // namespace in socket.io is declared as '/rnd'
+```
+sockend component
+```
+const randomResponder = new Responder({
+    name: 'randomRep',
+    namespace: 'rnd', // with sockend, we we omit the '/' and use just 'rnd'
+    respondsTo: ['randomRequest', 'promised request'], // types of requests this responder
+    							  // can respond to.
+});
+```
+
+You can check complete code for  `Responder`s and `Publisher`s in the `examples` folder. Fire them up 
 on default or 'rnd' namespace and watch them glow with magic on
 `http://localhost:5555`.
+If you want to see more complete example of microservices with sockend integration, check out [the e-commerce case study](https://github.com/dashersw/cote-workshop)
 
 ##### Socket.io Rooms
 `Sockend` supports socket.io rooms. All you need to do is add a `__rooms` or `__room` attribute to
