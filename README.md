@@ -1214,15 +1214,21 @@ Here's a list of environment variables cote supports:
 
 | Variable name               | Description |
 | --------------------------: | :---------- |
-| COTE_ENV                    | See [Environments](#environments).
-| COTE_MULTICAST_ADDRESS      | See [Multicast address](#multicast-address).
-| COTE_BROADCAST_ADDRESS      | See [Broadcast address](#broadcast-address).
-| DOCKERCLOUD_IP_ADDRESS      | Default broadcast address in Docker Cloud is `10.7.255.255`. Passing any value to this variable will change default broadcast value from `255.255.255.255` to `10.7.255.255`. This setting shouldn't be changed by users, but rather is there to make cote play extremely well with Docker Cloud.
-| COTE_USE_HOST_NAMES         | In certain, extremely rare conditions, auto-discovery might fail due to components reporting wrong IP addresses. If you find out that is the case, you can command cote to use the reported host names instead.
-| COTE_DISCOVERY_REDIS        | See [Using centralized discovery tools](#using-centralized-discovery-tools).
-| COTE_DISCOVERY_REDIS_URL    | See [Using centralized discovery tools](#using-centralized-discovery-tools).
-| COTE_DISCOVERY_REDIS_HOST   | See [Using centralized discovery tools](#using-centralized-discovery-tools).
-| COTE_REQUEST_TIMEOUT        | See [Requester Timeout](#timeout).
+| `COTE_ENV`                  | See [Environments](#environments).
+| `COTE_MULTICAST_ADDRESS`    | See [Multicast address](#multicast-address).
+| `COTE_BROADCAST_ADDRESS`    | See [Broadcast address](#broadcast-address).
+| `DOCKERCLOUD_IP_ADDRESS`    | Default broadcast address in Docker Cloud is `10.7.255.255`. Passing any value to this variable will change default broadcast value from `255.255.255.255` to `10.7.255.255`. This setting shouldn't be changed by users, but rather is there to make cote play extremely well with Docker Cloud.
+| `COTE_USE_HOST_NAMES`       | In certain, extremely rare conditions, auto-discovery might fail due to components reporting wrong IP addresses. If you find out that is the case, you can command cote to use the reported host names instead.
+| `COTE_DISCOVERY_REDIS`      | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| `COTE_DISCOVERY_REDIS_URL`  | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| `COTE_DISCOVERY_REDIS_HOST` | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| `COTE_REQUEST_TIMEOUT`      | See [Requester Timeout](#timeout).
+| `COTE_LOG`                  | Boolean. Whether to display hello and status logs for other discovered services. Has precedence over `COTE_STATUS_LOGS_ENABLED` and `COTE_HELLO_LOGS_ENABLED`.
+| `COTE_HELLO_LOGS_ENABLED`   | Boolean. Whether to display hello logs from other discovered services.
+| `COTE_STATUS_LOGS_ENABLED`  | Boolean. Whether to display status logs from other discovered services. Has precedence over `COTE_HELLO_LOGS_ENABLED`.
+| `COTE_CHECK_INTERVAL`       | Integer. The interval for checking if a discovered service has sent a heartbeat since the last check.
+| `COTE_HELLO_INTERVAL`       | Integer. The interval for sending a heartbeat hello signal. Should be less than `COTE_CHECK_INTERVAL`.
+| `COTE_NODE_TIMEOUT`         | Integer. The timeout duration that determines if a service is unreachable and thus removed. Should be greater than `COTE_CHECK_INTERVAL`.
 
 ## Deploying with Docker Cloud
 

@@ -9,6 +9,8 @@ const MonitoringTool = require('./monitoring-tool');
 const TimeBalancedRequester = require('./components/time-balanced-requester');
 const PendingBalancedRequester = require('./components/pending-balanced-requester');
 
+const parser = require('../lib/env-var-parser');
+
 const _ = require('lodash');
 
 const cote = (options) => {
@@ -27,6 +29,12 @@ const cote = (options) => {
         broadcast: process.env.COTE_BROADCAST_ADDRESS ||
         (process.env.DOCKERCLOUD_IP_ADDRESS ? '10.7.255.255' : undefined),
         multicast: process.env.COTE_MULTICAST_ADDRESS,
+        checkInterval: parser.int(process.env.COTE_CHECK_INTERVAL),
+        helloInterval: parser.int(process.env.COTE_HELLO_INTERVAL),
+        helloLogsEnabled: parser.bool(process.env.COTE_HELLO_LOGS_ENABLED),
+        statusLogsEnabled: parser.bool(process.env.COTE_STATUS_LOGS_ENABLED),
+        log: parser.bool(process.env.COTE_LOG),
+        nodeTimeout: parser.int(process.env.COTE_NODE_TIMEOUT),
     };
 
     const keys = Object.keys(process.env).filter((k) => k.slice(0, 15) == 'COTE_DISCOVERY_');
