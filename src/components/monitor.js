@@ -5,14 +5,17 @@ const Configurable = require('./configurable');
 const Component = require('./component');
 const axon = require('@dashersw/axon');
 
+const defaultOptions = {
+    monitor: true,
+    log: false,
+}
+
 module.exports = class Monitor extends Configurable(Component) {
-    constructor(advertisement, discoveryOptions, stream) {
+    constructor(advertisement, discoveryOptions = {}, stream) {
         advertisement.type = 'monitor';
 
-        _.defaults(discoveryOptions, {
-            monitor: true,
-            log: false,
-        });
+        discoveryOptions = { ...defaultOptions, ...discoveryOptions }
+
         super(advertisement, discoveryOptions);
 
         this.stream = stream;

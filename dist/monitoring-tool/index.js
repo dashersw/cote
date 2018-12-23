@@ -1,193 +1,181 @@
-'use strict';
+"use strict";
 
 module.exports = function (port) {
-    var fs = require('fs');
-    var _ = require('lodash');
-    var cote = require('../');
-    var portfinder = require('portfinder');
+  const fs = require('fs');
 
-    var server = require('http').createServer(handler);
-    var io = require('socket.io').listen(server);
+  const _ = require('lodash');
 
-    // Instantiate a monitor, sockend and publisher components
-    var monitor = new cote.Monitor({
-        name: 'monitor'
-    }, { disableScreen: true });
+  const cote = require('../');
 
-    var sockend = new cote.Sockend(io, {
-        name: 'sockend',
-        namespace: 'monitoring',
-        key: 'monitoring'
+  const portfinder = require('portfinder');
+
+  const server = require('http').createServer(handler);
+
+  const io = require('socket.io').listen(server); // Instantiate a monitor, sockend and publisher components
+
+
+  const monitor = new cote.Monitor({
+    name: 'monitor'
+  }, {
+    disableScreen: true
+  });
+  const sockend = new cote.Sockend(io, {
+    name: 'sockend',
+    namespace: 'monitoring',
+    key: 'monitoring'
+  });
+  const publisher = new cote.Publisher({
+    name: 'status publisher',
+    broadcasts: ['statusUpdate'],
+    namespace: 'monitoring',
+    key: 'monitoring'
+  }); // Graph related variables
+
+  const graph = {
+    nodes: [],
+    links: []
+  };
+  const rawLinks = {};
+
+  const onPort = (err, port) => {
+    server.listen(port);
+    server.on('error', err => {
+      if (err.code != 'EADDRINUSE') throw err;
+      portfinder.getPort({
+        port
+      }, onPort);
     });
+  };
 
-    var publisher = new cote.Publisher({
-        name: 'status publisher',
-        broadcasts: ['statusUpdate'],
-        namespace: 'monitoring',
-        key: 'monitoring'
+  portfinder.getPort({
+    port: port || 5555
+  }, onPort);
+  monitor.on('status', function (status) {
+    const node = monitor.discovery.nodes[status.id];
+    if (!node) return;
+    if (node.processId == monitor.discovery.me.processId) return;
+    rawLinks[status.id] = {
+      source: status.id,
+      target: status.nodes
+    };
+  });
+  monitor.sock.sock.on('bind', () => {
+    monitor.discovery.on('removed', function (node) {
+      delete rawLinks[node.id];
+      const removedNode = node.id;
+
+      for (let nodeId in rawLinks) {
+        const rawLink = rawLinks[nodeId];
+        const removedNodeIndex = rawLink.target.indexOf(removedNode);
+
+        if (removedNodeIndex > -1) {
+          rawLink.target.splice(removedNodeIndex, 1);
+          if (!rawLink.target.length) delete rawLinks[nodeId];
+        }
+      }
     });
+  });
+  setInterval(function () {
+    graph.nodes = [];
+    const hosts = getHosts(monitor.discovery.nodes);
+    graph.nodes = graph.nodes.concat(hosts);
+    const processes = getProcesses(monitor.discovery.nodes);
+    graph.nodes = graph.nodes.concat(processes);
+    const nodes = getNodes(monitor.discovery.nodes);
+    graph.nodes = graph.nodes.concat(nodes); // Update links
 
-    // Graph related variables
-    var graph = {
-        nodes: [],
-        links: []
-    };
-    var rawLinks = {};
+    const indexMap = {};
+    graph.nodes.forEach(function (node, index) {
+      indexMap[node.id] = index;
+    });
+    graph.links = getLinks(rawLinks, indexMap); // Publish the output
 
-    var onPort = function onPort(err, port) {
-        server.listen(port);
-        server.on('error', function (err) {
-            if (err.code != 'EADDRINUSE') throw err;
+    publisher.publish('statusUpdate', graph);
+  }, 5000);
 
-            portfinder.getPort({ port: port }, onPort);
-        });
-    };
+  function handler(req, res) {
+    fs.readFile(__dirname + '/frontend/index.html', function (err, data) {
+      if (err) {
+        res.writeHead(500);
+        return res.end('Error loading index.html');
+      }
 
-    portfinder.getPort({ port: port || 5555 }, onPort);
+      res.writeHead(200);
+      res.end(data);
+    });
+  }
 
-    monitor.on('status', function (status) {
-        var node = monitor.discovery.nodes[status.id];
-        if (!node) return;
+  function getProcesses(nodes) {
+    const processes = _.groupBy(nodes, 'processId');
 
-        if (node.processId == monitor.discovery.me.processId) return;
+    return _.map(processes, (process, processId) => ({
+      id: processId,
+      type: 'process',
+      name: process[0].processCommand
+    })).filter(function (process) {
+      return process.id != monitor.discovery.me.processId;
+    });
+  }
 
-        rawLinks[status.id] = {
-            source: status.id,
-            target: status.nodes
+  function getHosts(nodes) {
+    const nodesByHosts = _.groupBy(nodes, 'hostName');
+
+    _.forEach(nodesByHosts, (nodesByHost, hostId) => {
+      const nodesByProcess = _.groupBy(nodesByHost, 'processId');
+
+      _.forEach(nodesByProcess, (processNodes, processId) => {
+        if (processId == monitor.discovery.me.processId) return;
+        rawLinks[processId] = {
+          source: processId,
+          target: processNodes.map(function (node) {
+            return node.id;
+          })
         };
+      });
+
+      rawLinks[hostId] = {
+        source: hostId,
+        target: Object.keys(nodesByProcess)
+      };
     });
 
-    monitor.sock.sock.on('bind', function () {
-        monitor.discovery.on('removed', function (node) {
-            delete rawLinks[node.id];
-            var removedNode = node.id;
+    let hosts = Object.keys(nodesByHosts);
+    hosts = _.map(hosts, host => ({
+      id: host,
+      type: 'host',
+      name: host
+    }));
+    return hosts;
+  }
 
-            for (var nodeId in rawLinks) {
-                var rawLink = rawLinks[nodeId];
+  function getNodes(nodes) {
+    nodes = _.filter(nodes, node => node.processId != monitor.discovery.me.processId && node.advertisement.name != 'sockendSub' && node.advertisement.name != 'sockendReq');
 
-                var removedNodeIndex = rawLink.target.indexOf(removedNode);
-                if (removedNodeIndex > -1) {
-                    rawLink.target.splice(removedNodeIndex, 1);
-                    if (!rawLink.target.length) delete rawLinks[nodeId];
-                }
-            }
-        });
-    });
+    const simplifiedNodes = _.map(nodes, node => ({
+      id: node.id,
+      type: 'node',
+      name: node.advertisement.name
+    }));
 
-    setInterval(function () {
-        graph.nodes = [];
+    return simplifiedNodes;
+  }
 
-        var hosts = getHosts(monitor.discovery.nodes);
-        graph.nodes = graph.nodes.concat(hosts);
+  function getLinks(rawLinks, indexMap) {
+    const links = _.map(rawLinks, rawLink => rawLink.target.map(target => ({
+      // flip source & target for semantics :)
+      source: indexMap[target],
+      // monitor.discovery.nodes[target].advertisement.name + '#' + target,
+      target: indexMap[rawLink.source] // monitor.discovery.nodes[rawLink.source].advertisement.name +
+      // '#' + rawLink.source
 
-        var processes = getProcesses(monitor.discovery.nodes);
-        graph.nodes = graph.nodes.concat(processes);
+    })));
 
-        var nodes = getNodes(monitor.discovery.nodes);
-        graph.nodes = graph.nodes.concat(nodes);
+    return _.flatten(links).filter(link => link.source && link.target);
+  }
 
-        // Update links
-        var indexMap = {};
-        graph.nodes.forEach(function (node, index) {
-            indexMap[node.id] = index;
-        });
-        graph.links = getLinks(rawLinks, indexMap);
-
-        // Publish the output
-        publisher.publish('statusUpdate', graph);
-    }, 5000);
-
-    function handler(req, res) {
-        fs.readFile(__dirname + '/frontend/index.html', function (err, data) {
-            if (err) {
-                res.writeHead(500);
-                return res.end('Error loading index.html');
-            }
-            res.writeHead(200);
-            res.end(data);
-        });
-    }
-
-    function getProcesses(nodes) {
-        var processes = _.groupBy(nodes, 'processId');
-
-        return _.map(processes, function (process, processId) {
-            return {
-                id: processId,
-                type: 'process',
-                name: process[0].processCommand
-            };
-        }).filter(function (process) {
-            return process.id != monitor.discovery.me.processId;
-        });
-    }
-
-    function getHosts(nodes) {
-        var nodesByHosts = _.groupBy(nodes, 'hostName');
-
-        _.forEach(nodesByHosts, function (nodesByHost, hostId) {
-            var nodesByProcess = _.groupBy(nodesByHost, 'processId');
-
-            _.forEach(nodesByProcess, function (processNodes, processId) {
-                if (processId == monitor.discovery.me.processId) return;
-
-                rawLinks[processId] = {
-                    source: processId,
-                    target: processNodes.map(function (node) {
-                        return node.id;
-                    })
-                };
-            });
-
-            rawLinks[hostId] = {
-                source: hostId,
-                target: Object.keys(nodesByProcess)
-            };
-        });
-
-        var hosts = Object.keys(nodesByHosts);
-        hosts = _.map(hosts, function (host) {
-            return {
-                id: host,
-                type: 'host',
-                name: host
-            };
-        });
-        return hosts;
-    }
-
-    function getNodes(nodes) {
-        nodes = _.filter(nodes, function (node) {
-            return node.processId != monitor.discovery.me.processId && node.advertisement.name != 'sockendSub' && node.advertisement.name != 'sockendReq';
-        });
-
-        var simplifiedNodes = _.map(nodes, function (node) {
-            return {
-                id: node.id,
-                type: 'node',
-                name: node.advertisement.name
-            };
-        });
-
-        return simplifiedNodes;
-    }
-
-    function getLinks(rawLinks, indexMap) {
-        var links = _.map(rawLinks, function (rawLink) {
-            return rawLink.target.map(function (target) {
-                return { // flip source & target for semantics :)
-                    source: indexMap[target], // monitor.discovery.nodes[target].advertisement.name + '#' + target,
-                    target: indexMap[rawLink.source] // monitor.discovery.nodes[rawLink.source].advertisement.name +
-                    // '#' + rawLink.source
-                };
-            });
-        });
-
-        return _.flatten(links).filter(function (link) {
-            return link.source && link.target;
-        });
-    }
-
-    return { monitor: monitor, server: server };
+  return {
+    monitor,
+    server
+  };
 };
 //# sourceMappingURL=index.js.map

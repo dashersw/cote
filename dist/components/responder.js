@@ -1,90 +1,59 @@
-'use strict';
+"use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+const axon = require('@dashersw/axon');
 
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+const portfinder = require('portfinder');
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+const Configurable = require('./configurable');
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+const Component = require('./component');
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+module.exports = class Responder extends Configurable(Component) {
+  constructor(advertisement, discoveryOptions) {
+    super(advertisement, discoveryOptions);
+    this.sock = new axon.types[this.type]();
+    this.sock.on('bind', () => this.startDiscovery());
+    this.sock.on('message', (req, cb) => {
+      if (!req.type) return;
+      this.emit(req.type, req, cb);
+    });
 
-var axon = require('@dashersw/axon');
-var portfinder = require('portfinder');
-var Configurable = require('./configurable');
-var Component = require('./component');
-
-module.exports = function (_Configurable) {
-    _inherits(Responder, _Configurable);
-
-    function Responder(advertisement, discoveryOptions) {
-        _classCallCheck(this, Responder);
-
-        var _this = _possibleConstructorReturn(this, (Responder.__proto__ || Object.getPrototypeOf(Responder)).call(this, advertisement, discoveryOptions));
-
-        _this.sock = new axon.types[_this.type]();
-        _this.sock.on('bind', function () {
-            return _this.startDiscovery();
-        });
-
-        _this.sock.on('message', function (req, cb) {
-            if (!req.type) return;
-
-            _this.emit(req.type, req, cb);
-        });
-
-        var onPort = function onPort(err, port) {
-            _this.advertisement.port = +port;
-
-            _this.sock.bind(port);
-            _this.sock.server.on('error', function (err) {
-                if (err.code != 'EADDRINUSE') throw err;
-
-                portfinder.getPort({
-                    host: _this.discoveryOptions.address,
-                    port: _this.advertisement.port
-                }, onPort);
-            });
-        };
-
+    const onPort = (err, port) => {
+      this.advertisement.port = +port;
+      this.sock.bind(port);
+      this.sock.server.on('error', err => {
+        if (err.code != 'EADDRINUSE') throw err;
         portfinder.getPort({
-            host: _this.discoveryOptions.address,
-            port: advertisement.port
+          host: this.discoveryOptions.address,
+          port: this.advertisement.port
         }, onPort);
-        return _this;
-    }
+      });
+    };
 
-    _createClass(Responder, [{
-        key: 'on',
-        value: function on(type, listener) {
-            _get(Responder.prototype.__proto__ || Object.getPrototypeOf(Responder.prototype), 'on', this).call(this, type, function () {
-                for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-                    args[_key] = arguments[_key];
-                }
+    portfinder.getPort({
+      host: this.discoveryOptions.address,
+      port: advertisement.port
+    }, onPort);
+  }
 
-                var rv = listener.apply(undefined, args);
+  on(type, listener) {
+    super.on(type, (...args) => {
+      const rv = listener(...args);
 
-                if (rv && typeof rv.then == 'function') {
-                    var cb = args.pop();
-                    rv.then(function (val) {
-                        return cb(null, val);
-                    }).catch(cb);
-                }
-            });
-        }
-    }, {
-        key: 'type',
-        get: function get() {
-            return 'rep';
-        }
-    }, {
-        key: 'oppo',
-        get: function get() {
-            return 'req';
-        }
-    }]);
+      if (rv && typeof rv.then == 'function') {
+        const cb = args.pop();
+        rv.then(val => cb(null, val)).catch(cb);
+      }
+    });
+  }
 
-    return Responder;
-}(Configurable(Component));
+  get type() {
+    return 'rep';
+  }
+
+  get oppo() {
+    return 'req';
+  }
+
+};
 //# sourceMappingURL=responder.js.map

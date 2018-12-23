@@ -1,106 +1,83 @@
-'use strict';
+"use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+const Discover = require('@dashersw/node-discover');
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+const colors = require('colors');
 
-var Discover = require('@dashersw/node-discover');
-var colors = require('colors');
-var _ = require('lodash');
+const _ = require('lodash');
 
-var Discovery = function (_Discover) {
-    _inherits(Discovery, _Discover);
+const defaultOptions = {
+  helloInterval: 2000,
+  checkInterval: 4000,
+  nodeTimeout: 5000,
+  masterTimeout: 6000,
+  monitor: false,
+  log: true,
+  helloLogsEnabled: true,
+  statusLogsEnabled: true,
+  ignoreProcess: false
+};
 
-    function Discovery(advertisement) {
-        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+class Discovery extends Discover {
+  constructor(advertisement, options = {}) {
+    options = _objectSpread({}, defaultOptions, Discovery.defaults, options);
+    super(options);
+    this.advertisement = _objectSpread({
+      type: 'service'
+    }, advertisement);
+    this.advertise(this.advertisement);
+    this.me.id = this.broadcast.instanceUuid;
+    this.me.processId = this.broadcast.processUuid;
+    this.me.processCommand = process.argv.slice(1).map(n => {
+      return n.split('/').slice(-2).join('/');
+    }).join(' ');
+    options.log && this.log(this.helloLogger());
+    this.on('added', obj => {
+      if (!options.monitor && obj.advertisement.key != this.advertisement.key) return;
+      options.log && options.statusLogsEnabled && options.helloLogsEnabled && this.log(this.statusLogger(obj, 'online'));
+    });
+    this.on('removed', obj => {
+      if (!options.monitor && obj.advertisement.key != this.advertisement.key) return;
+      options.log && options.statusLogsEnabled && this.log(this.statusLogger(obj, 'offline'));
+    });
+  }
 
-        _classCallCheck(this, Discovery);
+  static setDefaults(options) {
+    this.defaults = options;
+  }
 
-        _.defaults(options, Discovery.defaults, {
-            helloInterval: 2000,
-            checkInterval: 4000,
-            nodeTimeout: 5000,
-            masterTimeout: 6000,
-            monitor: false,
-            log: true,
-            helloLogsEnabled: true,
-            statusLogsEnabled: true,
-            ignoreProcess: false
-        });
+  log(logs) {
+    console.log.apply(console.log, logs);
+  }
 
-        var _this = _possibleConstructorReturn(this, (Discovery.__proto__ || Object.getPrototypeOf(Discovery)).call(this, options));
+  helloLogger() {
+    return _.concat('\nHello! I\'m'.white, this.statusLogger(this.me), '\n========================\n'.white);
+  }
 
-        _this.advertisement = _.defaults(advertisement, {
-            type: 'service'
-        });
+  statusLogger(obj, status) {
+    const logs = [];
 
-        _this.advertise(advertisement);
-
-        _this.me.id = _this.broadcast.instanceUuid;
-        _this.me.processId = _this.broadcast.processUuid;
-        _this.me.processCommand = process.argv.slice(1).map(function (n) {
-            return n.split('/').slice(-2).join('/');
-        }).join(' ');
-
-        options.log && _this.log(_this.helloLogger());
-
-        _this.on('added', function (obj) {
-            if (!options.monitor && obj.advertisement.key != _this.advertisement.key) return;
-
-            options.log && options.statusLogsEnabled && options.helloLogsEnabled && _this.log(_this.statusLogger(obj, 'online'));
-        });
-
-        _this.on('removed', function (obj) {
-            if (!options.monitor && obj.advertisement.key != _this.advertisement.key) return;
-
-            options.log && options.statusLogsEnabled && _this.log(_this.statusLogger(obj, 'offline'));
-        });
-        return _this;
+    if (status) {
+      const statusLog = status == 'online' ? '.online'.green : '.offline'.red;
+      logs.push(this.advertisement.name, '>', obj.advertisement.type.magenta + statusLog);
+    } else {
+      logs.push();
     }
 
-    _createClass(Discovery, [{
-        key: 'log',
-        value: function log(logs) {
-            console.log.apply(console.log, logs);
-        }
-    }, {
-        key: 'helloLogger',
-        value: function helloLogger() {
-            return _.concat('\nHello! I\'m'.white, this.statusLogger(this.me), '\n========================\n'.white);
-        }
-    }, {
-        key: 'statusLogger',
-        value: function statusLogger(obj, status) {
-            var logs = [];
+    logs.push(`${obj.advertisement.name.white}${'#'.grey}${obj.id.grey}`);
 
-            if (status) {
-                var statusLog = status == 'online' ? '.online'.green : '.offline'.red;
-                logs.push(this.advertisement.name, '>', obj.advertisement.type.magenta + statusLog);
-            } else {
-                logs.push();
-            }
+    if (obj.advertisement.port) {
+      logs.push('on', obj.advertisement.port.toString().blue);
+    }
 
-            logs.push('' + obj.advertisement.name.white + '#'.grey + obj.id.grey);
+    return logs;
+  }
 
-            if (obj.advertisement.port) {
-                logs.push('on', obj.advertisement.port.toString().blue);
-            }
-
-            return logs;
-        }
-    }], [{
-        key: 'setDefaults',
-        value: function setDefaults(options) {
-            this.defaults = options;
-        }
-    }]);
-
-    return Discovery;
-}(Discover);
+}
 
 module.exports = Discovery;
 //# sourceMappingURL=discovery.js.map

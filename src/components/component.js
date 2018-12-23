@@ -2,7 +2,7 @@ const EventEmitter = require('eventemitter2').EventEmitter2;
 const Discovery = require('./discovery');
 
 module.exports = class Component extends EventEmitter {
-    constructor(advertisement, discoveryOptions) {
+    constructor(advertisement, discoveryOptions = {}) {
         super({
             wildcard: true, // should the event emitter use wildcards.
             delimiter: '::', // the delimiter used to segment namespaces, defaults to `.`.
@@ -15,9 +15,8 @@ module.exports = class Component extends EventEmitter {
         this.advertisement = advertisement;
         this.advertisement.axon_type = this.type;
 
-        this.discoveryOptions = discoveryOptions || {};
-        this.discoveryOptions.address = this.discoveryOptions.address ||
-            '0.0.0.0';
+        this.discoveryOptions = discoveryOptions;
+        this.discoveryOptions.address = this.discoveryOptions.address || '0.0.0.0';
     }
 
     startDiscovery() {

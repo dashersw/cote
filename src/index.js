@@ -13,16 +13,14 @@ const parser = require('../lib/env-var-parser');
 
 const _ = require('lodash');
 
-const cote = (options) => {
-    options = options || {};
+const defaultOptions = {
+    environment: '',
+    useHostNames: false,
+    broadcast: null,
+    multicast: null,
+};
 
-    const defaults = {
-        environment: '',
-        useHostNames: false,
-        broadcast: null,
-        multicast: null,
-    };
-
+const cote = (options = {}) => {
     const environmentSettings = {
         environment: process.env.COTE_ENV,
         useHostNames: !!process.env.COTE_USE_HOST_NAMES,
@@ -56,7 +54,7 @@ const cote = (options) => {
         environmentSettings.useHostNames = true;
     });
 
-    _.defaults(options, environmentSettings, defaults);
+    options = { ...defaultOptions, ...environmentSettings, ...options };
 
     Discovery.setDefaults(options);
 

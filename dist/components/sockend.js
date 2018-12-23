@@ -1,155 +1,129 @@
-'use strict';
+"use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+const EventEmitter = require('eventemitter2').EventEmitter2;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+const util = require('util');
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+const Discovery = require('./discovery');
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+const axon = require('@dashersw/axon');
 
-var EventEmitter = require('eventemitter2').EventEmitter2;
-var util = require('util');
-var Discovery = require('./discovery');
-var axon = require('@dashersw/axon');
-var Subscriber = require('./subscriber');
-var Requester = require('./requester');
-var Configurable = require('./configurable');
-var Component = require('./component');
+const Subscriber = require('./subscriber');
 
-module.exports = function (_Configurable) {
-    _inherits(Sockend, _Configurable);
+const Requester = require('./requester');
 
-    function Sockend(io, advertisement, discoveryOptions) {
-        _classCallCheck(this, Sockend);
+const Configurable = require('./configurable');
 
-        var originalKey = advertisement.key;
+const Component = require('./component');
 
-        var _this = _possibleConstructorReturn(this, (Sockend.__proto__ || Object.getPrototypeOf(Sockend)).call(this, advertisement, discoveryOptions));
+module.exports = class Sockend extends Configurable(Component) {
+  constructor(io, advertisement, discoveryOptions) {
+    const originalKey = advertisement.key;
+    super(advertisement, discoveryOptions);
+    this.requesterTransformators = [];
+    this.startDiscovery();
+    const namespaces = {};
+    this.discovery.on('added', obj => {
+      if (obj.advertisement.axon_type != 'rep') return;
+      if (obj.advertisement.key != this.advertisement.key) return;
+      if (!Array.isArray(obj.advertisement.respondsTo)) return;
+      const namespace = obj.advertisement.namespace;
+      const normalizedNamespace = namespace || '';
+      if (namespaces['/' + normalizedNamespace]) return;
+      namespaces['/' + normalizedNamespace] = true;
+      obj.namespace = namespace;
+      const requester = new Requester({
+        name: 'sockendReq',
+        namespace,
+        key: originalKey
+      }, discoveryOptions);
+      obj.requester = requester;
+      const originalRequestOnAdded = requester.onAdded.bind(requester);
 
-        _this.requesterTransformators = [];
+      requester.onAdded = obj => {
+        if (!Array.isArray(obj.advertisement.respondsTo)) return;
+        originalRequestOnAdded(obj);
+      };
 
-        _this.startDiscovery();
-
-        var namespaces = {};
-
-        _this.discovery.on('added', function (obj) {
-            if (obj.advertisement.axon_type != 'rep') return;
-            if (obj.advertisement.key != _this.advertisement.key) return;
-            if (!Array.isArray(obj.advertisement.respondsTo)) return;
-
-            var namespace = obj.advertisement.namespace;
-            var normalizedNamespace = namespace || '';
-
-            if (namespaces['/' + normalizedNamespace]) return;
-
-            namespaces['/' + normalizedNamespace] = true;
-            obj.namespace = namespace;
-
-            var requester = new Requester({
-                name: 'sockendReq',
-                namespace: namespace,
-                key: originalKey
-            }, discoveryOptions);
-            obj.requester = requester;
-
-            var originalRequestOnAdded = requester.onAdded.bind(requester);
-            requester.onAdded = function (obj) {
-                if (!Array.isArray(obj.advertisement.respondsTo)) return;
-                originalRequestOnAdded(obj);
-            };
-
-            obj.requesterSocketHandler = function (socket) {
-                obj.advertisement.respondsTo.forEach(function (topic) {
-                    socket.on(topic, function (data, cb) {
-                        if (typeof data == 'function' && typeof cb == 'undefined') {
-                            cb = data;
-                            data = {};
-                        }
-
-                        data.type = topic;
-
-                        _this.requesterTransformators.forEach(function (transFn) {
-                            return transFn(data, socket);
-                        });
-
-                        requester.send(data, cb);
-                    });
-                });
-            };
-
-            var server = io.of('/');
-            if (namespace) server = io.of('/' + namespace);
-            server.on('connection', obj.requesterSocketHandler);
-
-            for (var sId in server.sockets) {
-                obj.requesterSocketHandler(server.sockets[sId]);
+      obj.requesterSocketHandler = socket => {
+        obj.advertisement.respondsTo.forEach(topic => {
+          socket.on(topic, (data, cb) => {
+            if (typeof data == 'function' && typeof cb == 'undefined') {
+              cb = data;
+              data = {};
             }
+
+            data.type = topic;
+            this.requesterTransformators.forEach(transFn => transFn(data, socket));
+            requester.send(data, cb);
+          });
         });
+      };
 
-        var publisherNamespaces = {};
+      let server = io.of('/');
+      if (namespace) server = io.of('/' + namespace);
+      server.on('connection', obj.requesterSocketHandler);
 
-        _this.discovery.on('added', function (obj) {
-            if (obj.advertisement.axon_type != 'pub-emitter') return;
-            if (obj.advertisement.key != _this.advertisement.key) return;
+      for (let sId in server.sockets) {
+        obj.requesterSocketHandler(server.sockets[sId]);
+      }
+    });
+    const publisherNamespaces = {};
+    this.discovery.on('added', obj => {
+      if (obj.advertisement.axon_type != 'pub-emitter') return;
+      if (obj.advertisement.key != this.advertisement.key) return;
+      const namespace = obj.advertisement.namespace;
+      const normalizedNamespace = namespace || '';
+      if (publisherNamespaces['/' + normalizedNamespace]) return;
+      publisherNamespaces['/' + normalizedNamespace] = true;
+      obj.namespace = namespace;
+      const subscriber = new Subscriber({
+        name: 'sockendSub',
+        namespace: namespace,
+        key: originalKey,
+        subscribesTo: obj.advertisement.broadcasts
+      }, discoveryOptions);
 
-            var namespace = obj.advertisement.namespace;
-            var normalizedNamespace = namespace || '';
+      subscriber.onMonitorAdded = () => {};
 
-            if (publisherNamespaces['/' + normalizedNamespace]) return;
+      obj.subscriber = subscriber;
+      subscriber.on('**', function (data) {
+        if (this.event == 'cote:added' || this.event == 'cote:removed') return;
+        let topic = this.event.split('::');
+        let namespace = '';
 
-            publisherNamespaces['/' + normalizedNamespace] = true;
-            obj.namespace = namespace;
-
-            var subscriber = new Subscriber({
-                name: 'sockendSub',
-                namespace: namespace,
-                key: originalKey,
-                subscribesTo: obj.advertisement.broadcasts
-            }, discoveryOptions);
-
-            subscriber.onMonitorAdded = function () {};
-
-            obj.subscriber = subscriber;
-
-            subscriber.on('**', function (data) {
-                if (this.event == 'cote:added' || this.event == 'cote:removed') return;
-
-                var topic = this.event.split('::');
-                var namespace = '';
-                if (topic.length > 1) {
-                    namespace += '/' + topic[0];
-                    topic = topic.slice(1);
-                }
-                topic = topic.join('');
-
-                var emitter = io.of(namespace);
-                if (data.__room) {
-                    data.__rooms = new Set(data.__rooms || []);
-                    data.__rooms.add(data.__room);
-                    delete data.__room;
-                }
-                if (data.__rooms) {
-                    var rooms = data.__rooms;
-                    delete data.__rooms;
-                    rooms.forEach(function (room) {
-                        emitter.to(room).emit(topic, data);
-                    });
-                } else {
-                    emitter.emit(topic, data);
-                }
-            });
-        });
-        return _this;
-    }
-
-    _createClass(Sockend, [{
-        key: 'type',
-        get: function get() {
-            return 'sockend';
+        if (topic.length > 1) {
+          namespace += '/' + topic[0];
+          topic = topic.slice(1);
         }
-    }]);
 
-    return Sockend;
-}(Configurable(Component));
+        topic = topic.join('');
+        let emitter = io.of(namespace);
+
+        if (data.__room) {
+          data.__rooms = new Set(data.__rooms || []);
+
+          data.__rooms.add(data.__room);
+
+          delete data.__room;
+        }
+
+        if (data.__rooms) {
+          const rooms = data.__rooms;
+          delete data.__rooms;
+          rooms.forEach(room => {
+            emitter.to(room).emit(topic, data);
+          });
+        } else {
+          emitter.emit(topic, data);
+        }
+      });
+    });
+  }
+
+  get type() {
+    return 'sockend';
+  }
+
+};
 //# sourceMappingURL=sockend.js.map

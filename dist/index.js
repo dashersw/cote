@@ -1,78 +1,75 @@
-'use strict';
+"use strict";
 
-var Discovery = require('./components/discovery');
-var Requester = require('./components/requester');
-var Responder = require('./components/responder');
-var Publisher = require('./components/publisher');
-var Subscriber = require('./components/subscriber');
-var Sockend = require('./components/sockend');
-var Monitor = require('./components/monitor');
-var MonitoringTool = require('./monitoring-tool');
-var TimeBalancedRequester = require('./components/time-balanced-requester');
-var PendingBalancedRequester = require('./components/pending-balanced-requester');
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
-var parser = require('../lib/env-var-parser');
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var _ = require('lodash');
+const Discovery = require('./components/discovery');
 
-var cote = function cote(options) {
-    options = options || {};
+const Requester = require('./components/requester');
 
-    var defaults = {
-        environment: '',
-        useHostNames: false,
-        broadcast: null,
-        multicast: null
-    };
+const Responder = require('./components/responder');
 
-    var environmentSettings = {
-        environment: process.env.COTE_ENV,
-        useHostNames: !!process.env.COTE_USE_HOST_NAMES,
-        broadcast: process.env.COTE_BROADCAST_ADDRESS || (process.env.DOCKERCLOUD_IP_ADDRESS ? '10.7.255.255' : undefined),
-        multicast: process.env.COTE_MULTICAST_ADDRESS,
-        checkInterval: parser.int(process.env.COTE_CHECK_INTERVAL),
-        helloInterval: parser.int(process.env.COTE_HELLO_INTERVAL),
-        helloLogsEnabled: parser.bool(process.env.COTE_HELLO_LOGS_ENABLED),
-        statusLogsEnabled: parser.bool(process.env.COTE_STATUS_LOGS_ENABLED),
-        log: parser.bool(process.env.COTE_LOG),
-        nodeTimeout: parser.int(process.env.COTE_NODE_TIMEOUT)
-    };
+const Publisher = require('./components/publisher');
 
-    var keys = Object.keys(process.env).filter(function (k) {
-        return k.slice(0, 15) == 'COTE_DISCOVERY_';
-    });
+const Subscriber = require('./components/subscriber');
 
-    keys.forEach(function (k) {
-        var keyName = k.slice(15);
-        var keyArray = keyName.split('_').map(function (k) {
-            return k.toLowerCase();
-        });
-        var pluginName = keyArray.shift();
+const Sockend = require('./components/sockend');
 
-        var pluginObj = environmentSettings[pluginName] = environmentSettings[pluginName] || {};
+const Monitor = require('./components/monitor');
 
-        keyArray.forEach(function (k) {
-            pluginObj[k] = process.env['COTE_DISCOVERY_' + pluginName.toUpperCase() + '_' + k.toUpperCase()];
-        });
+const MonitoringTool = require('./monitoring-tool');
 
-        // Discovery plugins (such as redis) may not have access to real IP addresses.
-        // Therefore we automatically default to `true` for `COTE_USE_HOST_NAMES`,
-        // since host names are accurate.
-        environmentSettings.useHostNames = true;
-    });
+const TimeBalancedRequester = require('./components/time-balanced-requester');
 
-    _.defaults(options, environmentSettings, defaults);
+const PendingBalancedRequester = require('./components/pending-balanced-requester');
 
-    Discovery.setDefaults(options);
+const parser = require('../lib/env-var-parser');
 
-    var components = [Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester, PendingBalancedRequester];
+const _ = require('lodash');
 
-    components.forEach(function (component) {
-        component.setEnvironment(options.environment);
-        component.setUseHostNames && component.setUseHostNames(options.useHostNames);
-    });
+const defaultOptions = {
+  environment: '',
+  useHostNames: false,
+  broadcast: null,
+  multicast: null
+};
 
-    return cote;
+const cote = (options = {}) => {
+  const environmentSettings = {
+    environment: process.env.COTE_ENV,
+    useHostNames: !!process.env.COTE_USE_HOST_NAMES,
+    broadcast: process.env.COTE_BROADCAST_ADDRESS || (process.env.DOCKERCLOUD_IP_ADDRESS ? '10.7.255.255' : undefined),
+    multicast: process.env.COTE_MULTICAST_ADDRESS,
+    checkInterval: parser.int(process.env.COTE_CHECK_INTERVAL),
+    helloInterval: parser.int(process.env.COTE_HELLO_INTERVAL),
+    helloLogsEnabled: parser.bool(process.env.COTE_HELLO_LOGS_ENABLED),
+    statusLogsEnabled: parser.bool(process.env.COTE_STATUS_LOGS_ENABLED),
+    log: parser.bool(process.env.COTE_LOG),
+    nodeTimeout: parser.int(process.env.COTE_NODE_TIMEOUT)
+  };
+  const keys = Object.keys(process.env).filter(k => k.slice(0, 15) == 'COTE_DISCOVERY_');
+  keys.forEach(k => {
+    const keyName = k.slice(15);
+    const keyArray = keyName.split('_').map(k => k.toLowerCase());
+    const pluginName = keyArray.shift();
+    const pluginObj = environmentSettings[pluginName] = environmentSettings[pluginName] || {};
+    keyArray.forEach(k => {
+      pluginObj[k] = process.env[`COTE_DISCOVERY_${pluginName.toUpperCase()}_${k.toUpperCase()}`];
+    }); // Discovery plugins (such as redis) may not have access to real IP addresses.
+    // Therefore we automatically default to `true` for `COTE_USE_HOST_NAMES`,
+    // since host names are accurate.
+
+    environmentSettings.useHostNames = true;
+  });
+  options = _objectSpread({}, defaultOptions, environmentSettings, options);
+  Discovery.setDefaults(options);
+  const components = [Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester, PendingBalancedRequester];
+  components.forEach(function (component) {
+    component.setEnvironment(options.environment);
+    component.setUseHostNames && component.setUseHostNames(options.useHostNames);
+  });
+  return cote;
 };
 
 cote.Requester = Requester;
@@ -84,6 +81,5 @@ cote.Monitor = Monitor;
 cote.MonitoringTool = MonitoringTool;
 cote.TimeBalancedRequester = TimeBalancedRequester;
 cote.PendingBalancedRequester = PendingBalancedRequester;
-
 module.exports = cote();
 //# sourceMappingURL=index.js.map

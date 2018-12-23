@@ -2,27 +2,27 @@ const Discover = require('@dashersw/node-discover');
 const colors = require('colors');
 const _ = require('lodash');
 
+const defaultOptions = {
+    helloInterval: 2000,
+    checkInterval: 4000,
+    nodeTimeout: 5000,
+    masterTimeout: 6000,
+    monitor: false,
+    log: true,
+    helloLogsEnabled: true,
+    statusLogsEnabled: true,
+    ignoreProcess: false,
+}
+
 class Discovery extends Discover {
     constructor(advertisement, options = {}) {
-        _.defaults(options, Discovery.defaults, {
-            helloInterval: 2000,
-            checkInterval: 4000,
-            nodeTimeout: 5000,
-            masterTimeout: 6000,
-            monitor: false,
-            log: true,
-            helloLogsEnabled: true,
-            statusLogsEnabled: true,
-            ignoreProcess: false,
-        });
+        options = { ...defaultOptions, ...Discovery.defaults, ...options }
 
         super(options);
 
-        this.advertisement = _.defaults(advertisement, {
-            type: 'service',
-        });
+        this.advertisement = { type: 'service', ...advertisement }
 
-        this.advertise(advertisement);
+        this.advertise(this.advertisement);
 
         this.me.id = this.broadcast.instanceUuid;
         this.me.processId = this.broadcast.processUuid;
