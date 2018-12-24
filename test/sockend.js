@@ -42,6 +42,41 @@ test.cb('Sockend simple req&res', (t) => {
     });
 });
 
+test.cb(`Sockend wrong respondsTo configuration`, (t) => {
+    t.plan(2);
+    const key = r.generate();
+
+    const responder1 = new Responder({ name: `${t.title}: responder1`, respondsTo: ['test1'], key });
+    const responder2 = new Responder({ name: `${t.title}: responder2`, respondsTo: 'test2', key });
+
+    let metResponders = 0;
+
+    responder1.on('test', (req, cb) => cb(req.args));
+    responder2.on('test', (req, cb) => cb(req.args));
+
+    portfinder.getPort({ host: '127.0.0.1', port: 28000 }, (err, port) => {
+        const server = io(port);
+        const sockend = new Sockend(server, { name: 'sockend for wrong respondsTo configuration', key });
+
+        sockend.discovery.on('added', (obj) => {
+            if (obj.advertisement.axon_type != 'rep') return;
+            if (obj.advertisement.key != sockend.advertisement.key) return;
+
+            metResponders++;
+
+            if (obj.advertisement.respondsTo === 'test2') {
+                t.pass();
+            }
+
+            if (obj.advertisement.respondsTo[0] == 'test1') {
+                t.pass();
+            }
+
+            if (metResponders == 2) t.end();
+        });
+    });
+});
+
 test.cb('Sockend simple pub&sub', (t) => {
     t.plan(1);
     const key = r.generate();
@@ -137,6 +172,13 @@ test.cb(`Sockend ns req&res / pub&sub`, (t) => {
             respondsTo: ['ns test'],
         });
         const publisher = new Publisher({
+            name: `${t.title}: ns publisher`, namespace, key,
+            broadcasts: ['published message'],
+        });
+
+        // this publisher is used to test the prevention of creating duplicate namespace objects
+        // in sockend for the same namespace
+        new Publisher({
             name: `${t.title}: ns publisher`, namespace, key,
             broadcasts: ['published message'],
         });
