@@ -36,6 +36,7 @@
     "@dashersw/node-discover": "^1.0.4",
     "charm": "1.0.2",
     "colors": "1.3.0",
+    "core-js": "^2.6.1",
     "eventemitter2": "5.0.1",
     "lodash": "4.17.10",
     "portfinder": "1.0.13",
