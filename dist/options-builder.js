@@ -5,8 +5,11 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 const parser = {
-  bool: v => v != undefined ? v.toLowerCase() == 'true' : undefined,
-  int: v => v != undefined ? parseInt(v, 10) : undefined,
+  bool: v => v.toLowerCase() == 'true',
+  // node always converts process.env values to string, so no need to check
+  // for type: https://nodejs.org/api/process.html#process_process_env
+  int: v => parseInt(v, 10),
+  // see above for skipping type checks
   str: v => v,
   exists: v => !!v
 };
@@ -28,7 +31,7 @@ const envVarOptionsMap = {
   COTE_NODE_TIMEOUT: ['nodeTimeout', parser.int]
 };
 
-module.exports = (options = {}) => {
+module.exports = options => {
   const environmentSettings = {};
   Object.entries(envVarOptionsMap).forEach(([envVar, [setting, parser]]) => {
     if (!(envVar in process.env)) return;
