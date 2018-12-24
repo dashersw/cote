@@ -50,7 +50,7 @@
     "ava": "^0.25.0",
     "commander": "2.15.1",
     "coveralls": "^3.0.1",
-    "eslint": "^5.0.0",
+    "eslint": "^5.11.0",
     "eslint-config-google": "^0.9.1",
     "humanize-number": "0.0.2",
     "nyc": "^12.0.2",
@@ -64,7 +64,7 @@
       "node": true
     },
     "parserOptions": {
-      "ecmaVersion": 6
+      "ecmaVersion": 2018
     },
     "extends": [
       "google"
