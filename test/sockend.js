@@ -22,7 +22,7 @@ test.cb('Sockend simple req&res', (t) => {
     responder.on('test', (req, cb) => cb(req.args));
     responder.on('test 2', (req, cb) => cb([1, 2, 3]));
 
-    portfinder.getPort({ port: 40000 }, (err, port) => {
+    portfinder.getPort({ host: '127.0.0.1', port: 6000 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'simple sockend' });
 
@@ -83,7 +83,7 @@ test.cb('Sockend simple pub&sub', (t) => {
 
     const publisher = new Publisher({ name: `${t.title}: simple publisher`, key, broadcasts: ['published message'] });
 
-    portfinder.getPort({ port: 20000 }, (err, port) => {
+    portfinder.getPort({ host: '127.0.0.1', port: 5000 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'pub&sub sockend', key });
 
@@ -108,7 +108,7 @@ test.cb('Sockend pub&sub with __rooms', (t) => {
 
     const publisher = new Publisher({ name: `${t.title}: room publisher`, key, broadcasts: ['published message'] });
 
-    portfinder.getPort({ port: 20001 }, (err, port) => {
+    portfinder.getPort({ host: '127.0.0.1', port: 1000 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'pub&sub sockend', key });
 
@@ -134,7 +134,7 @@ test.cb('Sockend pub&sub with __room', (t) => {
 
     const publisher = new Publisher({ name: `${t.title}: room publisher`, key, broadcasts: ['published message'] });
 
-    portfinder.getPort({ port: 20002 }, (err, port) => {
+    portfinder.getPort({ host: '127.0.0.1', port: 2000 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'pub&sub sockend', key });
 
@@ -160,7 +160,7 @@ test.cb(`Sockend ns req&res / pub&sub`, (t) => {
     const namespace = r.generate();
     const key = r.generate();
 
-    portfinder.getPort({ port: 30000 }, (err, port) => {
+    portfinder.getPort({ host: '127.0.0.1', port: 3000 }, (err, port) => {
         const server = io(port);
         new Sockend(server, { name: 'ns sockend', key });
         const responder = new Responder({
@@ -216,7 +216,7 @@ test.cb(`Sockend ns late bound req&res`, (t) => {
     const namespace = r.generate();
     const key = r.generate();
 
-    portfinder.getPort({ port: 50000 }, (err, port) => {
+    portfinder.getPort({ host: '127.0.0.1', port: 4000 }, (err, port) => {
         const server = io(port);
         server.of(`/${namespace}`, (socket) => {
             const responder = new Responder({
