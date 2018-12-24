@@ -11,8 +11,6 @@ const PendingBalancedRequester = require('./components/pending-balanced-requeste
 
 const parser = require('../lib/env-var-parser');
 
-const _ = require('lodash');
-
 const defaultOptions = {
     environment: '',
     useHostNames: false,

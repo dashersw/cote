@@ -1,5 +1,4 @@
 const portfinder = require('portfinder');
-const _ = require('lodash');
 const charm = require('charm')();
 const Configurable = require('./configurable');
 const Component = require('./component');

@@ -1,6 +1,5 @@
 const Discover = require('@dashersw/node-discover');
 const colors = require('colors');
-const _ = require('lodash');
 
 const defaultOptions = {
     helloInterval: 2000,
@@ -56,8 +55,7 @@ class Discovery extends Discover {
     }
 
     helloLogger() {
-        return _.concat('\nHello! I\'m'.white, this.statusLogger(this.me),
-            '\n========================\n'.white);
+        return ['\nHello! I\'m'.white, ...this.statusLogger(this.me), '\n========================\n'.white];
     }
 
     statusLogger(obj, status) {
