@@ -1,7 +1,6 @@
 import test from 'ava';
 import LogSuppress from '../lib/log-suppress';
 import r from 'randomstring';
-import sinon from 'sinon';
 
 process.env.COTE_DISCOVERY_REDIS_HOST = 'localhost';
 
@@ -14,10 +13,10 @@ test.cb(`Crash trying to use redis`, (t) => {
 
     const key = r.generate();
 
-    const requester = new Requester({ name: `${t.title}: ignore requester`, key });
-    const responder = new Responder({ name: `${t.title}: ignore responder`, key });
+    new Requester({ name: `${t.title}: ignore requester`, key });
+    new Responder({ name: `${t.title}: ignore responder`, key });
 
-        const originalListeners = process.listeners('uncaughtException');
+    const originalListeners = process.listeners('uncaughtException');
 
     process.removeAllListeners('uncaughtException');
 

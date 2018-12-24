@@ -8,8 +8,8 @@ const { Requester, Responder, Monitor } = require('../')({ environment, statusIn
 test.cb('Print to screen', (t) => {
     process.stdout.cork();
 
-    const requester = new Requester({ name: `${t.title}: monitor requester` });
-    const responder = new Responder({ name: `${t.title}: monitor responder` });
+    new Requester({ name: `${t.title}: monitor requester` });
+    new Responder({ name: `${t.title}: monitor responder` });
 
     const monitor = new Monitor({ name: `${t.title}: monitor` }, { interval: 100 });
     const monitor2 = new Monitor({ name: `${t.title}: monitor2` });

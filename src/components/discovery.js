@@ -1,4 +1,6 @@
 const Discover = require('@dashersw/node-discover');
+
+// eslint-disable-next-line
 const colors = require('colors');
 
 const defaultOptions = {
@@ -11,15 +13,15 @@ const defaultOptions = {
     helloLogsEnabled: true,
     statusLogsEnabled: true,
     ignoreProcess: false,
-}
+};
 
 class Discovery extends Discover {
     constructor(advertisement, options = {}) {
-        options = { ...defaultOptions, ...Discovery.defaults, ...options }
+        options = { ...defaultOptions, ...Discovery.defaults, ...options };
 
         super(options);
 
-        this.advertisement = { type: 'service', ...advertisement }
+        this.advertisement = { type: 'service', ...advertisement };
 
         this.advertise(this.advertisement);
 
@@ -77,7 +79,6 @@ class Discovery extends Discover {
 
         return logs;
     }
-
 }
 
 module.exports = Discovery;

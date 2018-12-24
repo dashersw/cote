@@ -20,8 +20,7 @@ module.exports = class Component extends EventEmitter {
     }
 
     startDiscovery() {
-        this.discovery = new Discovery(this.advertisement,
-            this.discoveryOptions);
+        this.discovery = new Discovery(this.advertisement, this.discoveryOptions);
 
         this.discovery.on('added', (obj) => {
             if (

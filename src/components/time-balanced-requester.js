@@ -21,8 +21,9 @@ module.exports = class TimeBalancedRequester extends Requester {
             for (let index in this.responders) {
                 for (let id in this.responders[index]) {
                     if (now - this.responders[index][id].sent > this.CALCULATION_TIMEOUT) {
-                        if (this.timers[id])
-                            clearInterval(this.timers[id]); // if the response is lost, don't leave garbage
+                        if (this.timers[id]) {
+                            clearInterval(this.timers[id]);
+                        } // if the response is lost, don't leave garbage
 
                         delete this.responders[index][id];
                     }
@@ -55,9 +56,9 @@ module.exports = class TimeBalancedRequester extends Requester {
         const id = this.requestId++;
 
         const hasCallback = 'function' == typeof args[args.length - 1];
-        if (hasCallback)
+        if (hasCallback) {
             this.callbacks[id] = args.pop();
-        else {
+        } else {
             let resolve;
             let reject;
             this.callbacks[id] = new Promise((_resolve, _reject) => {
@@ -108,15 +109,17 @@ module.exports = class TimeBalancedRequester extends Requester {
 
         let n = this.sock.n = (minIndex % len) || 0; // select the socket to be used
         if (!this.sock.socks[n]) n = this.sock.n = 0;
-        if (socks[n] && typeof socks[n].uuid == 'undefined')
-            socks[n].uuid = uuid.v4(); // assign a unique identifier to this socket
+        if (socks[n] && typeof socks[n].uuid == 'undefined') {
+            socks[n].uuid = uuid.v4();
+        } // assign a unique identifier to this socket
 
         index = (socks[n] && socks[n].uuid) || 0; // save the index of selected socket
 
         const cb = (...args) => {
             const lastRequests = this.responders[index];
-            if (lastRequests && lastRequests[id])
-                lastRequests[id].time = (new Date() - lastRequests[id].sent); // save response time
+            if (lastRequests && lastRequests[id]) {
+                lastRequests[id].time = (new Date() - lastRequests[id].sent);
+            } // save response time
             clearInterval(this.timers[id]); // clear timers for this request
             delete this.timers[id];
 

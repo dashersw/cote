@@ -1,7 +1,6 @@
 import test from 'ava';
 import LogSuppress from '../lib/log-suppress';
 import r from 'randomstring';
-import async from 'async';
 
 const environment = r.generate();
 const { TimeBalancedRequester, Responder } = require('../')({ environment });
@@ -43,4 +42,3 @@ test.cb('Supports keys & namespaces', (t) => {
         t.end();
     });
 });
-

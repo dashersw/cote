@@ -7,8 +7,9 @@ module.exports = (Base) => class Monitorable extends Base {
         this.discovery.on('added', (obj) => {
             const adv = obj.advertisement;
 
-            if (adv.type != 'monitor' || !this.advertisement.key.startsWith(adv.key))
+            if (adv.type != 'monitor' || !this.advertisement.key.startsWith(adv.key)) {
                 return;
+            }
 
             this.onMonitorAdded(obj);
         });

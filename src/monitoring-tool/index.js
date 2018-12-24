@@ -12,7 +12,7 @@ module.exports = function(port) {
         name: 'monitor',
     }, { disableScreen: true });
 
-    const sockend = new cote.Sockend(io, {
+    new cote.Sockend(io, {
         name: 'sockend',
         namespace: 'monitoring',
         key: 'monitoring',
