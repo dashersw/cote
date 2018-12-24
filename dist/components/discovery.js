@@ -4,11 +4,10 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-const Discover = require('@dashersw/node-discover');
+const Discover = require('@dashersw/node-discover'); // eslint-disable-next-line
+
 
 const colors = require('colors');
-
-const _ = require('lodash');
 
 const defaultOptions = {
   helloInterval: 2000,
@@ -55,7 +54,7 @@ class Discovery extends Discover {
   }
 
   helloLogger() {
-    return _.concat('\nHello! I\'m'.white, this.statusLogger(this.me), '\n========================\n'.white);
+    return ['\nHello! I\'m'.white, ...this.statusLogger(this.me), '\n========================\n'.white];
   }
 
   statusLogger(obj, status) {

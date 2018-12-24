@@ -1,13 +1,5 @@
 "use strict";
 
-const EventEmitter = require('eventemitter2').EventEmitter2;
-
-const util = require('util');
-
-const Discovery = require('./discovery');
-
-const axon = require('@dashersw/axon');
-
 const Subscriber = require('./subscriber');
 
 const Requester = require('./requester');
@@ -88,6 +80,7 @@ module.exports = class Sockend extends Configurable(Component) {
 
       obj.subscriber = subscriber;
       subscriber.on('**', function (data) {
+        /* eslint-disable no-invalid-this */
         if (this.event == 'cote:added' || this.event == 'cote:removed') return;
         let topic = this.event.split('::');
         let namespace = '';

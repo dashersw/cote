@@ -6,8 +6,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 const portfinder = require('portfinder');
 
-const _ = require('lodash');
-
 const charm = require('charm')();
 
 const Configurable = require('./configurable');

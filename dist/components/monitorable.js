@@ -7,7 +7,11 @@ module.exports = Base => class Monitorable extends Base {
     super.startDiscovery();
     this.discovery.on('added', obj => {
       const adv = obj.advertisement;
-      if (adv.type != 'monitor' || !this.advertisement.key.startsWith(adv.key)) return;
+
+      if (adv.type != 'monitor' || !this.advertisement.key.startsWith(adv.key)) {
+        return;
+      }
+
       this.onMonitorAdded(obj);
     });
   }
