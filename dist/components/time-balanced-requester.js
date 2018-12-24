@@ -1,5 +1,7 @@
 "use strict";
 
+require("core-js/modules/es6.promise");
+
 const Requester = require('./requester');
 
 const _ = require('lodash');

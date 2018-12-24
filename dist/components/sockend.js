@@ -1,5 +1,7 @@
 "use strict";
 
+require("core-js/modules/es6.set");
+
 const Subscriber = require('./subscriber');
 
 const Requester = require('./requester');

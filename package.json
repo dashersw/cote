@@ -88,11 +88,12 @@
   "babel": {
     "presets": [
       [
-        "@babel/env",
+        "@babel/preset-env",
         {
           "targets": {
             "node": "6"
-          }
+          },
+          "useBuiltIns": "usage"
         }
       ]
     ]
