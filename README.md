@@ -1229,6 +1229,7 @@ Here's a list of environment variables cote supports:
 | `COTE_CHECK_INTERVAL`       | Integer. The interval for checking if a discovered service has sent a heartbeat since the last check.
 | `COTE_HELLO_INTERVAL`       | Integer. The interval for sending a heartbeat hello signal. Should be less than `COTE_CHECK_INTERVAL`.
 | `COTE_NODE_TIMEOUT`         | Integer. The timeout duration that determines if a service is unreachable and thus removed. Should be greater than `COTE_CHECK_INTERVAL`.
+| `COTE_IGNORE_PROCESS`       | Boolean. Whether the services defined in this process should ignore other services from this process. This might be useful in a high-availability setup where one wants to enforce collaboration of services over the network, instead of local services within each process.
 
 ## Deploying with Docker Cloud
 

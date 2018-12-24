@@ -30,7 +30,8 @@ const envVarOptionsMap = {
   COTE_HELLO_LOGS_ENABLED: ['helloLogsEnabled', parser.bool],
   COTE_STATUS_LOGS_ENABLED: ['statusLogsEnabled', parser.bool],
   COTE_LOG: ['log', parser.bool],
-  COTE_NODE_TIMEOUT: ['nodeTimeout', parser.int]
+  COTE_NODE_TIMEOUT: ['nodeTimeout', parser.int],
+  COTE_IGNORE_PROCESS: ['ignoreProcess', parser.bool]
 };
 
 module.exports = options => {
