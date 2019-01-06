@@ -89,12 +89,15 @@
   "babel": {
     "presets": [
       [
-        "@babel/preset-env",
+        "@babel/env",
         {
           "targets": {
             "node": "6"
           },
-          "useBuiltIns": "usage"
+          "useBuiltIns": "usage",
+          "exclude": [
+            "es6.promise"
+          ]
         }
       ]
     ]
