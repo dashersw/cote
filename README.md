@@ -1336,6 +1336,23 @@ Make sure you don't run any of your services in cluster mode. It messes up the
 service discovery since it tries to load balance the UDP ports used internally
 for this purpose.
 
+To use Cote properly in PM2 cluster mode, one must run only one server instance by utilizing
+`process.env.pm_id`.  For example, if you have 10 instances of your app running
+simultaneously `pm2 start app.js -i 10`, only one instance would be "listening" from any number of clients.
+
+```
+// only one out of the ten apps will be a "SERVER"
+if(process.env.pm_id == 2) {
+   const cote = require('cote');
+   const timeService = new cote.Responder({
+      name: 'Time Service'
+   });
+   timeService.on('time', (req, cb) => {
+     cb(new Date());
+   });
+}
+```
+
 ## Running with cloud providers (AWS, DigitalOcean, etc)
 
 Most cloud providers block IP broadcast and multicast, therefore you can't run
