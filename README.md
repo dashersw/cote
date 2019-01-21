@@ -1336,12 +1336,12 @@ Make sure you don't run any of your services in cluster mode. It messes up the
 service discovery since it tries to load balance the UDP ports used internally
 for this purpose.
 
-To use Cote properly in PM2 cluster mode, one must run only one server instance by utilizing
-`process.env.pm_id`.  For example, if you have 10 instances of your app running
-simultaneously `pm2 start app.js -i 10`, only one instance would be "listening" from any number of clients.
+To use Cote properly within PM2 cluster mode, server instances should only be instantiated once.
+To do so, utilize `process.env.pm_id`, which will return a value between 0 and the total number of instances(N).  For example, if 10 instances of your app are running in cluster mode `pm2 start app.js -i 10`, `process.env.pm_id` will return a value of (0-9) inclusively.
 
 ```
-// only one out of the ten apps will be a "SERVER"
+// In thise case, we choose only the third app instance (2 because it is zero based) to instantiate a "SERVER"
+// any number from 0 through 9 can be used, instead of 2
 if(process.env.pm_id == 2) {
    const cote = require('cote');
    const timeService = new cote.Responder({
