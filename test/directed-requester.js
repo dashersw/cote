@@ -5,7 +5,7 @@ import LogSuppress from '../lib/log-suppress';
 LogSuppress.init(console);
 
 const environment = r.generate();
-const { DirectedRequester, Responder } = require('../')({ environment });
+const { Requester, Responder } = require('../')({ environment });
 
 test.cb('Supports directed requests targeted at single responder using callbacks', (t) => {
     const key = r.generate();
@@ -18,7 +18,7 @@ test.cb('Supports directed requests targeted at single responder using callbacks
     const wrongResponder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace },
         { log: false });
 
-    const requester = new DirectedRequester(
+    const requester = new Requester(
         { name: `PBR ${t.title}: directed requester`,
           key,
           namespace }, { log: false });
@@ -26,11 +26,14 @@ test.cb('Supports directed requests targeted at single responder using callbacks
     const args = [1, 2, 6];
 
     // Send the request twice. It should end up in the same Responder both times
-    requester.send({ __subgroup: subgroup, type: 'test', args }, (res) => {
-        t.deepEqual(res, args);
+    // Also make sure the wrongResponder is connected
+    wrongResponder.sock.on('bind', () => {
         requester.send({ __subgroup: subgroup, type: 'test', args }, (res) => {
             t.deepEqual(res, args);
-            t.end();
+            requester.send({ __subgroup: subgroup, type: 'test', args }, (res) => {
+                t.deepEqual(res, args);
+                t.end();
+            });
         });
     });
 
@@ -82,7 +85,7 @@ test('Supports directed requests targeted at multiple targeted requesters using 
         t.fail('Not targeted responder should have never gotten a message');
     });
 
-    const requester = new DirectedRequester(
+    const requester = new Requester(
         { name: `PBR ${t.title}: directed requester`,
           key,
           namespace }, { log: false });
@@ -109,7 +112,7 @@ test('Timeout works with directed requester', async (t) => {
     const namespace = r.generate();
     const subgroup = r.generate();
 
-    const requester = new DirectedRequester({ name: `PBR ${t.title}: directed requester`, key, namespace, subgroup },
+    const requester = new Requester({ name: `PBR ${t.title}: directed requester`, key, namespace, subgroup },
         { log: false });
 
     try {
@@ -125,36 +128,74 @@ test('Timeout works with directed requester', async (t) => {
     }
 });
 
-test('Directed requester require a __subgroup parameter in the message body', async (t) => {
+test('Queuing works with directed requester', async (t) => {
     const key = r.generate();
     const namespace = r.generate();
     const subgroup = r.generate();
+    const subgroup2 = r.generate();
+    const args = [1, 2, 6];
+    let requester = new Requester({ name: `PBR ${t.title}: directed requester`, key, namespace, subgroup },
+        { log: false, checkInterval: 500 });
 
-    const requester = new DirectedRequester({ name: `PBR ${t.title}: directed requester`, key, namespace },
-        { log: false });
-    const responder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup },
-        { log: false });
+    let responder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup },
+        { log: false, checkInterval: 500 });
     responder.on('test', async (req) => {
         return req.args;
     });
 
-    // Promises
-    try {
-        await requester.send({
-            type: 'test',
-            args: [1, 2, 6] });
+    // Make sure it does not sent to the wrong responder in a different subgroup
+    // when there are no other responders avaialabe
+    let responder2 = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup: subgroup2 },
+        { log: false, checkInterval: 500 });
+    responder2.on('test', async (req) => {
         t.fail();
-    } catch (error) {
-        t.true(error.message.includes('needs a "__subgroup" property'));
-    }
-
-    // Callback
-    await new Promise((resolve) => {
-        requester.send({
-            type: 'test',
-            args: [1, 2, 6] }, (err, res) => {
-                t.true(err.message.includes('needs a "__subgroup" property'));
-                resolve();
-            });
     });
+
+    try {
+        // Send an receive
+        const res = await requester.send({
+            __subgroup: subgroup,
+            type: 'test',
+            args });
+        t.deepEqual(res, args);
+
+        // Destroy responder and wait for heartbeat
+        responder.close();
+        await wait(501);
+
+        // Next request
+        let pending = true;
+        const promise = requester.send({
+            __subgroup: subgroup,
+            type: 'test',
+            args })
+        .then((res) => {
+            pending = false;
+            return res;
+        });
+        await wait(500);
+        t.true(pending);
+
+        // Recreate responder
+        const responder2 = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup },
+            { log: false });
+        responder2.on('test', async (req) => {
+            return req.args;
+        });
+
+        // make sure it received the message
+        const res2 = await promise;
+        t.false(pending);
+        t.deepEqual(res2, args);
+    } catch (error) {
+        t.fail(error);
+    }
 });
+
+function wait(ms) {
+    return new Promise((res) => {
+        setTimeout(() => {
+            res();
+        }, ms);
+    });
+}

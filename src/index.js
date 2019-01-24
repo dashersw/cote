@@ -8,7 +8,6 @@ const Monitor = require('./components/monitor');
 const MonitoringTool = require('./monitoring-tool');
 const TimeBalancedRequester = require('./components/time-balanced-requester');
 const PendingBalancedRequester = require('./components/pending-balanced-requester');
-const DirectedRequester = require('./components/directed-requester');
 
 const optionsBuilder = require('./options-builder');
 
@@ -25,7 +24,6 @@ const cote = (options = {}) => {
         Sockend,
         TimeBalancedRequester,
         PendingBalancedRequester,
-        DirectedRequester,
     ];
 
     components.forEach(function(component) {
@@ -46,6 +44,5 @@ cote.Monitor = Monitor;
 cote.MonitoringTool = MonitoringTool;
 cote.TimeBalancedRequester = TimeBalancedRequester;
 cote.PendingBalancedRequester = PendingBalancedRequester;
-cote.DirectedRequester = DirectedRequester;
 
 module.exports = cote();

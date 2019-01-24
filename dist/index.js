@@ -20,14 +20,12 @@ const TimeBalancedRequester = require('./components/time-balanced-requester');
 
 const PendingBalancedRequester = require('./components/pending-balanced-requester');
 
-const DirectedRequester = require('./components/directed-requester');
-
 const optionsBuilder = require('./options-builder');
 
 const cote = (options = {}) => {
   options = optionsBuilder(options);
   Discovery.setDefaults(options);
-  const components = [Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester, PendingBalancedRequester, DirectedRequester];
+  const components = [Requester, Responder, Publisher, Subscriber, Sockend, TimeBalancedRequester, PendingBalancedRequester];
   components.forEach(function (component) {
     component.setEnvironment(options.environment);
     component.setUseHostNames && component.setUseHostNames(options.useHostNames);
@@ -44,6 +42,5 @@ cote.Monitor = Monitor;
 cote.MonitoringTool = MonitoringTool;
 cote.TimeBalancedRequester = TimeBalancedRequester;
 cote.PendingBalancedRequester = PendingBalancedRequester;
-cote.DirectedRequester = DirectedRequester;
 module.exports = cote();
 //# sourceMappingURL=index.js.map
