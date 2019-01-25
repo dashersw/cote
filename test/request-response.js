@@ -2,6 +2,7 @@ import test from 'ava';
 import LogSuppress from '../lib/log-suppress';
 import r from 'randomstring';
 import sinon from 'sinon';
+import portfinder from 'portfinder';
 
 const { Requester, Responder } = require('../')();
 
@@ -133,4 +134,24 @@ test.cb('Does not try to reconnect twice to the same responder', (t) => {
             });
         }, 8000);
     });
+});
+
+test.cb('Responder reruns portfinder on EADDRINUSE error', (t) => {
+    const key = r.generate();
+
+    const responder = new Responder({ name: `${t.title}: keyed publisher`, key });
+
+    const listener = function() {
+        responder.sock.removeListener('bind', listener);
+        sinon.spy(portfinder, 'getPort');
+
+        t.false(portfinder.getPort.calledOnce);
+        responder.sock.server.emit('error', { code: 'EADDRINUSE' });
+        t.true(portfinder.getPort.calledOnce);
+
+        portfinder.getPort.restore();
+        t.pass();
+        t.end();
+    };
+    responder.sock.on('bind', listener);
 });
