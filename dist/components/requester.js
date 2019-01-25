@@ -12,7 +12,7 @@ const axon = require('@dashersw/axon');
 
 const debug = require('debug')('axon:req');
 
-const SUBGROUP_IDENTIFIER = '__subgroup';
+const SUBSET_IDENTIFIER = '__subset';
 module.exports = class Requester extends Monitorable(Configurable(Component)) {
   constructor(advertisement, discoveryOptions) {
     super(advertisement, discoveryOptions);
@@ -23,10 +23,10 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
     this.startDiscovery();
   }
 
-  filterSubgroupInSocks(subgroup, socks) {
+  filterSubsetInSocks(subset, socks) {
     // Find correct nodes
     const possibleNodes = Object.values(this.discovery.nodes).filter(node => {
-      return node.advertisement.subgroup == subgroup;
+      return node.advertisement.subset == subset;
     }); // Find corresponding sockets
 
     const possibleSocks = possibleNodes.map(node => {
@@ -35,32 +35,44 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
       });
     }).filter(sock => sock);
     return possibleSocks;
-  }
+  } // This function overwrites the axon socket's send() function.
+  // The socketSend() function's `this` is bound to this class in
+  // order to have access to the advertisement of other nodes.
+  // That advertisement contains each node's `subset` properties, which are needed
+  // to find specific subset Responders and their corresponding socks.
+
 
   socketSend(...args) {
+    // (1) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L94
     let socks = this.sock.socks; // Enqueue if no socks connected yet
 
     if (!socks || !socks.length) {
       debug('no connected peers');
       return this.sock.enqueue(args);
-    }
+    } // (1) end
+    // The following part chooses either a subset or all connected socks depending on the
+    // existence of the SUBSET_IDENTIFIER
+
 
     const data = args[0];
-    const subgroup = data[SUBGROUP_IDENTIFIER];
-    let possibleSocks = subgroup ? this.filterSubgroupInSocks(subgroup, socks) : socks; // Enqueue if the correct nodes did not connect yet/does not exist
+    const subset = data[SUBSET_IDENTIFIER];
+    let possibleSocks = subset ? this.filterSubsetInSocks(subset, socks) : socks; // Enqueue if the correct nodes did not connect yet/does not exist
 
     if (!possibleSocks.length) return this.sock.enqueue(args); // Balance between available
 
-    const sock = possibleSocks[this.sock.n++ % possibleSocks.length]; // Save callback
+    const sock = possibleSocks[this.sock.n++ % possibleSocks.length]; // Save callback. In this context it will always have a context as it is called by sendOverSocket()
+    // (2) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L88
 
     let fn = args.pop();
     fn.id = this.sock.id();
     this.sock.callbacks[fn.id] = fn;
-    args.push(fn.id); // Remove possible subgrouo identifier from message
+    args.push(fn.id); // (2) end
+    // Remove possible subset identifier from message
 
-    delete args[0][SUBGROUP_IDENTIFIER]; // Send over sock
+    delete args[0][SUBSET_IDENTIFIER]; // Send over sock
+    // (3) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L94
 
-    sock.write(this.sock.pack(args));
+    sock.write(this.sock.pack(args)); // (3) end
   }
 
   onAdded(obj) {

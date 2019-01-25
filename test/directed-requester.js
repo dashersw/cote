@@ -10,9 +10,9 @@ const { Requester, Responder } = require('../')({ environment });
 test.cb('Supports directed requests targeted at single responder using callbacks', (t) => {
     const key = r.generate();
     const namespace = r.generate();
-    const subgroup = r.generate();
+    const subset = r.generate();
 
-    const targetResponder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup },
+    const targetResponder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subset },
         { log: false });
 
     const wrongResponder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace },
@@ -28,9 +28,9 @@ test.cb('Supports directed requests targeted at single responder using callbacks
     // Send the request twice. It should end up in the same Responder both times
     // Also make sure the wrongResponder is connected
     wrongResponder.sock.on('bind', () => {
-        requester.send({ __subgroup: subgroup, type: 'test', args }, (res) => {
+        requester.send({ __subset: subset, type: 'test', args }, (res) => {
             t.deepEqual(res, args);
-            requester.send({ __subgroup: subgroup, type: 'test', args }, (res) => {
+            requester.send({ __subset: subset, type: 'test', args }, (res) => {
                 t.deepEqual(res, args);
                 t.end();
             });
@@ -55,12 +55,12 @@ test('Supports directed requests targeted at multiple targeted requesters using 
 
     const key = r.generate();
     const namespace = r.generate();
-    const subgroup = r.generate();
-    const subgroup2 = r.generate();
+    const subset = r.generate();
+    const subset2 = r.generate();
 
     const responders = [];
     Array.from({ length: nrOfRequesters }).forEach(() => {
-        const responder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup },
+        const responder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subset },
             { log: false });
         responder.count = 0;
         responder.on('test', async (req) => {
@@ -70,16 +70,16 @@ test('Supports directed requests targeted at multiple targeted requesters using 
         responders.push(responder);
     });
 
-    // Normal responder without subgroup
+    // Normal responder without subset
     const wrongResponder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace },
         { log: false });
     wrongResponder.on('test', () => {
         t.fail('Not targeted responder should have never gotten a message');
     });
 
-    // Responder in different subgroup
+    // Responder in different subset
     const wrongResponder2 = new Responder({
-        name: `PBR ${t.title}: directed responder`, key, namespace, subgroup: subgroup2,
+        name: `PBR ${t.title}: directed responder`, key, namespace, subset: subset2,
         }, { log: false });
     wrongResponder2.on('test', () => {
         t.fail('Not targeted responder should have never gotten a message');
@@ -95,7 +95,7 @@ test('Supports directed requests targeted at multiple targeted requesters using 
     // It should end up in the both requesters somewhat
     // evenly distributed, but never in the wrong one
     for (let index = 0; index < times; index++) {
-        await requester.send({ __subgroup: subgroup, type: 'test', args });
+        await requester.send({ __subset: subset, type: 'test', args });
     }
 
     const totalRecieved = responders.reduce((accumulator, responder) => {
@@ -110,14 +110,14 @@ test('Supports directed requests targeted at multiple targeted requesters using 
 test('Timeout works with directed requester', async (t) => {
     const key = r.generate();
     const namespace = r.generate();
-    const subgroup = r.generate();
+    const subset = r.generate();
 
-    const requester = new Requester({ name: `PBR ${t.title}: directed requester`, key, namespace, subgroup },
+    const requester = new Requester({ name: `PBR ${t.title}: directed requester`, key, namespace, subset },
         { log: false });
 
     try {
         await requester.send({
-            __subgroup: subgroup,
+            __subset: subset,
             __timeout: 1000,
             type: 'test',
             args: [1, 2, 6] });
@@ -131,21 +131,21 @@ test('Timeout works with directed requester', async (t) => {
 test('Queuing works with directed requester', async (t) => {
     const key = r.generate();
     const namespace = r.generate();
-    const subgroup = r.generate();
-    const subgroup2 = r.generate();
+    const subset = r.generate();
+    const subset2 = r.generate();
     const args = [1, 2, 6];
-    let requester = new Requester({ name: `PBR ${t.title}: directed requester`, key, namespace, subgroup },
+    let requester = new Requester({ name: `PBR ${t.title}: directed requester`, key, namespace, subset },
         { log: false, checkInterval: 500 });
 
-    let responder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup },
+    let responder = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subset },
         { log: false, checkInterval: 500 });
     responder.on('test', async (req) => {
         return req.args;
     });
 
-    // Make sure it does not sent to the wrong responder in a different subgroup
-    // when there are no other responders avaialabe
-    let responder2 = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup: subgroup2 },
+    // Make sure it does not sent to the wrong responder in a different subset
+    // when there are no other responders available
+    let responder2 = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subset: subset2 },
         { log: false, checkInterval: 500 });
     responder2.on('test', async (req) => {
         t.fail();
@@ -154,7 +154,7 @@ test('Queuing works with directed requester', async (t) => {
     try {
         // Send an receive
         const res = await requester.send({
-            __subgroup: subgroup,
+            __subset: subset,
             type: 'test',
             args });
         t.deepEqual(res, args);
@@ -166,7 +166,7 @@ test('Queuing works with directed requester', async (t) => {
         // Next request
         let pending = true;
         const promise = requester.send({
-            __subgroup: subgroup,
+            __subset: subset,
             type: 'test',
             args })
         .then((res) => {
@@ -177,7 +177,7 @@ test('Queuing works with directed requester', async (t) => {
         t.true(pending);
 
         // Recreate responder
-        const responder2 = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subgroup },
+        const responder2 = new Responder({ name: `PBR ${t.title}: directed responder`, key, namespace, subset },
             { log: false });
         responder2.on('test', async (req) => {
             return req.args;
