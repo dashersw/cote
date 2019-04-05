@@ -903,7 +903,7 @@ const sockend = new cote.Sockend(io, {
 ```
 
 To connect responder and sockend, you need to add `respondsTo:` parameter to your options.
-```
+```js
 const randomResponder = new Responder({
     name: 'randomRep',
     respondsTo: ['randomRequest', 'promised request'], // types of requests this responder
@@ -912,7 +912,7 @@ const randomResponder = new Responder({
 ```
 To connect publisher and sockend, you need to add `broadcasts:` parameter to your options 
 
-```
+```js
 let randomPublisher = new Publisher({
     name: 'randomPub',
     broadcasts: ['update1', 'update2'],
@@ -923,11 +923,11 @@ If your socket is connected to a namespace, you need to add the same namespace t
 Even though socket.io are prefixed with `/`, with sockend you need to omit `/`.
 
 socket.io-client
-```
+```js
 io.connect('/rnd'); // namespace in socket.io is declared as '/rnd'
 ```
 sockend component
-```
+```js
 const randomResponder = new Responder({
     name: 'randomRep',
     namespace: 'rnd', // with sockend, we we omit the '/' and use just 'rnd'
@@ -1339,10 +1339,10 @@ for this purpose.
 To use Cote properly within PM2 cluster mode, server instances should only be instantiated once.
 To do so, utilize `process.env.pm_id`, which will return a value between 0 and the total number of instances(N).  For example, if 10 instances of your app are running in cluster mode `pm2 start app.js -i 10`, `process.env.pm_id` will return a value of (0-9) inclusively.
 
-```
+```js
 // In thise case, we choose only the third app instance (2 because it is zero based) to instantiate a "SERVER"
 // any number from 0 through 9 can be used, instead of 2
-if(process.env.pm_id == 2) {
+if (process.env.pm_id == 2) {
    const cote = require('cote');
    const timeService = new cote.Responder({
       name: 'Time Service'
