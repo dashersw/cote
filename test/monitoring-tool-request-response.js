@@ -107,3 +107,28 @@ test.serial.cb('Server throws unknown error', (t) => {
     const monitoringTool = new MonitoringTool();
     monitoringTool.server.on('listening', () => monitoringTool.server.emit('error', new Error('unknown error')));
 });
+
+test.serial.cb('Server throws EADDRINUSE error', (t) => {
+    t.plan(1);
+
+    const monitoringTool = new MonitoringTool();
+
+    monitoringTool.server.once('listening', () => {
+        monitoringTool.server.close(() => {
+            monitoringTool.server.emit('error', { code: 'EADDRINUSE' });
+            monitoringTool.server.once('listening', () => {
+                t.pass();
+                t.end();
+            });
+        });
+    });
+});
+
+test.serial.cb('Monitoring tool ignores status updates from unknown ids', (t) => {
+    const monitoringTool = new MonitoringTool();
+
+    monitoringTool.monitor.sock.sock.on('bind', () => monitoringTool.monitor.emit('status', { id: 0 }));
+
+    t.pass();
+    t.end();
+});

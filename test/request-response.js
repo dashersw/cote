@@ -113,6 +113,7 @@ test.cb('Responder throws unknown error', (t) => {
 test.cb('Does not try to reconnect twice to the same responder', (t) => {
     const key = r.generate();
 
+    Requester.setUseHostNames(true);
     const requester = new Requester({ name: `${t.title}: keyed requester`, key });
     const responder = new Responder({ name: `${t.title}: keyed responder`, key });
 
