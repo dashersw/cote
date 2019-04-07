@@ -1,5 +1,7 @@
 "use strict";
 
+require("core-js/modules/es6.object.to-string");
+
 module.exports = function (port) {
   const fs = require('fs');
 
@@ -64,7 +66,7 @@ module.exports = function (port) {
       delete rawLinks[node.id];
       const removedNode = node.id;
 
-      for (let nodeId in rawLinks) {
+      for (const nodeId in rawLinks) {
         const rawLink = rawLinks[nodeId];
         const removedNodeIndex = rawLink.target.indexOf(removedNode);
 

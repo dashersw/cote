@@ -1,5 +1,7 @@
 "use strict";
 
+require("core-js/modules/es6.object.to-string");
+
 require("core-js/modules/es7.object.values");
 
 const Configurable = require('./configurable');
@@ -44,7 +46,7 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
 
   socketSend(...args) {
     // (1) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L94
-    let socks = this.sock.socks; // Enqueue if no socks connected yet
+    const socks = this.sock.socks; // Enqueue if no socks connected yet
 
     if (!socks || !socks.length) {
       debug('no connected peers');
@@ -56,14 +58,14 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
 
     const data = args[0];
     const subset = data[SUBSET_IDENTIFIER];
-    let possibleSocks = subset ? this.filterSubsetInSocks(subset, socks) : socks; // Enqueue if the correct nodes did not connect yet/does not exist
+    const possibleSocks = subset ? this.filterSubsetInSocks(subset, socks) : socks; // Enqueue if the correct nodes did not connect yet/does not exist
 
     if (!possibleSocks.length) return this.sock.enqueue(args); // Balance between available
 
     const sock = possibleSocks[this.sock.n++ % possibleSocks.length]; // Save callback. In this context it will always have a context as it is called by sendOverSocket()
     // (2) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L88
 
-    let fn = args.pop();
+    const fn = args.pop();
     fn.id = this.sock.id();
     this.sock.callbacks[fn.id] = fn;
     args.push(fn.id); // (2) end
