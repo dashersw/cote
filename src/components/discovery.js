@@ -16,7 +16,7 @@ const defaultOptions = {
 };
 
 class Discovery extends Discover {
-    constructor(advertisement, options = {}) {
+    constructor(advertisement, options) {
         options = { ...defaultOptions, ...Discovery.defaults, ...options };
 
         super(options);
