@@ -61,7 +61,7 @@ module.exports = class Sockend extends Configurable(Component) {
             if (namespace) server = io.of('/' + namespace);
             server.on('connection', obj.requesterSocketHandler);
 
-            for (let sId in server.sockets) {
+            for (const sId in server.sockets) {
                 obj.requesterSocketHandler(server.sockets[sId]);
             }
         });
@@ -104,7 +104,7 @@ module.exports = class Sockend extends Configurable(Component) {
                 }
                 topic = topic.join('');
 
-                let emitter = io.of(namespace);
+                const emitter = io.of(namespace);
                 if (data.__room) {
                     data.__rooms = new Set(data.__rooms || []);
                     data.__rooms.add(data.__room);

@@ -36,7 +36,7 @@ module.exports = (Base) => class Monitorable extends Base {
         const nodes = (this.sock.socks || this.sock.sock.socks).map((s) => {
             if (s.id) return s.id;
 
-            for (let id in this.discovery.nodes) {
+            for (const id in this.discovery.nodes) {
                 const node = this.discovery.nodes[id];
 
                 if ((this.constructor.useHostNames ? s._host == node.hostName : s.remoteAddress == node.address) &&

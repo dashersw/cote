@@ -18,8 +18,8 @@ module.exports = class TimeBalancedRequester extends Requester {
         setInterval(() => {
             const now = new Date();
 
-            for (let index in this.responders) {
-                for (let id in this.responders[index]) {
+            for (const index in this.responders) {
+                for (const id in this.responders[index]) {
                     if (now - this.responders[index][id].sent > this.CALCULATION_TIMEOUT) {
                         if (this.timers[id]) {
                             clearInterval(this.timers[id]);
@@ -36,7 +36,7 @@ module.exports = class TimeBalancedRequester extends Requester {
             if (sock.uuid) {
                 const responder = this.responders[sock.uuid];
 
-                for (let id in responder) { // clear timers and callbacks for the disconnected socket
+                for (const id in responder) { // clear timers and callbacks for the disconnected socket
                     clearInterval(this.timers[id]);
                     delete this.timers[id];
 
@@ -84,7 +84,7 @@ module.exports = class TimeBalancedRequester extends Requester {
                 const item = this.responders[index];
                 let totalTime = 0;
 
-                for (let request in item) {
+                for (const request in item) {
                     const time = item[request].time || 0;
                     totalTime += time;
                 }

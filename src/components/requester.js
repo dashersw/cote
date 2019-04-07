@@ -20,7 +20,7 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
     }
 
     filterSubsetInSocks(subset, socks) {
-        // Find correct nodes
+    // Find correct nodes
         const possibleNodes = Object.values(this.discovery.nodes).filter((node) => {
             return node.advertisement.subset == subset;
         });
@@ -42,8 +42,8 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
     // That advertisement contains each node's `subset` properties, which are needed
     // to find specific subset Responders and their corresponding socks.
     socketSend(...args) {
-        // (1) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L94
-        let { socks } = this.sock;
+    // (1) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L94
+        const { socks } = this.sock;
         // Enqueue if no socks connected yet
         if (!socks || !socks.length) {
             debug('no connected peers');
@@ -56,7 +56,7 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
         const data = args[0];
         const subset = data[SUBSET_IDENTIFIER];
 
-        let possibleSocks = subset ? this.filterSubsetInSocks(subset, socks) : socks;
+        const possibleSocks = subset ? this.filterSubsetInSocks(subset, socks) : socks;
         // Enqueue if the correct nodes did not connect yet/does not exist
         if (!possibleSocks.length) return this.sock.enqueue(args);
 
@@ -65,7 +65,7 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
 
         // Save callback. In this context it will always have a context as it is called by sendOverSocket()
         // (2) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L88
-        let fn = args.pop();
+        const fn = args.pop();
         fn.id = this.sock.id();
         this.sock.callbacks[fn.id] = fn;
         args.push(fn.id);
@@ -77,7 +77,7 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
         // Send over sock
         // (3) Original logic from https://github.com/dashersw/axon/blob/master/lib/sockets/req.js#L94
         sock.write(this.sock.pack(args));
-        // (3) end
+    // (3) end
     };
 
     onAdded(obj) {
