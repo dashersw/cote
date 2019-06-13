@@ -72,7 +72,6 @@ can buy the products with WebSockets (socket.io)
 + a payment microservice that deals with money transactions that occur as
 a result of purchases
 + Docker compose configuration for running the system locally
-+ Docker cloud configuration for running the system in Docker Cloud
 
 cote plays very well with Docker, taking advantage of its network overlay
 features. The case study implements a scalable microservices application
@@ -1217,11 +1216,11 @@ Here's a list of environment variables cote supports:
 | `COTE_ENV`                  | See [Environments](#environments).
 | `COTE_MULTICAST_ADDRESS`    | See [Multicast address](#multicast-address).
 | `COTE_BROADCAST_ADDRESS`    | See [Broadcast address](#broadcast-address).
-| `DOCKERCLOUD_IP_ADDRESS`    | Default broadcast address in Docker Cloud is `10.7.255.255`. Passing any value to this variable will change default broadcast value from `255.255.255.255` to `10.7.255.255`. This setting shouldn't be changed by users, but rather is there to make cote play extremely well with Docker Cloud.
 | `COTE_USE_HOST_NAMES`       | In certain, extremely rare conditions, auto-discovery might fail due to components reporting wrong IP addresses. If you find out that is the case, you can command cote to use the reported host names instead.
 | `COTE_DISCOVERY_REDIS`      | See [Using centralized discovery tools](#using-centralized-discovery-tools).
 | `COTE_DISCOVERY_REDIS_URL`  | See [Using centralized discovery tools](#using-centralized-discovery-tools).
 | `COTE_DISCOVERY_REDIS_HOST` | See [Using centralized discovery tools](#using-centralized-discovery-tools).
+| `DISCOVERY_HOSTNAME`        | See [Using centralized discovery tools](#using-centralized-discovery-tools).
 | `COTE_REQUEST_TIMEOUT`      | See [Requester Timeout](#timeout).
 | `COTE_LOG`                  | Boolean. Whether to display hello and status logs for other discovered services. Has precedence over `COTE_STATUS_LOGS_ENABLED` and `COTE_HELLO_LOGS_ENABLED`.
 | `COTE_HELLO_LOGS_ENABLED`   | Boolean. Whether to display hello logs from other discovered services.
@@ -1231,7 +1230,7 @@ Here's a list of environment variables cote supports:
 | `COTE_NODE_TIMEOUT`         | Integer. The timeout duration that determines if a service is unreachable and thus removed. Should be greater than `COTE_CHECK_INTERVAL`.
 | `COTE_IGNORE_PROCESS`       | Boolean. Whether the services defined in this process should ignore other services from this process. This might be useful in a high-availability setup where one wants to enforce collaboration of services over the network, instead of local services within each process.
 
-## Deploying with Docker Cloud
+## Deploying with Docker Cloud (deprecated)
 
 cote plays extremely well with Docker Cloud. Even if your cloud provider doesn't
 support IP broadcast or multicast, you can still have the same functionality
@@ -1254,21 +1253,25 @@ Docker Swarm, in any cloud environment.
 ## Using centralized discovery tools
 
 cote is built to be zero-configuration, and relies on IP broadcast/multicast
-to work. However, as of 2017, cloud providers don't support this functionality
-out of the box. In these cases, one can use Docker Cloud and its Weave network
-integration. However, Docker Cloud may not be suitable for everyone, due to
+to work. cloud providers don't support this functionality (and they won't)
+out of the box. In these cases, one can use the Weave network overlay
+integration. However, this may not be suitable for everyone, due to
 varying reasons.
 
 ### Welcome redis
 
 In these cases, in order to let cote work, we developed a plugin mechanism to
-accomodate different solutions that can serve as the automated service
+accommodate different solutions that can serve as the automated service
 discovery tool. Currently, redis is supported out of the box, and cote
 makes use of the [node_redis](https://github.com/NodeRedis/node_redis)
 library, in case you want to use redis as the central discovery tool. If you
 need to use anything other than redis, please open
 [a new issue](https://github.com/dashersw/cote/issues/new) and we may be
 able to help.
+
+You should also set `DISCOVERY_HOSTNAME` to the **IP address**
+of the container/instance since it defaults to machine's hostname which in 
+most cloud/docker setups is not routable.
 
 ### Configuring redis
 
@@ -1290,10 +1293,11 @@ starts with `COTE_DISCOVERY_REDIS` to proper configuration for the
 
 | Variable name               | Description |
 | --------------------------: | :---------- |
-| COTE_DISCOVERY_REDIS        | If you are running redis on localhost, setting this variable to true will use the locally available redis at port 6379. If you need any other redis URL or host, you don't need to use this variable.
-| COTE_DISCOVERY_REDIS_URL    | Sets the redis connection URL. Has to start with either `redis://` or `//`. Enables the redis plugin.
-| COTE_DISCOVERY_REDIS_HOST   | Sets the redis connection host name. Enables the redis plugin.
-| COTE_DISCOVERY_REDIS_PORT   | Sets the redis connection port. Enables the redis plugin.
+| `COTE_DISCOVERY_REDIS`        | If you are running redis on localhost, setting this variable to true will use the locally available redis at port 6379. If you need any other redis URL or host, you don't need to use this variable.
+| `COTE_DISCOVERY_REDIS_URL`    | Sets the redis connection URL. Has to start with either `redis://` or `//`. Enables the redis plugin.
+| `COTE_DISCOVERY_REDIS_HOST`   | Sets the redis connection host name. Enables the redis plugin.
+| `COTE_DISCOVERY_REDIS_PORT`   | Sets the redis connection port. Enables the redis plugin.
+| `DISCOVERY_HOSTNAME`          | This defaults to your machine's `hostname`. If this is not routable you need to set this to the routable IP address of this instance.
 
 cote also supports other connection options supported by
 [node_redis](https://github.com/NodeRedis/node_redis) in the same manner.
@@ -1302,7 +1306,7 @@ cote also supports other connection options supported by
 
 As an environment variable:
 ```sh
-COTE_DISCOVERY_REDIS_HOST=redis node service.js
+COTE_DISCOVERY_REDIS_HOST=redis DISCOVERY_HOSTNAME=127.0.0.1 node service.js
 ```
 
 As part of cote's module configuration:
@@ -1358,11 +1362,10 @@ if (process.env.pm_id == 2) {
 Most cloud providers block IP broadcast and multicast, therefore you can't run
 cote in a multi-host environment without special software for an overlay
 network. For this purpose, Docker is the best tool. Deploy your application in
-Docker containers and you can take advantage of its overlay networks. cote works
-out of the box with Docker Cloud and users of Docker Swarm can make use of the
-[Weave Net plugin](https://www.weave.works/docs/net/latest/plugin-v2/). Weave
-also has [an addon](https://www.weave.works/docs/net/latest/kube-addon/) for
-enabling multicast/broadcast for Kubernetes.
+Docker containers and you can take advantage of its overlay networks. Users of 
+Docker Swarm can make use of the [Weave Net plugin](https://www.weave.works/docs/net/latest/plugin-v2/). 
+Weave also has [an addon](https://www.weave.works/docs/net/latest/kube-addon/) for
+enabling multicast/broadcast for Kubernetes. 
 
 If you find the solutions with Docker Swarm and Kubernetes to be hard to get
 started with, you can use redis as a centralized discovery tool. Check out
