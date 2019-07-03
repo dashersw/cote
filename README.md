@@ -8,6 +8,7 @@ cote — A Node.js library for building zero-configuration microservices
 [![Coverage Status](https://coveralls.io/repos/github/dashersw/cote/badge.svg)](https://coveralls.io/github/dashersw/cote)
 [![dependencies Status](https://david-dm.org/dashersw/cote/status.svg)](https://david-dm.org/dashersw/cote)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/dashersw/cote/master/LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdashersw%2Fcote.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdashersw%2Fcote?ref=badge_shield)
 
 **cote lets you write zero-configuration microservices in Node.js without nginx,
 haproxy, redis, rabbitmq or _anything else_. It is batteries — and chargers! —
@@ -1409,3 +1410,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdashersw%2Fcote.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdashersw%2Fcote?ref=badge_large)
