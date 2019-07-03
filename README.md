@@ -1,4 +1,5 @@
 ![cote](https://user-images.githubusercontent.com/698308/32996603-1517088a-cd85-11e7-85c5-8ef9b3ae2e49.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdashersw%2Fcote.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdashersw%2Fcote?ref=badge_shield)
 
 cote — A Node.js library for building zero-configuration microservices
 ====
@@ -1409,3 +1410,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdashersw%2Fcote.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdashersw%2Fcote?ref=badge_large)
