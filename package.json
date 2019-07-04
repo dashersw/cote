@@ -19,7 +19,9 @@
     "lint": "eslint src test",
     "lint-fix": "eslint --fix src test",
     "prepublish": "npm run build",
-    "test": "NODE_ENV=dev nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" -x=\"**/lib/*.js\" ava --timeout=60000"
+    "test": "NODE_ENV=dev nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" -x=\"**/lib/*.js\" ava --timeout=60000",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "author": {
     "name": "Armagan Amcalar",
@@ -41,7 +43,8 @@
     "lodash": "^4.17.11",
     "portfinder": "1.0.20",
     "socket.io": "2.2.0",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
@@ -106,5 +109,6 @@
         }
       ]
     ]
-  }
+  },
+  "snyk": true
 }
