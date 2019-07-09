@@ -910,7 +910,7 @@ const randomResponder = new Responder({
     							  // can respond to.
 });
 ```
-To connect publisher and sockend, you need to add `broadcasts:` parameter to your options 
+To connect publisher and sockend, you need to add `broadcasts:` parameter to your options
 
 ```js
 let randomPublisher = new Publisher({
@@ -936,7 +936,7 @@ const randomResponder = new Responder({
 });
 ```
 
-You can check complete code for  `Responder`s and `Publisher`s in the `examples` folder. Fire them up 
+You can check complete code for  `Responder`s and `Publisher`s in the `examples` folder. Fire them up
 on default or 'rnd' namespace and watch them glow with magic on
 `http://localhost:5555`.
 If you want to see more complete example of microservices with sockend integration, check out [the e-commerce case study](https://github.com/dashersw/cote-workshop)
@@ -1287,7 +1287,7 @@ need to use anything other than redis, please open
 able to help.
 
 You should also set `DISCOVERY_HOSTNAME` to the **IP address**
-of the container/instance since it defaults to machine's hostname which in 
+of the container/instance since it defaults to machine's hostname which in
 most cloud/docker setups is not routable.
 
 ### Configuring redis
@@ -1379,10 +1379,10 @@ if (process.env.pm_id == 2) {
 Most cloud providers block IP broadcast and multicast, therefore you can't run
 cote in a multi-host environment without special software for an overlay
 network. For this purpose, Docker is the best tool. Deploy your application in
-Docker containers and you can take advantage of its overlay networks. Users of 
-Docker Swarm can make use of the [Weave Net plugin](https://www.weave.works/docs/net/latest/plugin-v2/). 
+Docker containers and you can take advantage of its overlay networks. Users of
+Docker Swarm can make use of the [Weave Net plugin](https://www.weave.works/docs/net/latest/plugin-v2/).
 Weave also has [an addon](https://www.weave.works/docs/net/latest/kube-addon/) for
-enabling multicast/broadcast for Kubernetes. 
+enabling multicast/broadcast for Kubernetes.
 
 If you find the solutions with Docker Swarm and Kubernetes to be hard to get
 started with, you can use redis as a centralized discovery tool. Check out
