@@ -95,6 +95,7 @@ test('Supports directed requests targeted at multiple targeted requesters using 
     // It should end up in the both requesters somewhat
     // evenly distributed, but never in the wrong one
     for (let index = 0; index < times; index++) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
         await requester.send({ __subset: subset, type: 'test', args });
     }
 
