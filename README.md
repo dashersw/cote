@@ -1040,15 +1040,31 @@ this case, solves this problem.
 
 cote has another mechanism to create partitions called `key`s.
 Since every component discovers and tries to communicate with every other
-component on the horizon (this is called a "mesh network"), it might be
-desirable to tune the performance of an application by grouping certain
-components together over the use of a `key`.
+component on the horizon (this is called a "mesh network"), if different
+services request and respond to different types of messages, you will
+experience lost messages. In other words, if service A responds to messages X
+and Y, and service B responds to messages Z and T, you will lose half of the
+messages, because messages Z and T will also end up at service A, but it won't
+know how to handle them. The same is true for service B: messages X and Y
+will end up at it, but service B won't know how to respond to them.
+
+Keys are useful in this scenario: requesters and responders around service A
+and messages X and Y should use one particular key, and requesters and
+responders around service B and messages Z and T should use another key. In
+this case, no messages will be lost, and the services will be segregated.
 
 In our experience, the best way to segregate services is to follow the
 principles of domain-driven design. In this regard, for example, each domain
-could have its own `key`.
+could have its own `key`. If you need more granular services, you should use
+multiple keys inside the same domain. The principle is to ensure distinct keys
+for a distinct set of messages. In other words, keys should represent a
+distinct set of requests.
 
-`key`s are are also given as parameters to the configuration objects.
+Please refer to [Creating the arbitration service]
+(https://github.com/dashersw/cote#creating-the-arbitration-service) for an
+example of keys in action.
+
+`key`s are given as parameters to the configuration objects.
 
 When deciding whether to create a connection to another service, cote components
 make use of `key`s and `environment`s together. Therefore, two components with
