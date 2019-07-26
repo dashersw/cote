@@ -234,3 +234,47 @@ test.cb(`Sockend ns late bound req&res`, (t) => {
         const client = ioClient(`http://0.0.0.0:${port}/${namespace}`);
     });
 });
+
+test.cb('Sockend req&res works without callback', (t) => {
+    t.plan(1);
+    const key = r.generate();
+    let timer;
+
+    const originalListeners = process.listeners('unhandledRejection');
+
+    process.removeAllListeners('unhandledRejection');
+
+    process.on('unhandledRejection', async function(err) {
+        clearTimeout(timer);
+        if (err.message == 'cb is not a function') {
+            t.fail('Async handler fails on no callback message');
+            t.end();
+        }
+        originalListeners.forEach((l) => l(err));
+    });
+
+    const responder = new Responder({ name: `${t.title}: async responder`, respondsTo: ['test'], key });
+
+    responder.on('test', async (req) => {
+        // defer until returned promise is callbackified
+        timer = setTimeout(() => {
+            t.pass();
+            t.end();
+        }, 500);
+        return req.args;
+    });
+
+    portfinder.getPort({ host: '127.0.0.1', port: 7000 }, (err, port) => {
+        if (err) throw err;
+        const server = io(port);
+        new Sockend(server, { name: 'sockend without callback', key });
+
+        const client = ioClient.connect(`http://0.0.0.0:${port}`);
+
+        server.on('connection', (sock) => {
+            responder.sock.on('connect', () => {
+                client.emit('test', { args: [4, 5, 6] });
+            });
+        });
+    });
+});

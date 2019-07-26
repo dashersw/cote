@@ -39,11 +39,9 @@ module.exports = class Responder extends Configurable(Component) {
   on(type, listener) {
     super.on(type, (...args) => {
       const rv = listener(...args);
-
-      if (rv && typeof rv.then == 'function') {
-        const cb = args.pop();
-        rv.then(val => cb(null, val)).catch(cb);
-      }
+      const cb = args.pop();
+      if (!rv || typeof rv.then != 'function' || typeof cb != 'function') return;
+      rv.then(val => cb(null, val), cb);
     });
   }
 
