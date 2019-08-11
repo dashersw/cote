@@ -114,3 +114,27 @@ test.cb(`Use environment var for setting requester timeout (response before time
         t.end();
     });
 });
+
+test.cb(`Timeouts should cancel requests so responders don't get them (#183)`, (t) => {
+    const key = r.generate();
+
+    const requester = new Requester({ name: `${t.title}: timeout responder`, key });
+    requester.send({ type: 'test', shouldHaveTimedout: false, __timeout: 4000 }, () => {});
+    requester.send({ type: 'test', shouldHaveTimedout: true, __timeout: 2000 }, () => {});
+
+    setTimeout(() => {
+        const responder = new Responder({ name: `${t.title}: timeout requester`, key });
+
+        responder.on('test', (req) => {
+            if (req.shouldHaveTimedout) {
+                t.fail();
+                t.end();
+            }
+        });
+    }, 3000);
+
+    setTimeout(() => {
+        t.pass();
+        t.end();
+    }, 5000);
+});

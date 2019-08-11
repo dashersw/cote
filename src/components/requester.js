@@ -122,7 +122,13 @@ function sendOverSocket(sock, timeout, ...args) {
     const cb = args.pop();
 
     const timeoutHandle = setTimeout(() => {
+        // Remove the request from the request queue so that it's not sent to responders (#183)
+        const req = sock.queue.findIndex((r) => r[r.length - 1] == messageCallback);
+        if (req > -1) sock.queue.splice(req, 1);
+
+        // Remove the request callback
         delete sock.callbacks[messageCallback.id];
+
         cb(new Error('Request timed out.'));
     }, timeout);
 
