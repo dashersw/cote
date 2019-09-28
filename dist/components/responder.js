@@ -6,7 +6,10 @@ const portfinder = require('portfinder');
 
 const Configurable = require('./configurable');
 
-const Component = require('./component');
+const Component = require('./component'); // eslint-disable-next-line
+
+
+const colors = require('colors');
 
 module.exports = class Responder extends Configurable(Component) {
   constructor(advertisement, discoveryOptions) {
@@ -15,6 +18,11 @@ module.exports = class Responder extends Configurable(Component) {
     this.sock.on('bind', () => this.startDiscovery());
     this.sock.on('message', (req, cb) => {
       if (!req.type) return;
+
+      if (this.listeners(req.type).length === 0 && this.discoveryOptions.logUnknownEvents) {
+        this.discovery.log([this.advertisement.name, '>', `No listeners found for event: ${req.type}`.yellow]);
+      }
+
       this.emit(req.type, req, cb);
     });
 

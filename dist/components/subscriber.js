@@ -6,7 +6,10 @@ const Monitorable = require('./monitorable');
 
 const Component = require('./component');
 
-const axon = require('@dashersw/axon');
+const axon = require('@dashersw/axon'); // eslint-disable-next-line
+
+
+const colors = require('colors');
 
 module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
   constructor(advertisement, discoveryOptions) {
@@ -30,6 +33,10 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
             args.unshift(topic.substr(9));
           } else {
             args[0] = namespace + args[0];
+          }
+
+          if (this.listeners(args[0]).length === 0 && this.discoveryOptions.logUnknownEvents) {
+            this.discovery.log([this.advertisement.name, '>', `No listeners found for event: ${args[0]}`.yellow]);
           }
 
           this.emit(...args);
