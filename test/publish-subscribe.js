@@ -5,6 +5,9 @@ import r from 'randomstring';
 import sinon from 'sinon';
 import portfinder from 'portfinder';
 
+// eslint-disable-next-line
+const colors = require('colors');
+
 const { Publisher, Subscriber } = require('../')();
 
 LogSuppress.init(console);
@@ -207,4 +210,41 @@ test.cb('Publisher reruns portfinder on EADDRINUSE error', (t) => {
         t.end();
     };
     publisher.sock.sock.on('bind', listener);
+});
+
+test.cb('Subscriber should log missing event listener', (t) => {
+    t.plan(2);
+
+    const key = r.generate();
+
+    const publisher = new Publisher({ name: `${t.title}: missing listener publisher`, key });
+    const subscriber = new Subscriber(
+        { name: `${t.title}: missing listener subscriber`, key },
+        { log: false, logUnknownEvents: true }
+    );
+    const subscriber2 = new Subscriber(
+        { name: `${t.title}: missing listener subscriber2`, key },
+        { log: false, logUnknownEvents: true }
+    );
+
+    async.each(
+        [subscriber, subscriber2],
+        (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
+        (_) => publisher.publish('missing', { args: [1, 2, 3] })
+    );
+
+    async.each(
+        [subscriber, subscriber2],
+        (s, done) => {
+            s.discovery.log = function(...args) {
+                t.deepEqual([[this.advertisement.name, '>', 'No listeners found for event: missing'.yellow]], args);
+                done();
+            };
+        },
+        (_) => {
+            [publisher, subscriber, subscriber2].forEach((c) => c.close());
+
+            t.end();
+        }
+    );
 });
