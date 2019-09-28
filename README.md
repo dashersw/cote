@@ -1242,6 +1242,7 @@ Here's a list of environment variables cote supports:
 | `COTE_LOG`                  | Boolean. Whether to display hello and status logs for other discovered services. Has precedence over `COTE_STATUS_LOGS_ENABLED` and `COTE_HELLO_LOGS_ENABLED`.
 | `COTE_HELLO_LOGS_ENABLED`   | Boolean. Whether to display hello logs from other discovered services.
 | `COTE_STATUS_LOGS_ENABLED`  | Boolean. Whether to display status logs from other discovered services. Has precedence over `COTE_HELLO_LOGS_ENABLED`.
+| `COTE_LOG_UNKNOWN_EVENTS`   | Boolean. Whether to log a message when a responder or subscriber receives an event that it has no listeners for.
 | `COTE_CHECK_INTERVAL`       | Integer. The interval for checking if a discovered service has sent a heartbeat since the last check.
 | `COTE_HELLO_INTERVAL`       | Integer. The interval for sending a heartbeat hello signal. Should be less than `COTE_CHECK_INTERVAL`.
 | `COTE_NODE_TIMEOUT`         | Integer. The timeout duration that determines if a service is unreachable and thus removed. Should be greater than `COTE_CHECK_INTERVAL`.

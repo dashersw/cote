@@ -4,6 +4,9 @@ import r from 'randomstring';
 import sinon from 'sinon';
 import portfinder from 'portfinder';
 
+// eslint-disable-next-line
+const colors = require('colors');
+
 const { Requester, Responder } = require('../')();
 
 LogSuppress.init(console);
@@ -155,4 +158,25 @@ test.cb('Responder reruns portfinder on EADDRINUSE error', (t) => {
         t.end();
     };
     responder.sock.on('bind', listener);
+});
+
+test.cb('Responder should log missing event listener', (t) => {
+    t.plan(1);
+
+    const key = r.generate();
+
+    const requester = new Requester({ name: `${t.title}: missing listener requester`, key });
+    const responder = new Responder({ name: `${t.title}: missing listener responder`, key }, { log: false, logUnknownEvents: true });
+
+    const startDiscovery = responder.startDiscovery;
+    responder.startDiscovery = function() {
+        startDiscovery.call(responder);
+
+        responder.discovery.log = function(...args) {
+            t.deepEqual([[this.advertisement.name, '>', 'No listeners found for event: missing'.yellow]], args);
+            t.end();
+        };
+    };
+
+    requester.send({ type: 'missing', message: 'This should be ignored' });
 });
