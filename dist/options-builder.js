@@ -27,7 +27,8 @@ const defaultOptions = {
   environment: '',
   useHostNames: false,
   broadcast: null,
-  multicast: null
+  multicast: null,
+  logUnknownEvents: true
 };
 const envVarOptionsMap = {
   COTE_ENV: ['environment', parser.str],
