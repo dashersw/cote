@@ -15,7 +15,7 @@ module.exports = class Component extends EventEmitter {
         this.advertisement = advertisement;
         this.advertisement.axon_type = this.type;
 
-        this.discoveryOptions = discoveryOptions;
+        this.discoveryOptions = { ...Discovery.defaults, ...discoveryOptions };
         this.discoveryOptions.address = this.discoveryOptions.address || '0.0.0.0';
     }
 
