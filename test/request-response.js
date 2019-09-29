@@ -166,7 +166,8 @@ test.cb('Responder should log missing event listener', (t) => {
     const key = r.generate();
 
     const requester = new Requester({ name: `${t.title}: missing listener requester`, key });
-    const responder = new Responder({ name: `${t.title}: missing listener responder`, key }, { log: false, logUnknownEvents: true });
+    const responder = new Responder({ name: `${t.title}: missing listener responder`, key },
+        { log: false, logUnknownEvents: true });
 
     const startDiscovery = responder.startDiscovery;
     responder.startDiscovery = function() {

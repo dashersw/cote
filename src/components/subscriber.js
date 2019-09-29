@@ -34,7 +34,8 @@ module.exports = class Subscriber extends Monitorable(Configurable(Component)) {
                     }
 
                     if (this.listeners(args[0]).length === 0 && this.discoveryOptions.logUnknownEvents) {
-                        this.discovery.log([this.advertisement.name, '>', `No listeners found for event: ${args[0]}`.yellow]);
+                        this.discovery.log([this.advertisement.name, '>',
+                            `No listeners found for event: ${args[0]}`.yellow]);
                     }
 
                     this.emit(...args);
