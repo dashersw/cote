@@ -11,6 +11,7 @@ const defaultOptions = {
     useHostNames: false,
     broadcast: null,
     multicast: null,
+    logUnknownEvents: true,
 };
 
 const envVarOptionsMap = {
