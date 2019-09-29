@@ -8,6 +8,7 @@ process.env.COTE_ENV = environment;
 process.env.COTE_USE_HOST_NAMES = true;
 process.env.COTE_MULTICAST_ADDRESS = process.env.COTE_MULTICAST_ADDRESS || '239.1.11.111';
 process.env.DOCKERCLOUD_IP_ADDRESS = true;
+process.env.COTE_LOG_UNKNOWN_EVENTS = true;
 
 const { Requester, Responder } = require('../');
 
@@ -73,4 +74,26 @@ test.cb('Supports keys & namespaces', (t) => {
         t.deepEqual(req.args, [1, 2, 6]);
         t.end();
     });
+});
+
+test.cb('Responder should log missing event listener with environment variable config', (t) => {
+    t.plan(1);
+    t.timeout(10000);
+
+    const key = r.generate();
+
+    const requester = new Requester({ name: `${t.title}: missing listener requester`, key }, { log: false });
+    const responder = new Responder({ name: `${t.title}: missing listener responder`, key }, { log: false });
+
+    const startDiscovery = responder.startDiscovery;
+    responder.startDiscovery = function() {
+        startDiscovery.call(responder);
+
+        responder.discovery.log = function(...args) {
+            t.deepEqual([[this.advertisement.name, '>', 'No listeners found for event: missing'.yellow]], args);
+            t.end();
+        };
+    };
+
+    requester.send({ type: 'missing', message: 'This should be ignored' });
 });

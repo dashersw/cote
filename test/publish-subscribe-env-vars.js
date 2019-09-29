@@ -9,6 +9,7 @@ process.env.COTE_ENV = environment;
 process.env.COTE_USE_HOST_NAMES = true;
 process.env.COTE_MULTICAST_ADDRESS = process.env.COTE_MULTICAST_ADDRESS || '239.1.11.111';
 process.env.DOCKERCLOUD_IP_ADDRESS = true;
+process.env.COTE_LOG_UNKNOWN_EVENTS = true;
 
 const { Publisher, Subscriber } = require('../');
 
@@ -126,5 +127,37 @@ test.cb('Supports keys & namespaces with env vars', (t) => {
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
         (_) => publisher.publish('test', { args: [1, 2, 6] })
+    );
+});
+
+test.cb('Subscriber should log missing event listener with environment variable config', (t) => {
+    t.plan(2);
+    t.timeout(10000);
+
+    const key = r.generate();
+    console.log('e eamk');
+    const publisher = new Publisher({ name: `${t.title}: missing listener publisher`, key }, { log: false });
+    const subscriber = new Subscriber({ name: `${t.title}: missing listener subscriber`, key }, { log: false });
+    const subscriber2 = new Subscriber({ name: `${t.title}: missing listener subscriber2`, key }, { log: false });
+
+    async.each(
+        [subscriber, subscriber2],
+        (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
+        (_) => publisher.publish('missing', { args: [1, 2, 3] })
+    );
+
+    async.each(
+        [subscriber, subscriber2],
+        (s, done) => {
+            s.discovery.log = function(...args) {
+                t.deepEqual([[this.advertisement.name, '>', 'No listeners found for event: missing'.yellow]], args);
+                done();
+            };
+        },
+        (_) => {
+            [publisher, subscriber, subscriber2].forEach((c) => c.close());
+
+            t.end();
+        }
     );
 });
