@@ -227,7 +227,7 @@ EUR.
 ```js
 const request = { type: 'convert', from: 'usd', to: 'eur', amount: 100 };
 
-requester.send(request, (res) => {
+requester.send(request, (err, res) => {
   console.log(res);
 });
 ```
@@ -247,7 +247,7 @@ const requester = new cote.Requester({ name: 'currency conversion requester'});
 
 const request = { type: 'convert', from: 'usd', to: 'eur', amount: 100 };
 
-requester.send(request, (res) => {
+requester.send(request, (err, res) => {
   console.log(res);
 });
 ```
@@ -531,7 +531,7 @@ const requester = new cote.Requester({ name: 'currency conversion requester', ke
 
 const request = { type: 'convert', from: 'usd', to: 'eur', amount: 100 };
 
-requester.send(request, (res) => {
+requester.send(request, (err, res) => {
     console.log(res);
 });
 ```
