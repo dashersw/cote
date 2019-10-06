@@ -35,30 +35,30 @@
     "@dashersw/axon": "2.0.5",
     "@dashersw/node-discover": "^1.0.4",
     "charm": "1.0.2",
-    "colors": "1.3.3",
-    "core-js": "^2.6.9",
+    "colors": "1.4.0",
+    "core-js": "^3.2.1",
     "eventemitter2": "5.0.1",
     "lodash": "^4.17.15",
-    "portfinder": "1.0.20",
-    "socket.io": "2.2.0",
+    "portfinder": "1.0.24",
+    "socket.io": "2.3.0",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.2",
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
-    "async": "^2.6.3",
-    "ava": "^1.4.1",
-    "commander": "2.20.0",
+    "async": "^3.1.0",
+    "ava": "^2.4.0",
+    "commander": "3.0.2",
     "coveralls": "^3.0.6",
-    "eslint": "^5.16.0",
-    "eslint-config-google": "^0.12.0",
+    "eslint": "^6.5.1",
+    "eslint-config-google": "^0.14.0",
     "humanize-number": "0.0.2",
-    "nyc": "^13.3.0",
+    "nyc": "^14.1.1",
     "randomstring": "^1.1.5",
     "request": "^2.88.0",
     "sinon": "^7.5.0",
-    "socket.io-client": "2.2.0"
+    "socket.io-client": "2.3.0"
   },
   "eslintConfig": {
     "env": {
@@ -99,9 +99,9 @@
             "node": "6"
           },
           "useBuiltIns": "usage",
-          "corejs": "2",
+          "corejs": "3",
           "exclude": [
-            "es6.promise"
+            "es.promise"
           ]
         }
       ]
