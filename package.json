@@ -18,7 +18,7 @@
     "coverage": "nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" -x=\"**/lib/*.js\" report",
     "lint": "eslint src test",
     "lint-fix": "eslint --fix src test",
-    "prepublish": "npm run build",
+    "publish": "npm run build",
     "test": "NODE_ENV=dev nyc -x=\"**/examples/*\" -x=\"**/*balanced*.js\" -x=\"**/test/*.js\" -x=\"**/lib/*.js\" ava --timeout=60000"
   },
   "author": {
