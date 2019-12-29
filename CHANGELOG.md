@@ -1,8 +1,14 @@
 # Changelog
 
-## [Unreleased](https://github.com/dashersw/cote/tree/HEAD)
+## [v1.0.0](https://github.com/dashersw/cote/tree/v1.0.0) (2019-12-29)
 
-[Full Changelog](https://github.com/dashersw/cote/compare/v0.21.1...HEAD)
+[Full Changelog](https://github.com/dashersw/cote/compare/v0.21.1...v1.0.0)
+
+**Release cote version 1.0.0.**
+
+Cote has been stable and backwards compatible since the very first commit, with the exception of deprecating older Node.js versions. It hasn't received new major features in the past year, and with all its users and community, it's now time to release this version as 1.0.0.
+
+With this release cote drops support for Node.js version 6 and 8, which allows us to remove Babel transpilation which was only used for the object spread operator.
 
 **Breaking changes:**
 
@@ -10,9 +16,14 @@
 
 **Implemented enhancements:**
 
+- Add changelog [\#208](https://github.com/dashersw/cote/pull/208) ([dashersw](https://github.com/dashersw))
 - Added NodeJS 12 support [\#194](https://github.com/dashersw/cote/pull/194) ([gnought](https://github.com/gnought))
 - Fixed prepublish that deprecated in npm@5 [\#192](https://github.com/dashersw/cote/pull/192) ([gnought](https://github.com/gnought))
 - Fixed missing err argument in client.js example [\#191](https://github.com/dashersw/cote/pull/191) ([gnought](https://github.com/gnought))
+
+**Closed issues:**
+
+- Missing change log and release notes. [\#181](https://github.com/dashersw/cote/issues/181)
 
 ## [v0.21.1](https://github.com/dashersw/cote/tree/v0.21.1) (2019-09-29)
 
@@ -32,11 +43,16 @@
 
 **Implemented enhancements:**
 
+- Log a warning to the console if there are no handlers for a specific event [\#168](https://github.com/dashersw/cote/issues/168)
 - feature: Log message when no listener for event [\#189](https://github.com/dashersw/cote/pull/189) ([otothea](https://github.com/otothea))
 
 ## [v0.20.1](https://github.com/dashersw/cote/tree/v0.20.1) (2019-08-11)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.20.0...v0.20.1)
+
+**Closed issues:**
+
+- Document the use of DISCOVERY\_HOSTNAME environment variable [\#160](https://github.com/dashersw/cote/issues/160)
 
 **Merged pull requests:**
 
@@ -162,6 +178,10 @@
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.13.2...v0.14.0)
 
+**Implemented enhancements:**
+
+- Quit retrying connection after a set amount of tries / time [\#16](https://github.com/dashersw/cote/issues/16)
+
 **Merged pull requests:**
 
 - ES6 rewrite [\#45](https://github.com/dashersw/cote/pull/45) ([dashersw](https://github.com/dashersw))
@@ -179,6 +199,10 @@
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.12.1...v0.13.0)
 
+**Implemented enhancements:**
+
+- Add Promise support [\#36](https://github.com/dashersw/cote/issues/36)
+
 ## [v0.12.1](https://github.com/dashersw/cote/tree/v0.12.1) (2017-04-26)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.12.0...v0.12.1)
@@ -187,6 +211,10 @@
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.11.0...v0.12.0)
 
+**Implemented enhancements:**
+
+- Implement preliminary internal queue for requesters [\#24](https://github.com/dashersw/cote/issues/24)
+
 ## [v0.11.0](https://github.com/dashersw/cote/tree/v0.11.0) (2017-04-20)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.10.1...v0.11.0)
@@ -194,6 +222,10 @@
 ## [v0.10.1](https://github.com/dashersw/cote/tree/v0.10.1) (2017-04-20)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.10.0...v0.10.1)
+
+**Implemented enhancements:**
+
+- Add a GUI for Monitor component [\#9](https://github.com/dashersw/cote/issues/9)
 
 ## [v0.10.0](https://github.com/dashersw/cote/tree/v0.10.0) (2017-02-05)
 
@@ -235,6 +267,10 @@
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.8.5...v0.8.6)
 
+**Implemented enhancements:**
+
+- Let components use hostnames when establishing connection [\#25](https://github.com/dashersw/cote/issues/25)
+
 ## [v0.8.5](https://github.com/dashersw/cote/tree/v0.8.5) (2016-06-21)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.8.4...v0.8.5)
@@ -263,6 +299,11 @@
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.8.0...v0.8.1)
 
+**Implemented enhancements:**
+
+- Allow disabling monitor screen [\#18](https://github.com/dashersw/cote/issues/18)
+- Add health checks and monitoring [\#17](https://github.com/dashersw/cote/issues/17)
+
 ## [v0.8.0](https://github.com/dashersw/cote/tree/v0.8.0) (2016-02-20)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.7.2...v0.8.0)
@@ -274,6 +315,10 @@
 ## [v0.7.1](https://github.com/dashersw/cote/tree/v0.7.1) (2016-01-14)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.7.0...v0.7.1)
+
+**Implemented enhancements:**
+
+- Implement key prefixes as global config [\#15](https://github.com/dashersw/cote/issues/15)
 
 ## [v0.7.0](https://github.com/dashersw/cote/tree/v0.7.0) (2016-01-12)
 
