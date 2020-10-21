@@ -181,3 +181,36 @@ test.cb('Responder should log missing event listener', (t) => {
 
     requester.send({ type: 'missing', message: 'This should be ignored' });
 });
+
+
+test.cb('Responder supports listening for wildcard events', (t) => {
+    t.plan(3);
+
+    const key = r.generate();
+
+    const responder = new Responder({ name: `${t.title}: wildcard responder`, key });
+
+    responder.on('*', async (request) => {
+        // Ignore internal events
+        if (!request.type) {
+            return;
+        }
+        t.deepEqual(request.type, 'question');
+        t.deepEqual(request.value, [1, 2, 3]);
+        return [4, 5, 6];
+    });
+
+    // Wait a second, then create a requester and send a request
+
+    setTimeout(async function() {
+        const requester = new Requester({ name: `${t.title}: wildcard requester`, key });
+
+        try {
+            const response = await requester.send({ type: 'question', value: [1, 2, 3] });
+            t.deepEqual(response, [4, 5, 6]);
+            t.end();
+        } catch (error) {
+            console.error(`Caught error making request`, error);
+        }
+    }, 500);
+});
