@@ -205,12 +205,8 @@ test.cb('Responder supports listening for wildcard events', (t) => {
     setTimeout(async function() {
         const requester = new Requester({ name: `${t.title}: wildcard requester`, key });
 
-        try {
-            const response = await requester.send({ type: 'question', value: [1, 2, 3] });
-            t.deepEqual(response, [4, 5, 6]);
-            t.end();
-        } catch (error) {
-            console.error(`Caught error making request`, error);
-        }
+        const response = await requester.send({ type: 'question', value: [1, 2, 3] });
+        t.deepEqual(response, [4, 5, 6]);
+        t.end();
     }, 500);
 });
