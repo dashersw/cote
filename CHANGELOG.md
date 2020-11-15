@@ -44,6 +44,9 @@ With this release cote drops support for Node.js version 6 and 8, which allows u
 **Implemented enhancements:**
 
 - Log a warning to the console if there are no handlers for a specific event [\#168](https://github.com/dashersw/cote/issues/168)
+
+**Merged pull requests:**
+
 - feature: Log message when no listener for event [\#189](https://github.com/dashersw/cote/pull/189) ([otothea](https://github.com/otothea))
 
 ## [v0.20.1](https://github.com/dashersw/cote/tree/v0.20.1) (2019-08-11)
@@ -74,12 +77,9 @@ With this release cote drops support for Node.js version 6 and 8, which allows u
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.18.4...v0.19.0)
 
-**Implemented enhancements:**
-
-- Add ability to target subgroups of Requesters [\#150](https://github.com/dashersw/cote/pull/150) ([pelzerim](https://github.com/pelzerim))
-
 **Merged pull requests:**
 
+- Add ability to target subgroups of Requesters [\#150](https://github.com/dashersw/cote/pull/150) ([pelzerim](https://github.com/pelzerim))
 - Using PM2 Cluster Properly - README [\#149](https://github.com/dashersw/cote/pull/149) ([knoxcard](https://github.com/knoxcard))
 
 ## [v0.18.4](https://github.com/dashersw/cote/tree/v0.18.4) (2019-01-06)
@@ -199,7 +199,7 @@ With this release cote drops support for Node.js version 6 and 8, which allows u
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.12.1...v0.13.0)
 
-**Implemented enhancements:**
+**Closed issues:**
 
 - Add Promise support [\#36](https://github.com/dashersw/cote/issues/36)
 
@@ -211,7 +211,7 @@ With this release cote drops support for Node.js version 6 and 8, which allows u
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.11.0...v0.12.0)
 
-**Implemented enhancements:**
+**Closed issues:**
 
 - Implement preliminary internal queue for requesters [\#24](https://github.com/dashersw/cote/issues/24)
 
@@ -245,7 +245,7 @@ With this release cote drops support for Node.js version 6 and 8, which allows u
 
 **Merged pull requests:**
 
-- Fix some of the linter issues [\#26](https://github.com/dashersw/cote/pull/26) ([ankakusu](https://github.com/ankakusu))
+- Fix some of the linter issues [\#26](https://github.com/dashersw/cote/pull/26) ([frontconnect](https://github.com/frontconnect))
 
 ## [v0.9.1](https://github.com/dashersw/cote/tree/v0.9.1) (2016-07-15)
 
@@ -267,7 +267,7 @@ With this release cote drops support for Node.js version 6 and 8, which allows u
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.8.5...v0.8.6)
 
-**Implemented enhancements:**
+**Closed issues:**
 
 - Let components use hostnames when establishing connection [\#25](https://github.com/dashersw/cote/issues/25)
 
@@ -316,7 +316,7 @@ With this release cote drops support for Node.js version 6 and 8, which allows u
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.7.0...v0.7.1)
 
-**Implemented enhancements:**
+**Closed issues:**
 
 - Implement key prefixes as global config [\#15](https://github.com/dashersw/cote/issues/15)
 
