@@ -46,12 +46,11 @@ module.exports = class Responder extends Configurable(Component) {
     on(type, listener) {
         super.on(type, (...args) => {
             const rv = listener(...args);
+            
+            if (this.event.startsWith('cote:')) return;
 
             if (rv && typeof rv.then == 'function') {
-                let cb = args.pop();
-                if (typeof cb !== 'function') {
-                    cb = function() {};
-                }
+                const cb = args.pop();
                 rv.then((val) => cb(null, val)).catch(cb);
             }
         });
