@@ -30,7 +30,7 @@ test.cb('Supports simple pub&sub with env vars', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 3] })
+        (_) => publisher.publish('test', { args: [1, 2, 3] }),
     );
 
     const tester = function(done, req) {
@@ -41,7 +41,7 @@ test.cb('Supports simple pub&sub with env vars', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.on('test', tester.bind(s, done)),
-        (_) => t.end()
+        (_) => t.end(),
     );
 });
 
@@ -57,7 +57,7 @@ test.cb('Supports keys with env vars', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 4] })
+        (_) => publisher.publish('test', { args: [1, 2, 4] }),
     );
 
     const tester = function(done, req) {
@@ -69,7 +69,7 @@ test.cb('Supports keys with env vars', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.on('test', tester.bind(s, done)),
-        (_) => t.end()
+        (_) => t.end(),
     );
 });
 
@@ -91,13 +91,13 @@ test.cb('Supports namespaces with env vars', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 5] })
+        (_) => publisher.publish('test', { args: [1, 2, 5] }),
     );
 
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.on('test', tester.bind(s, done)),
-        (_) => t.end()
+        (_) => t.end(),
     );
 });
 
@@ -120,13 +120,13 @@ test.cb('Supports keys & namespaces with env vars', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.on('test', tester.bind(s, done)),
-        (_) => t.end()
+        (_) => t.end(),
     );
 
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 6] })
+        (_) => publisher.publish('test', { args: [1, 2, 6] }),
     );
 });
 
@@ -143,7 +143,7 @@ test.cb('Subscriber should log missing event listener with environment variable 
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('missing', { args: [1, 2, 3] })
+        (_) => publisher.publish('missing', { args: [1, 2, 3] }),
     );
 
     async.each(
@@ -158,6 +158,6 @@ test.cb('Subscriber should log missing event listener with environment variable 
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });

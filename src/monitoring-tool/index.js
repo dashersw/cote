@@ -156,7 +156,7 @@ module.exports = function(port) {
         nodes = _.filter(nodes, (node) =>
             node.processId != monitor.discovery.me.processId &&
             node.advertisement.name != 'sockendSub' &&
-            node.advertisement.name != 'sockendReq'
+            node.advertisement.name != 'sockendReq',
         );
 
         const simplifiedNodes = _.map(nodes, (node) => ({
@@ -175,8 +175,8 @@ module.exports = function(port) {
                     source: indexMap[target], // monitor.discovery.nodes[target].advertisement.name + '#' + target,
                     target: indexMap[rawLink.source], // monitor.discovery.nodes[rawLink.source].advertisement.name +
                     // '#' + rawLink.source
-                })
-            )
+                }),
+            ),
         );
 
         return _.flatten(links).filter((link) => link.source && link.target);

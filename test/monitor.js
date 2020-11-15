@@ -19,7 +19,7 @@ test.cb('Print to screen', (t) => {
     async.each(
         [monitor, monitor2],
         (m, done) => m.once('status', () => done()),
-        () => t.end()
+        () => t.end(),
     );
 });
 

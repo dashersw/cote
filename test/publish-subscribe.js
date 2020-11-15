@@ -27,7 +27,7 @@ test.cb('Supports simple pub&sub', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 3] })
+        (_) => publisher.publish('test', { args: [1, 2, 3] }),
     );
 
     const tester = (done, req) => {
@@ -42,7 +42,7 @@ test.cb('Supports simple pub&sub', (t) => {
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });
 
@@ -58,7 +58,7 @@ test.cb('Supports keys', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 4] })
+        (_) => publisher.publish('test', { args: [1, 2, 4] }),
     );
 
     const tester = (done, req) => {
@@ -73,7 +73,7 @@ test.cb('Supports keys', (t) => {
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });
 
@@ -89,7 +89,7 @@ test.cb('Supports namespaces', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => process.nextTick(() => publisher.publish('test', { args: [1, 2, 5] }))
+        (_) => process.nextTick(() => publisher.publish('test', { args: [1, 2, 5] })),
     );
 
     const tester = (done, req) => {
@@ -105,7 +105,7 @@ test.cb('Supports namespaces', (t) => {
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });
 
@@ -122,7 +122,7 @@ test.cb('Supports keys & namespaces', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 6] })
+        (_) => publisher.publish('test', { args: [1, 2, 6] }),
     );
 
     const tester = (done, req) => {
@@ -138,7 +138,7 @@ test.cb('Supports keys & namespaces', (t) => {
             // [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });
 
@@ -220,17 +220,17 @@ test.cb('Subscriber should log missing event listener', (t) => {
     const publisher = new Publisher({ name: `${t.title}: missing listener publisher`, key });
     const subscriber = new Subscriber(
         { name: `${t.title}: missing listener subscriber`, key },
-        { log: false, logUnknownEvents: true }
+        { log: false, logUnknownEvents: true },
     );
     const subscriber2 = new Subscriber(
         { name: `${t.title}: missing listener subscriber2`, key },
-        { log: false, logUnknownEvents: true }
+        { log: false, logUnknownEvents: true },
     );
 
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('missing', { args: [1, 2, 3] })
+        (_) => publisher.publish('missing', { args: [1, 2, 3] }),
     );
 
     async.each(
@@ -245,6 +245,6 @@ test.cb('Subscriber should log missing event listener', (t) => {
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });

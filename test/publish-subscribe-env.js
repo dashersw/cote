@@ -23,7 +23,7 @@ test.cb('Supports simple pub&sub with env', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 3] })
+        (_) => publisher.publish('test', { args: [1, 2, 3] }),
     );
 
     const tester = (done, req) => {
@@ -37,7 +37,7 @@ test.cb('Supports simple pub&sub with env', (t) => {
         (_) => {
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
             t.end();
-        }
+        },
     );
 });
 
@@ -53,7 +53,7 @@ test.cb('Supports keys with env', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 4] })
+        (_) => publisher.publish('test', { args: [1, 2, 4] }),
     );
 
     const tester = (done, req) => {
@@ -69,7 +69,7 @@ test.cb('Supports keys with env', (t) => {
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });
 
@@ -85,7 +85,7 @@ test.cb('Supports namespaces with env', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 5] })
+        (_) => publisher.publish('test', { args: [1, 2, 5] }),
     );
 
     const tester = (done, req) => {
@@ -101,7 +101,7 @@ test.cb('Supports namespaces with env', (t) => {
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });
 
@@ -118,7 +118,7 @@ test.cb('Supports keys & namespaces with env', (t) => {
     async.each(
         [subscriber, subscriber2],
         (s, done) => s.sock.sock.on('connect', () => setTimeout(done, 100)),
-        (_) => publisher.publish('test', { args: [1, 2, 6] })
+        (_) => publisher.publish('test', { args: [1, 2, 6] }),
     );
 
     const tester = (done, req) => {
@@ -134,6 +134,6 @@ test.cb('Supports keys & namespaces with env', (t) => {
             [publisher, subscriber, subscriber2].forEach((c) => c.close());
 
             t.end();
-        }
+        },
     );
 });
