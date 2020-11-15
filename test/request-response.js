@@ -200,7 +200,7 @@ test.cb('Responder supports listening for wildcard events', (t) => {
         return [4, 5, 6];
     });
 
-    // Wait a second, then create a requester and send a request
+    // Wait 500ms, then create a requester and send a request
 
     setTimeout(async function() {
         const requester = new Requester({ name: `${t.title}: wildcard requester`, key });
