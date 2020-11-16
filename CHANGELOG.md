@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.0.1](https://github.com/dashersw/cote/tree/v1.0.1) (2020-11-16)
+
+[Full Changelog](https://github.com/dashersw/cote/compare/v1.0.0...v1.0.1)
+
+**Merged pull requests:**
+
+- Bugfix responding to wildcard events with promises [\#230](https://github.com/dashersw/cote/pull/230) ([jessety](https://github.com/jessety))
+
 ## [v1.0.0](https://github.com/dashersw/cote/tree/v1.0.0) (2019-12-29)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.21.1...v1.0.0)
