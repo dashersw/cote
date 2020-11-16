@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.0.2](https://github.com/dashersw/cote/tree/v1.0.2) (2020-11-16)
+
+[Full Changelog](https://github.com/dashersw/cote/compare/v1.0.1...v1.0.2)
+
+**Merged pull requests:**
+
+- Update deps and ava [\#232](https://github.com/dashersw/cote/pull/232) ([dashersw](https://github.com/dashersw))
+
 ## [v1.0.1](https://github.com/dashersw/cote/tree/v1.0.1) (2020-11-16)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v1.0.0...v1.0.1)
