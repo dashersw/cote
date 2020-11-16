@@ -1,6 +1,6 @@
-import test from 'ava';
-import LogSuppress from '../lib/log-suppress';
-import r from 'randomstring';
+const test = require('ava');
+const LogSuppress = require('../lib/log-suppress');
+const r = require('randomstring');
 
 process.env.COTE_DISCOVERY_REDIS_HOST = 'localhost';
 
@@ -20,7 +20,9 @@ test.cb(`Crash trying to use redis`, (t) => {
 
     process.removeAllListeners('uncaughtException');
 
-    process.on('uncaughtException', function(err) {
+    const emptyListener = () => { };
+
+    const listener = function(err) {
         if (err.message != 'Redis connection to localhost:6379 failed - connect ECONNREFUSED 127.0.0.1:6379') {
             originalListeners.forEach((l) => l(err));
 
@@ -29,5 +31,10 @@ test.cb(`Crash trying to use redis`, (t) => {
 
         t.pass();
         t.end();
-    });
+
+        process.removeListener('uncaughtException', listener);
+        process.on('uncaughtException', emptyListener);
+    };
+
+    process.on('uncaughtException', listener);
 });

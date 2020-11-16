@@ -1,7 +1,7 @@
-import test from 'ava';
-import LogSuppress from '../lib/log-suppress';
-import r from 'randomstring';
-import process from 'process';
+const test = require('ava');
+const LogSuppress = require('../lib/log-suppress');
+const r = require('randomstring');
+const process = require('process');
 
 const environment = r.generate();
 

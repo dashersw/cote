@@ -34,14 +34,14 @@
     "charm": "1.0.2",
     "colors": "1.4.0",
     "eventemitter2": "6.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.20",
     "portfinder": "1.0.25",
     "socket.io": "^2.3.0",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
     "async": "^3.1.0",
-    "ava": "^2.4.0",
+    "ava": "^3.13.0",
     "commander": "4.0.1",
     "coveralls": "^3.0.9",
     "eslint": "^6.8.0",

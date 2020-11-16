@@ -1,6 +1,6 @@
-import test from 'ava';
-import r from 'randomstring';
-import LogSuppress from '../lib/log-suppress';
+const test = require('ava');
+const r = require('randomstring');
+const LogSuppress = require('../lib/log-suppress');
 
 LogSuppress.init(console);
 
