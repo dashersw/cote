@@ -1,6 +1,6 @@
-import test from 'ava';
-import r from 'randomstring';
-import async from 'async';
+const test = require('ava');
+const r = require('randomstring');
+const async = require('async');
 const environment = r.generate();
 
 const { Requester, Responder, Monitor } = require('../')({ environment, statusInterval: 100 });

@@ -1,9 +1,9 @@
-import test from 'ava';
-import LogSuppress from '../lib/log-suppress';
-import r from 'randomstring';
-import io from 'socket.io';
-import portfinder from 'portfinder';
-import ioClient from 'socket.io-client';
+const test = require('ava');
+const LogSuppress = require('../lib/log-suppress');
+const r = require('randomstring');
+const io = require('socket.io');
+const portfinder = require('portfinder');
+const ioClient = require('socket.io-client');
 
 const environment = r.generate();
 const { Responder, Sockend, Publisher } = require('../')({ environment });

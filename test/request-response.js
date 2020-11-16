@@ -1,8 +1,8 @@
-import test from 'ava';
-import LogSuppress from '../lib/log-suppress';
-import r from 'randomstring';
-import sinon from 'sinon';
-import portfinder from 'portfinder';
+const test = require('ava');
+const LogSuppress = require('../lib/log-suppress');
+const r = require('randomstring');
+const sinon = require('sinon');
+const portfinder = require('portfinder');
 
 // eslint-disable-next-line
 const colors = require('colors');

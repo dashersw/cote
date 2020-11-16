@@ -1,7 +1,7 @@
-import test from 'ava';
-import LogSuppress from '../lib/log-suppress';
-import r from 'randomstring';
-import async from 'async';
+const test = require('ava');
+const LogSuppress = require('../lib/log-suppress');
+const r = require('randomstring');
+const async = require('async');
 
 const environment = r.generate();
 const { TimeBalancedRequester, Responder } = require('../')({ environment });

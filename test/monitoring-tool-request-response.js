@@ -1,10 +1,10 @@
-import test from 'ava';
-import LogSuppress from '../lib/log-suppress';
-import r from 'randomstring';
-import request from 'request';
-import fs from 'fs';
-import sinon from 'sinon';
-import childProcess from 'child_process';
+const test = require('ava');
+const LogSuppress = require('../lib/log-suppress');
+const r = require('randomstring');
+const request = require('request');
+const fs = require('fs');
+const sinon = require('sinon');
+const childProcess = require('child_process');
 
 const environment = r.generate();
 const { Requester, Responder, MonitoringTool } = require('../')({

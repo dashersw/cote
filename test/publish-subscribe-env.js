@@ -1,7 +1,7 @@
-import test from 'ava';
-import LogSuppress from '../lib/log-suppress';
-import async from 'async';
-import r from 'randomstring';
+const test = require('ava');
+const LogSuppress = require('../lib/log-suppress');
+const async = require('async');
+const r = require('randomstring');
 
 const environment = r.generate();
 const { Publisher, Subscriber } = require('../')({ environment });
