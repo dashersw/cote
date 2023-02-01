@@ -5,7 +5,7 @@ module.exports = function(port) {
     const portfinder = require('portfinder');
 
     const server = require('http').createServer(handler);
-    const io = require('socket.io').listen(server);
+    const io = require('socket.io')(server);
 
     // Instantiate a monitor, sockend and publisher components
     const monitor = new cote.Monitor({
