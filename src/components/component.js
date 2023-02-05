@@ -48,8 +48,28 @@ module.exports = class Component extends EventEmitter {
 
     onRemoved() { };
 
-    close() {
-        this.sock && this.sock.close();
+    close(cb) {
         this.discovery && this.discovery.stop();
+
+        if (typeof cb === 'function') {
+            const interval = setInterval(() => {
+                if (!this.messageIds || this.messageIds.length === 0) {
+                    if (this.sock) {
+                        if (this.sock.server) {
+                            this.sock.close(cb);
+                        } else {
+                            this.sock.close();
+                            cb();
+                        }
+                    } else {
+                        cb();
+                    }
+                    clearInterval(interval);
+                }
+            }, 100);
+            return;
+        } else {
+            this.sock && this.sock.close();
+        }
     }
 };
