@@ -2,6 +2,7 @@ const axon = require('@dashersw/axon');
 const portfinder = require('portfinder');
 const Configurable = require('./configurable');
 const Component = require('./component');
+const uuid = require('uuid');
 
 // eslint-disable-next-line
 const colors = require('colors');
@@ -9,6 +10,8 @@ const colors = require('colors');
 module.exports = class Responder extends Configurable(Component) {
     constructor(advertisement, discoveryOptions) {
         super(advertisement, discoveryOptions);
+
+        this.messageIds = [];
 
         this.sock = new axon.types[this.type]();
         this.sock.on('bind', () => this.startDiscovery());
@@ -20,7 +23,15 @@ module.exports = class Responder extends Configurable(Component) {
                 this.discovery.log([this.advertisement.name, '>', `No listeners found for event: ${req.type}`.yellow]);
             }
 
-            this.emit(req.type, req, cb);
+            const messageId = uuid.v4();
+            this.messageIds.push(messageId);
+            const cbWithCounter = (...cbArgs) => {
+                cb(...cbArgs);
+                const index = this.messageIds.indexOf(messageId);
+                index >= 0 && this.messageIds.splice(index, 1);
+            };
+
+            this.emit(req.type, req, cbWithCounter);
         });
 
         const onPort = (err, port) => {
@@ -54,6 +65,18 @@ module.exports = class Responder extends Configurable(Component) {
                 rv.then((val) => cb(null, val)).catch(cb);
             }
         });
+    }
+
+    close(cb) {
+        if (cb) {
+            // Send closing event to all requesters so they will stop sending messages to it
+            for (const sock of this.sock.socks) {
+                const key = `closing__${sock._peername.address}:${sock.remotePort}`;
+                sock.writable && sock.write(this.sock.pack([null, key]));
+            }
+        }
+
+        super.close(cb);
     }
 
     get type() {
