@@ -1,6 +1,6 @@
 {
   "name": "cote",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "keywords": [
     "microservices",
     "zero-configuration",
@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@dashersw/axon": "2.0.5",
-    "@dashersw/node-discover": "^1.0.4",
+    "@dashersw/node-discover": "^1.0.5",
     "charm": "1.0.2",
     "colors": "1.4.0",
     "eventemitter2": "6.0.0",
