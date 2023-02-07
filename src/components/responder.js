@@ -67,6 +67,18 @@ module.exports = class Responder extends Configurable(Component) {
         });
     }
 
+    close(cb) {
+        if (cb) {
+            // Send closing event to all requesters so they will stop sending messages to it
+            for (const sock of this.sock.socks) {
+                const key = `closing__${sock._peername.address}:${sock.remotePort}`;
+                sock.writable && sock.write(this.sock.pack([null, key]));
+            }
+        }
+
+        super.close(cb);
+    }
+
     get type() {
         return 'rep';
     }

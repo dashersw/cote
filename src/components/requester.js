@@ -94,7 +94,15 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
 
         if (alreadyConnected) return;
 
-        this.sock.connect(obj.advertisement.port, address);
+        this.sock.connect(obj.advertisement.port, address, sock => {
+            // Add the closing callback for the responder
+            const key = `closing__${address}:${sock.localPort}`;
+            this.sock.callbacks[key] = () => {
+                // Remove the socket so it no longer sends messages to it
+                const sockIndex = this.sock.socks.findIndex(sock => `closing__${sock._sockname.address}:${sock.localPort}` === key);
+                sockIndex >= 0 && this.sock.socks.splice(sockIndex, 1);
+            };
+        });
     }
 
     send(...args) {
@@ -119,6 +127,15 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
                 resolve(res);
             });
         });
+    }
+
+    close(cb) {
+        if (cb) {
+            // Disable send so that it will stop queueing messages
+            this.send = () => {};
+        }
+
+        super.close(cb);
     }
 
     get type() {

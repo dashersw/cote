@@ -18,12 +18,13 @@ const setup = (t) => {
         i++;
         setTimeout(() => {
             cb(null, 'pong');
-        }, 2000 * i);
+        }, 500 * i);
     });
 
-    for (let j = 0; j < 3; j++) {
+    requester.send({ type: 'ping' });
+    setInterval(() => {
         requester.send({ type: 'ping' });
-    }
+    }, 500);
 
     return { requester, responder };
 };
@@ -61,7 +62,7 @@ test.cb(`Component should call close callback if no sock`, (t) => {
             t.is(requester.sock, null);
             t.end();
         });
-    }, 1000);
+    }, 750);
 });
 
 test.cb(`Requester should close socket immediately if no callback`, (t) => {
@@ -69,9 +70,9 @@ test.cb(`Requester should close socket immediately if no callback`, (t) => {
 
     setTimeout(() => {
         requester.close();
-        t.is(requester.messageIds.length, 3);
+        t.is(requester.messageIds.length, 2);
         t.end();
-    }, 1000);
+    }, 750);
 });
 
 test.cb(`Requester should wait for all messages to complete before close callback`, (t) => {
@@ -82,8 +83,8 @@ test.cb(`Requester should wait for all messages to complete before close callbac
             t.is(requester.messageIds.length, 0);
             t.end();
         });
-        t.is(requester.messageIds.length, 3);
-    }, 1000);
+        t.is(requester.messageIds.length, 2);
+    }, 750);
 });
 
 test.cb(`Responder should close socket immediately if no callback`, (t) => {
@@ -91,9 +92,9 @@ test.cb(`Responder should close socket immediately if no callback`, (t) => {
 
     setTimeout(() => {
         responder.close();
-        t.is(responder.messageIds.length, 3);
+        t.is(responder.messageIds.length, 2);
         t.end();
-    }, 1000);
+    }, 750);
 });
 
 test.cb(`Responder should wait for all messages to complete before close callback`, (t) => {
@@ -104,6 +105,6 @@ test.cb(`Responder should wait for all messages to complete before close callbac
             t.is(responder.messageIds.length, 0);
             t.end();
         });
-        t.is(responder.messageIds.length, 3);
-    }, 1000);
+        t.is(responder.messageIds.length, 2);
+    }, 750);
 });
