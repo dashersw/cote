@@ -20,7 +20,7 @@ for anything related to cote.
 
 ## Features
 - **Zero dependency:** Microservices with only JavaScript and Node.js
-- **Zero-configuration:** no IP addresses, no ports, no routing to configure
+- **Zero-configuration:** No IP addresses, no ports, no routing to configure
 - **Decentralized:** No fixed parts, no "manager" nodes, no single point of
                      failure
 - **Auto-discovery:** Services discover each other without a central bookkeeper
