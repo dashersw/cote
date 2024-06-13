@@ -23,7 +23,7 @@ test.cb(`Crash trying to use redis`, (t) => {
     const emptyListener = () => { };
 
     const listener = function(err) {
-        if (err.message != 'Redis connection to localhost:6379 failed - connect ECONNREFUSED 127.0.0.1:6379') {
+        if (err.message != 'connect ECONNREFUSED 127.0.0.1:6379') {
             originalListeners.forEach((l) => l(err));
 
             throw err;
