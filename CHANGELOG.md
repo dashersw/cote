@@ -1,16 +1,49 @@
 # Changelog
 
-## [v1.0.2](https://github.com/dashersw/cote/tree/v1.0.2) (2020-11-16)
+## [v1.1.0](https://github.com/dashersw/cote/tree/v1.1.0) (2024-06-13)
 
-[Full Changelog](https://github.com/dashersw/cote/compare/v1.0.1...v1.0.2)
+[Full Changelog](https://github.com/dashersw/cote/compare/v1.0.3...v1.1.0)
+
+**Closed issues:**
+
+- Requester can see the Responder but dont send request to it [\#267](https://github.com/dashersw/cote/issues/267)
+- Hide "no listeners found for event" log [\#265](https://github.com/dashersw/cote/issues/265)
+- Can't start cote due to port issue [\#263](https://github.com/dashersw/cote/issues/263)
+- Select port used [\#262](https://github.com/dashersw/cote/issues/262)
+- Cote not working with AWS Autoscalling instances. [\#261](https://github.com/dashersw/cote/issues/261)
+- hiredis dependency preventing using node versions \> 10? [\#256](https://github.com/dashersw/cote/issues/256)
+- Invalid 'main' field - node-discover [\#255](https://github.com/dashersw/cote/issues/255)
+- K3S Kubernetes Cluster: TypeError \[ERR\_INVALID\_ARG\_TYPE\]: The "options.port" property must be one of type number or string. Received null [\#254](https://github.com/dashersw/cote/issues/254)
+- Authentication consideration [\#53](https://github.com/dashersw/cote/issues/53)
 
 **Merged pull requests:**
 
+- Fix typo for README.md [\#272](https://github.com/dashersw/cote/pull/272) ([ymzEmre](https://github.com/ymzEmre))
+
+## [v1.0.3](https://github.com/dashersw/cote/tree/v1.0.3) (2021-08-16)
+
+[Full Changelog](https://github.com/dashersw/cote/compare/v1.0.1...v1.0.3)
+
+**Closed issues:**
+
+- Using cotejs on k3s cluster [\#253](https://github.com/dashersw/cote/issues/253)
+- cote.js actively maintained? [\#244](https://github.com/dashersw/cote/issues/244)
+- Recommended approach to version Cote microservices? [\#234](https://github.com/dashersw/cote/issues/234)
+- Cote is not broadcasting service discovery packets through weave network [\#80](https://github.com/dashersw/cote/issues/80)
+- connect EADDRNOTAVAIL 0.0.0.0:8000 [\#74](https://github.com/dashersw/cote/issues/74)
+
+**Merged pull requests:**
+
+- Readme FAQ: Removed the part about no 1.0 release [\#251](https://github.com/dashersw/cote/pull/251) ([karimmakhloufi](https://github.com/karimmakhloufi))
 - Update deps and ava [\#232](https://github.com/dashersw/cote/pull/232) ([dashersw](https://github.com/dashersw))
 
 ## [v1.0.1](https://github.com/dashersw/cote/tree/v1.0.1) (2020-11-16)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v1.0.0...v1.0.1)
+
+**Closed issues:**
+
+- Publish version 1.0.0 [\#163](https://github.com/dashersw/cote/issues/163)
 
 **Merged pull requests:**
 
@@ -173,6 +206,10 @@ With this release cote drops support for Node.js version 6 and 8, which allows u
 ## [v0.16.0](https://github.com/dashersw/cote/tree/v0.16.0) (2017-11-29)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v0.15.1...v0.16.0)
+
+**Implemented enhancements:**
+
+- ES6 rewrite [\#37](https://github.com/dashersw/cote/issues/37)
 
 **Merged pull requests:**
 
