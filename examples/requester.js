@@ -32,3 +32,17 @@ function makeRequest() {
 makeRequest();
 
 setInterval(makeRequest, 5000);
+
+// Gracefully close responder after it completes any pending messages
+process.once('SIGINT', () => {
+    console.log('closing, press ctrl+c again to force exit');
+    randomRequest.close(() => {
+        console.log('exiting');
+        process.exit();
+    });
+
+    process.once('SIGINT', () => {
+        console.log('forced exit');
+        process.exit();
+    });
+});

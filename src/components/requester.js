@@ -3,6 +3,7 @@ const Monitorable = require('./monitorable');
 const Component = require('./component');
 const axon = require('@dashersw/axon');
 const debug = require('debug')('axon:req');
+const uuid = require('uuid');
 
 const SUBSET_IDENTIFIER = '__subset';
 
@@ -10,6 +11,8 @@ const SUBSET_IDENTIFIER = '__subset';
 module.exports = class Requester extends Monitorable(Configurable(Component)) {
     constructor(advertisement, discoveryOptions) {
         super(advertisement, discoveryOptions);
+
+        this.messageIds = [];
 
         this.sock = new axon.types[this.type]();
         this.sock.set('retry timeout', 0);
@@ -91,21 +94,48 @@ module.exports = class Requester extends Monitorable(Configurable(Component)) {
 
         if (alreadyConnected) return;
 
-        this.sock.connect(obj.advertisement.port, address);
+        this.sock.connect(obj.advertisement.port, address, sock => {
+            // Add the closing callback for the responder
+            const key = `closing__${address}:${sock.localPort}`;
+            this.sock.callbacks[key] = () => {
+                // Remove the socket so it no longer sends messages to it
+                const sockIndex = this.sock.socks.findIndex(sock => `closing__${sock._sockname.address}:${sock.localPort}` === key);
+                sockIndex >= 0 && this.sock.socks.splice(sockIndex, 1);
+            };
+        });
     }
 
     send(...args) {
         const hasCallback = typeof args[args.length - 1] == 'function';
         const timeout = args[0].__timeout || this.timeout;
 
-        if (hasCallback) return sendOverSocket(this.sock, timeout, ...args);
+        const cb = hasCallback && args.pop();
+        const messageId = uuid.v4();
+        this.messageIds.push(messageId);
+        const cbWithCounter = (...cbArgs) => {
+            cb && cb(...cbArgs);
+            const index = this.messageIds.indexOf(messageId);
+            index >= 0 && this.messageIds.splice(index, 1);
+        };
+
+        if (hasCallback) return sendOverSocket(this.sock, timeout, ...args, cbWithCounter);
 
         return new Promise((resolve, reject) => {
             sendOverSocket(this.sock, timeout, ...args, (err, res) => {
+                cbWithCounter();
                 if (err) return reject(err);
                 resolve(res);
             });
         });
+    }
+
+    close(cb) {
+        if (cb) {
+            // Disable send so that it will stop queueing messages
+            this.send = () => {};
+        }
+
+        super.close(cb);
     }
 
     get type() {
