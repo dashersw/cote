@@ -276,3 +276,41 @@ test.cb(`Sockend ns late bound req&res`, t => {
     const client = ioClient(`http://0.0.0.0:${port}/${namespace}`)
   })
 })
+
+test.cb('Sockend applies requesterTransformators', t => {
+  t.plan(1)
+
+  const key = r.generate()
+
+  const responder = new Responder({
+    name: `${t.title}: responder`,
+    respondsTo: ['test'],
+    key,
+  })
+
+  responder.on('test', (req, cb) => {
+    // Respond with the transformed data to validate transformation
+    cb(req.transformed)
+  })
+
+  portfinder.getPort({ host: '127.0.0.1', port: 6000 }, (err, port) => {
+    const server = io(port)
+    const sockend = new Sockend(server, { name: 'transformator sockend', key })
+
+    // Add a transformation function
+    sockend.requesterTransformators.push((data, socket) => {
+      data.transformed = `Transformed: ${data.original}`
+    })
+
+    const client = ioClient.connect(`http://0.0.0.0:${port}`)
+
+    server.on('connection', () => {
+      responder.sock.on('connect', () => {
+        client.emit('test', { original: 'Hello World' }, res => {
+          t.is(res, 'Transformed: Hello World')
+          t.end()
+        })
+      })
+    })
+  })
+})

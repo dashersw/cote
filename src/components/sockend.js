@@ -66,8 +66,8 @@ module.exports = class Sockend extends Configurable(Component) {
       if (namespace) server = io.of('/' + namespace)
       server.on('connection', obj.requesterSocketHandler)
 
-      for (const sId in server.sockets) {
-        obj.requesterSocketHandler(server.sockets[sId])
+      for (const [sId, socket] of server.sockets) {
+        obj.requesterSocketHandler(socket)
       }
     })
 
