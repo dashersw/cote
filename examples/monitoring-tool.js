@@ -1,3 +1,3 @@
-const cote = require('../');
+const cote = require('../')
 
-new cote.MonitoringTool(process.env.PORT);
+new cote.MonitoringTool(process.env.PORT)

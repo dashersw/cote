@@ -1,51 +1,57 @@
-const Configurable = require('./configurable');
-const Component = require('./component');
-const axon = require('@dashersw/axon');
-const portfinder = require('portfinder');
+const Configurable = require('./configurable')
+const Component = require('./component')
+const axon = require('@dashersw/axon')
+const portfinder = require('portfinder')
 
 module.exports = class Publisher extends Configurable(Component) {
-    constructor(advertisement, discoveryOptions) {
-        super(advertisement, discoveryOptions);
+  constructor(advertisement, discoveryOptions) {
+    super(advertisement, discoveryOptions)
 
-        this.sock = new axon.types[this.type]();
-        this.sock.sock.on('bind', () => this.startDiscovery());
+    this.sock = new axon.types[this.type]()
+    this.sock.sock.on('bind', () => this.startDiscovery())
 
-        const onPort = (err, port) => {
-            this.advertisement.port = +port;
+    const onPort = (err, port) => {
+      this.advertisement.port = +port
 
-            this.sock.bind(port);
-            this.sock.sock.server.on('error', (err) => {
-                if (err.code != 'EADDRINUSE') throw err;
+      this.sock.bind(port)
+      this.sock.sock.server.on('error', err => {
+        if (err.code != 'EADDRINUSE') throw err
 
-                portfinder.getPort({
-                    host: this.discoveryOptions.address,
-                    port: this.advertisement.port,
-                }, onPort);
-            });
-        };
-
-        portfinder.getPort({
+        portfinder.getPort(
+          {
             host: this.discoveryOptions.address,
-            port: advertisement.port,
-        }, onPort);
+            port: this.advertisement.port,
+          },
+          onPort
+        )
+      })
     }
 
-    publish(topic, data) {
-        let namespace = '';
+    portfinder.getPort(
+      {
+        host: this.discoveryOptions.address,
+        port: advertisement.port,
+      },
+      onPort
+    )
+  }
 
-        if (this.advertisement.namespace) {
-            namespace = this.advertisement.namespace + '::';
-        }
+  publish(topic, data) {
+    let namespace = ''
 
-        topic = 'message::' + namespace + topic;
-        this.sock.emit(topic, data);
-    };
-
-    get type() {
-        return 'pub-emitter';
+    if (this.advertisement.namespace) {
+      namespace = this.advertisement.namespace + '::'
     }
 
-    get oppo() {
-        return 'sub-emitter';
-    }
-};
+    topic = 'message::' + namespace + topic
+    this.sock.emit(topic, data)
+  }
+
+  get type() {
+    return 'pub-emitter'
+  }
+
+  get oppo() {
+    return 'sub-emitter'
+  }
+}

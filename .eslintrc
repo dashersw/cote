@@ -1,0 +1,79 @@
+{
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
+  },
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "prettier",
+    "simple-import-sort",
+    "import"
+  ],
+  "rules": {
+    "@typescript-eslint/naming-convention": [
+      "warn",
+      {
+        "selector": "enum",
+        "format": [
+          "UPPER_CASE"
+        ]
+      },
+      {
+        "selector": "enumMember",
+        "format": [
+          "UPPER_CASE"
+        ],
+        "trailingUnderscore": "allow"
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": "error",
+    "func-style": [
+      "warn",
+      "declaration"
+    ],
+    "prefer-template": "error",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "no-undef": "error"
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.xx"
+      ],
+      "rules": {
+        "simple-import-sort/imports": [
+          "error",
+          {
+            "groups": [
+              [
+                "^@?\\w"
+              ],
+              [
+                "^"
+              ],
+              [
+                "^\\.\\."
+              ],
+              [
+                "^\\."
+              ],
+              [
+                "^.+\\.css$"
+              ]
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

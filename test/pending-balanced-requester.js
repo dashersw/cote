@@ -1,101 +1,141 @@
-const test = require('ava');
-const LogSuppress = require('../lib/log-suppress');
-const r = require('randomstring');
-const async = require('async');
+const test = require('ava')
+const LogSuppress = require('../lib/log-suppress')
+const r = require('randomstring')
+const async = require('async')
 
-const environment = r.generate();
-const { PendingBalancedRequester, Responder } = require('../')({ environment });
+const environment = r.generate()
+const { PendingBalancedRequester, Responder } = require('../')({ environment })
 
-LogSuppress.init(console);
+LogSuppress.init(console)
 
-test('Supports environment', (t) => {
-    t.is(PendingBalancedRequester.environment, `${environment}:`);
-    t.is(Responder.environment, `${environment}:`);
-});
+test('Supports environment', t => {
+  t.is(PendingBalancedRequester.environment, `${environment}:`)
+  t.is(Responder.environment, `${environment}:`)
+})
 
-test.cb('Supports simple req&res', (t) => {
-    t.plan(1);
+test.cb('Supports simple req&res', t => {
+  t.plan(1)
 
-    const requester = new PendingBalancedRequester({ name: `${t.title}: simple requester` });
-    const responder = new Responder({ name: `${t.title}: simple responder` });
+  const requester = new PendingBalancedRequester({
+    name: `${t.title}: simple requester`,
+  })
+  const responder = new Responder({ name: `${t.title}: simple responder` })
 
-    requester.send({ type: 'test', args: [1, 2, 3] });
+  requester.send({ type: 'test', args: [1, 2, 3] })
 
-    responder.on('test', (req) => {
-        t.deepEqual(req.args, [1, 2, 3]);
-        t.end();
-    });
-});
+  responder.on('test', req => {
+    t.deepEqual(req.args, [1, 2, 3])
+    t.end()
+  })
+})
 
-test.cb('Supports keys', (t) => {
-    const key = r.generate();
+test.cb('Supports keys', t => {
+  const key = r.generate()
 
-    const requester = new PendingBalancedRequester({ name: `${t.title}: keyed requester`, key });
-    const responder = new Responder({ name: `${t.title}: keyed responder`, key });
+  const requester = new PendingBalancedRequester({
+    name: `${t.title}: keyed requester`,
+    key,
+  })
+  const responder = new Responder({ name: `${t.title}: keyed responder`, key })
 
-    requester.send({ type: 'test', args: [1, 2, 4] });
+  requester.send({ type: 'test', args: [1, 2, 4] })
 
-    responder.on('test', (req) => {
-        t.deepEqual(req.args, [1, 2, 4]);
-        t.end();
-    });
-});
+  responder.on('test', req => {
+    t.deepEqual(req.args, [1, 2, 4])
+    t.end()
+  })
+})
 
-test.cb('Supports namespaces', (t) => {
-    const namespace = r.generate();
+test.cb('Supports namespaces', t => {
+  const namespace = r.generate()
 
-    const requester = new PendingBalancedRequester({ name: `${t.title}: ns requester`, namespace });
-    const responder = new Responder({ name: `${t.title}: ns responder`, namespace });
+  const requester = new PendingBalancedRequester({
+    name: `${t.title}: ns requester`,
+    namespace,
+  })
+  const responder = new Responder({
+    name: `${t.title}: ns responder`,
+    namespace,
+  })
 
-    requester.send({ type: 'test', args: [1, 2, 5] });
+  requester.send({ type: 'test', args: [1, 2, 5] })
 
-    responder.on('test', (req) => {
-        t.deepEqual(req.args, [1, 2, 5]);
-        t.end();
-    });
-});
+  responder.on('test', req => {
+    t.deepEqual(req.args, [1, 2, 5])
+    t.end()
+  })
+})
 
-test.cb('Supports keys & namespaces', (t) => {
-    const key = r.generate();
-    const namespace = r.generate();
+test.cb('Supports keys & namespaces', t => {
+  const key = r.generate()
+  const namespace = r.generate()
 
-    const requester = new PendingBalancedRequester({ name: `PBR ${t.title}: kns requester`, key, namespace });
-    const responder = new Responder({ name: `PBR ${t.title}: kns responder`, key, namespace });
+  const requester = new PendingBalancedRequester({
+    name: `PBR ${t.title}: kns requester`,
+    key,
+    namespace,
+  })
+  const responder = new Responder({
+    name: `PBR ${t.title}: kns responder`,
+    key,
+    namespace,
+  })
 
-    requester.send({ type: 'test', args: [1, 2, 6] });
+  requester.send({ type: 'test', args: [1, 2, 6] })
 
-    responder.on('test', (req) => {
-        t.deepEqual(req.args, [1, 2, 6]);
-        t.end();
-    });
-});
+  responder.on('test', req => {
+    t.deepEqual(req.args, [1, 2, 6])
+    t.end()
+  })
+})
 
-test.cb('Supports request balancing', (t) => {
-    const key = r.generate();
-    const namespace = r.generate();
+test.cb('Supports request balancing', t => {
+  const key = r.generate()
+  const namespace = r.generate()
 
-    t.plan(30);
+  t.plan(30)
 
-    const requester = new PendingBalancedRequester({ name: `PBR ${t.title}: kns requester`, key, namespace });
-    const responder = new Responder({ name: `PBR ${t.title}: kns responder`, key, namespace });
-    const responder2 = new Responder({ name: `PBR ${t.title}: kns responder 2`, key, namespace });
-    const responder3 = new Responder({ name: `PBR ${t.title}: kns responder 3`, key, namespace });
+  const requester = new PendingBalancedRequester({
+    name: `PBR ${t.title}: kns requester`,
+    key,
+    namespace,
+  })
+  const responder = new Responder({
+    name: `PBR ${t.title}: kns responder`,
+    key,
+    namespace,
+  })
+  const responder2 = new Responder({
+    name: `PBR ${t.title}: kns responder 2`,
+    key,
+    namespace,
+  })
+  const responder3 = new Responder({
+    name: `PBR ${t.title}: kns responder 3`,
+    key,
+    namespace,
+  })
 
-    const responders = [responder, responder2, responder3];
+  const responders = [responder, responder2, responder3]
 
-    responders.forEach((r) => r.on('test', (req, cb) => {
-        setTimeout(() => cb(req.args), Math.random() * 1000 + 50);
-    }));
+  responders.forEach(r =>
+    r.on('test', (req, cb) => {
+      setTimeout(() => cb(req.args), Math.random() * 1000 + 50)
+    })
+  )
 
-    async.timesLimit(30, 5,
-        (time, done) => {
-            requester.send({ type: 'test', args: [3, 2, time] }, (res) => {
-                t.deepEqual(res, [3, 2, time]);
+  async.timesLimit(
+    30,
+    5,
+    (time, done) => {
+      requester.send({ type: 'test', args: [3, 2, time] }, res => {
+        t.deepEqual(res, [3, 2, time])
 
-                done();
-            });
-        },
-        (err, results) => {
-            t.end();
-        });
-});
+        done()
+      })
+    },
+    (err, results) => {
+      t.end()
+    }
+  )
+})
