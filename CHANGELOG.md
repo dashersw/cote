@@ -1,11 +1,21 @@
 # Changelog
 
+## [v1.2.0](https://github.com/dashersw/cote/tree/v1.2.0) (2024-11-16)
+
+[Full Changelog](https://github.com/dashersw/cote/compare/v1.1.0...v1.2.0)
+
+**Implemented enhancements:**
+
+- Upgrade to socket.io 4.8.1
+- Run npm audit fix—no production dependencies are affected, this is only for development dependencies
+
 ## [v1.1.0](https://github.com/dashersw/cote/tree/v1.1.0) (2024-06-13)
 
 [Full Changelog](https://github.com/dashersw/cote/compare/v1.0.3...v1.1.0)
 
 **Closed issues:**
 
+- Remove hiredis dependency [\#258](https://github.com/dashersw/cote/issues/258)
 - Requester can see the Responder but dont send request to it [\#267](https://github.com/dashersw/cote/issues/267)
 - Hide "no listeners found for event" log [\#265](https://github.com/dashersw/cote/issues/265)
 - Can't start cote due to port issue [\#263](https://github.com/dashersw/cote/issues/263)
